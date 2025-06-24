@@ -50,9 +50,9 @@ export function UsersPage() {
   const users = [
     {
       id: 1,
-      name: '김철수',
-      email: 'kim@example.com',
-      role: 'user',
+      name: '장한결',
+      email: 'hangeol1829@gmail.com',
+      role: '관리자',
       status: 'active',
       joinDate: '2024-01-15',
       lastLogin: '2024-03-20 14:30',
