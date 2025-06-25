@@ -286,7 +286,7 @@ export function MainPage() {
                 <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
                     className="h-2 rounded-full bg-blue-500"
-                    style={{ width: '23%' }}
+                    style={{ width: '23%' }
                   ></div>
                 </div>
 
