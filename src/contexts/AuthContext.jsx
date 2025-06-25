@@ -18,23 +18,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
-      // 백엔드 서버가 실행되지 않을 경우를 대비해 토큰이 있으면 기본 사용자 정보 설정
-      const mockUser = {
-        id: 1,
-        email: 'admin@weatherflick.com',
-        username: 'admin',
-        is_active: true,
-        is_superuser: true,
-      }
-
       apiService
         .getCurrentUser()
         .then((userData) => {
           setUser(userData)
         })
-        .catch(() => {
-          console.warn('Backend server not available, using mock user data')
-          setUser(mockUser)
+        .catch((error) => {
+          console.error('Failed to get current user:', error)
+          // 토큰이 유효하지 않으면 제거
+          localStorage.removeItem('token')
+          setUser(null)
         })
         .finally(() => {
           setLoading(false)
@@ -46,66 +39,16 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // 백엔드 서버가 실행되지 않을 경우를 대비한 임시 로그인 로직
-      if (email === 'admin@weatherflick.com' && password === 'admin123') {
-        const mockToken = 'mock-jwt-token-' + Date.now()
-        localStorage.setItem('token', mockToken)
-
-        const mockUser = {
-          id: 1,
-          email: email,
-          username: 'admin',
-          is_active: true,
-          is_superuser: true,
-        }
-
-        setUser(mockUser)
-        return { success: true }
-      }
-
-      // 실제 백엔드 API 호출 시도
       const response = await apiService.login(email, password)
       localStorage.setItem('token', response.access_token)
 
-      // 로그인 성공 후 즉시 사용자 정보 설정
-      // getCurrentUser API 호출이 실패할 경우를 대비해 기본 사용자 정보 설정
-      const mockUser = {
-        id: 1,
-        email: email,
-        username: email.split('@')[0],
-        is_active: true,
-        is_superuser: email === 'admin@weatherflick.com',
-      }
-
-      try {
-        const userData = await apiService.getCurrentUser()
-        setUser(userData)
-      } catch (userError) {
-        console.warn('Failed to get current user, using mock data:', userError)
-        setUser(mockUser)
-      }
+      // 로그인 성공 후 사용자 정보 가져오기
+      const userData = await apiService.getCurrentUser()
+      setUser(userData)
 
       return { success: true }
     } catch (error) {
       console.error('Login failed:', error)
-
-      // 백엔드 서버가 실행되지 않은 경우 임시 로그인 허용
-      if (email === 'admin@weatherflick.com' && password === 'admin123') {
-        const mockToken = 'mock-jwt-token-' + Date.now()
-        localStorage.setItem('token', mockToken)
-
-        const mockUser = {
-          id: 1,
-          email: email,
-          username: 'admin',
-          is_active: true,
-          is_superuser: true,
-        }
-
-        setUser(mockUser)
-        return { success: true }
-      }
-
       return {
         success: false,
         error: error.message || '로그인에 실패했습니다.',

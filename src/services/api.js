@@ -21,19 +21,40 @@ class ApiService {
       config.headers.Authorization = `Bearer ${token}`
     }
 
+    console.log('API Request:', {
+      url,
+      method: config.method || 'GET',
+      headers: config.headers,
+    })
+
     try {
       const response = await fetch(url, config)
+      console.log('API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+      })
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(
-          errorData.detail || `HTTP error! status: ${response.status}`,
-        )
+        const errorMessage =
+          errorData.detail || `HTTP error! status: ${response.status}`
+        const error = new Error(errorMessage)
+        error.status = response.status
+        throw error
       }
 
-      return await response.json()
+      const data = await response.json()
+      console.log('API Success:', data)
+      return data
     } catch (error) {
       console.error('API request failed:', error)
+      // 네트워크 에러인 경우 원본 에러를 유지
+      if (
+        error.name === 'TypeError' &&
+        error.message.includes('Failed to fetch')
+      ) {
+        throw new Error('Failed to fetch: 서버에 연결할 수 없습니다.')
+      }
       throw error
     }
   }
@@ -107,6 +128,24 @@ class ApiService {
   async deactivateAdmin(adminId) {
     return this.request(`/admins/${adminId}/deactivate`, {
       method: 'PUT',
+    })
+  }
+
+  // User management endpoints
+  async getUsers(skip = 0, limit = 100) {
+    return this.request(`/users/?skip=${skip}&limit=${limit}`)
+  }
+
+  async createUser(userData) {
+    return this.request('/users/', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    })
+  }
+
+  async deleteUser(userId) {
+    return this.request(`/users/${userId}`, {
+      method: 'DELETE',
     })
   }
 
