@@ -87,7 +87,7 @@ export function UsersPage() {
     },
     {
       id: 5,
-      full_name: '성윤',
+      full_name: '홍성윤',
       email: 'Hongs@example.com',
       created_at: '2024-01-25',
       is_active: false,
