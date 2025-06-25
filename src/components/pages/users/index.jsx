@@ -48,6 +48,7 @@ export function UsersPage() {
 
   // 임시 사용자 데이터
   const users = [
+<<<<<<< HEAD
     // {
     //   id: 1,
     //   full_name: '장한결',
@@ -93,6 +94,54 @@ export function UsersPage() {
     //   username: 'CD',
     //   password: '1234',
     // },
+=======
+    {
+      id: 1,
+      full_name: '장한결',
+      email: 'hangeol1829@gmail.com',
+      created_at: '2024-01-15',
+      is_active: true,
+      username: 'KC',
+      password: '1234',
+    },
+    {
+      id: 2,
+      full_name: '이성준',
+      email: 'lee@example.com',
+
+      created_at: '2024-02-01',
+      is_active: true,
+      username: 'LY',
+      password: '1234',
+    },
+    {
+      id: 3,
+      full_name: '김현중',
+      email: 'kimchildren@example.com',
+      created_at: '2024-01-20',
+      is_active: false,
+      username: 'PM',
+      password: '1234',
+    },
+    {
+      id: 4,
+      full_name: '박상희',
+      email: 'sangjeepark@example.com',
+      created_at: '2024-02-10',
+      is_active: true,
+      username: 'JS',
+      password: '1234',
+    },
+    {
+      id: 5,
+      full_name: '홍성윤',
+      email: 'Hongs@example.com',
+      created_at: '2024-01-25',
+      is_active: false,
+      username: 'CD',
+      password: '1234',
+    },
+>>>>>>> b3bf25b2cebc506ee74a2f436a3f70a9fc9622cf
   ]
 
   const filteredUsers = users.filter((user) => {
