@@ -3,6 +3,9 @@ import { DefaultLayout } from './components/layouts/default-layout'
 import { MainPage } from './components/pages/main'
 import { LoginPage } from './components/pages/login'
 import { AdminsPage } from './components/pages/admins'
+import { UsersPage } from './components/pages/users'
+import { ContentPage } from './components/pages/content'
+import { SystemPage } from './components/pages/system'
 import { WeatherPage } from './components/pages/weather'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -30,6 +33,36 @@ function App() {
               <ProtectedRoute>
                 <DefaultLayout>
                   <AdminsPage />
+                </DefaultLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <DefaultLayout>
+                  <UsersPage />
+                </DefaultLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/content"
+            element={
+              <ProtectedRoute>
+                <DefaultLayout>
+                  <ContentPage />
+                </DefaultLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/system"
+            element={
+              <ProtectedRoute>
+                <DefaultLayout>
+                  <SystemPage />
                 </DefaultLayout>
               </ProtectedRoute>
             }
