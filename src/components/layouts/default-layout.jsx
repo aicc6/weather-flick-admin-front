@@ -22,7 +22,7 @@ export const DefaultLayout = ({ children }) => {
   const navigation = [
     { name: '대시보드', href: '/', icon: Home },
     ...(user?.is_superuser
-      ? [{ name: '관리자 관리', href: '/users', icon: Users }]
+      ? [{ name: '관리자 관리', href: '/admins', icon: Users }]
       : []),
     { name: '날씨 정보', href: '/weather', icon: Cloud },
   ]

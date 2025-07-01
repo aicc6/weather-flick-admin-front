@@ -106,7 +106,7 @@ export const MainPage = () => {
                   시스템의 모든 관리자를 확인하고 관리할 수 있습니다.
                   <br />
                   <Link
-                    to="/users"
+                    to="/admins"
                     className="text-blue-600 underline hover:text-blue-800"
                   >
                     관리자 관리 페이지로 이동 →

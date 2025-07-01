@@ -2,8 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { DefaultLayout } from './components/layouts/default-layout'
 import { MainPage } from './components/pages/main'
 import { LoginPage } from './components/pages/login'
-import { SignUpPage } from './components/pages/sign-up'
-import { UsersPage } from './components/pages/users'
+import { AdminsPage } from './components/pages/admins'
 import { WeatherPage } from './components/pages/weather'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -15,7 +14,6 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
           <Route
             path="/"
             element={
@@ -27,11 +25,11 @@ function App() {
             }
           />
           <Route
-            path="/users"
+            path="/admins"
             element={
               <ProtectedRoute>
                 <DefaultLayout>
-                  <UsersPage />
+                  <AdminsPage />
                 </DefaultLayout>
               </ProtectedRoute>
             }

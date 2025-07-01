@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
-import { apiService } from '../../services/api';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Badge } from '../ui/badge';
-import { Plus, Search, Edit, Trash2, Shield, User } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { apiService } from '../../services/api'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card'
+import { Alert, AlertDescription } from '../ui/alert'
+import { Badge } from '../ui/badge'
+import { Plus, Search, Edit, Trash2, Shield, User } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -15,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
+} from '../ui/dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,104 +32,105 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../ui/alert-dialog';
+} from '../ui/alert-dialog'
 
-export const UsersPage = () => {
-  const [admins, setAdmins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
+export const AdminsPage = () => {
+  const [admins, setAdmins] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [formData, setFormData] = useState({
     email: '',
     username: '',
-    password: ''
-  });
+    password: '',
+  })
 
   useEffect(() => {
-    fetchAdmins();
-  }, []);
+    fetchAdmins()
+  }, [])
 
   const fetchAdmins = async () => {
     try {
-      setLoading(true);
-      const data = await apiService.getAdmins();
-      setAdmins(data);
+      setLoading(true)
+      const data = await apiService.getAdmins()
+      setAdmins(data)
     } catch (error) {
-      setError('관리자 목록을 불러오는데 실패했습니다.');
+      setError('관리자 목록을 불러오는데 실패했습니다.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCreateAdmin = async () => {
     try {
-      await apiService.createAdmin(formData);
-      setIsCreateDialogOpen(false);
-      setFormData({ email: '', username: '', password: '' });
-      fetchAdmins();
+      await apiService.createAdmin(formData)
+      setIsCreateDialogOpen(false)
+      setFormData({ email: '', username: '', password: '' })
+      fetchAdmins()
     } catch (error) {
-      setError('관리자 생성에 실패했습니다.');
+      setError('관리자 생성에 실패했습니다.')
     }
-  };
+  }
 
   const handleUpdateAdmin = async () => {
     try {
-      await apiService.updateAdmin(selectedAdmin.id, formData);
-      setIsEditDialogOpen(false);
-      setSelectedAdmin(null);
-      setFormData({ email: '', username: '', password: '' });
-      fetchAdmins();
+      await apiService.updateAdmin(selectedAdmin.id, formData)
+      setIsEditDialogOpen(false)
+      setSelectedAdmin(null)
+      setFormData({ email: '', username: '', password: '' })
+      fetchAdmins()
     } catch (error) {
-      setError('관리자 수정에 실패했습니다.');
+      setError('관리자 수정에 실패했습니다.')
     }
-  };
+  }
 
   const handleDeleteAdmin = async (adminId) => {
     try {
-      await apiService.deleteAdmin(adminId);
-      fetchAdmins();
+      await apiService.deleteAdmin(adminId)
+      fetchAdmins()
     } catch (error) {
-      setError('관리자 삭제에 실패했습니다.');
+      setError('관리자 삭제에 실패했습니다.')
     }
-  };
+  }
 
   const handleActivateAdmin = async (adminId) => {
     try {
-      await apiService.activateAdmin(adminId);
-      fetchAdmins();
+      await apiService.activateAdmin(adminId)
+      fetchAdmins()
     } catch (error) {
-      setError('관리자 활성화에 실패했습니다.');
+      setError('관리자 활성화에 실패했습니다.')
     }
-  };
+  }
 
   const handleDeactivateAdmin = async (adminId) => {
     try {
-      await apiService.deactivateAdmin(adminId);
-      fetchAdmins();
+      await apiService.deactivateAdmin(adminId)
+      fetchAdmins()
     } catch (error) {
-      setError('관리자 비활성화에 실패했습니다.');
+      setError('관리자 비활성화에 실패했습니다.')
     }
-  };
+  }
 
-  const filteredAdmins = admins.filter(admin =>
-    admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAdmins = admins.filter(
+    (admin) =>
+      admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.username.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">관리자 관리</h2>
           <p className="text-muted-foreground">
@@ -134,8 +141,7 @@ export const UsersPage = () => {
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              새 관리자 추가
+              <Plus className="mr-2 h-4 w-4" />새 관리자 추가
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -152,7 +158,9 @@ export const UsersPage = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -160,7 +168,9 @@ export const UsersPage = () => {
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -169,7 +179,9 @@ export const UsersPage = () => {
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -188,7 +200,7 @@ export const UsersPage = () => {
 
       <div className="flex items-center space-x-2">
         <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
           <Input
             placeholder="관리자 검색..."
             value={searchTerm}
@@ -215,8 +227,8 @@ export const UsersPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant={admin.is_active ? "default" : "secondary"}>
-                    {admin.is_active ? "활성" : "비활성"}
+                  <Badge variant={admin.is_active ? 'default' : 'secondary'}>
+                    {admin.is_active ? '활성' : '비활성'}
                   </Badge>
                   {admin.is_superuser && (
                     <Badge variant="outline">슈퍼유저</Badge>
@@ -226,22 +238,25 @@ export const UsersPage = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   생성일: {new Date(admin.created_at).toLocaleDateString()}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <Dialog
+                    open={isEditDialogOpen}
+                    onOpenChange={setIsEditDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSelectedAdmin(admin);
+                          setSelectedAdmin(admin)
                           setFormData({
                             email: admin.email,
                             username: admin.username,
-                            password: ''
-                          });
+                            password: '',
+                          })
                         }}
                       >
                         <Edit className="h-4 w-4" />
@@ -261,7 +276,12 @@ export const UsersPage = () => {
                             id="edit-email"
                             type="email"
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                email: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div>
@@ -269,16 +289,28 @@ export const UsersPage = () => {
                           <Input
                             id="edit-username"
                             value={formData.username}
-                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                username: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div>
-                          <Label htmlFor="edit-password">새 비밀번호 (선택사항)</Label>
+                          <Label htmlFor="edit-password">
+                            새 비밀번호 (선택사항)
+                          </Label>
                           <Input
                             id="edit-password"
                             type="password"
                             value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                password: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -316,7 +348,8 @@ export const UsersPage = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                          정말로 이 관리자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                          정말로 이 관리자를 삭제하시겠습니까? 이 작업은 되돌릴
+                          수 없습니다.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -337,10 +370,10 @@ export const UsersPage = () => {
       </div>
 
       {filteredAdmins.length === 0 && (
-        <div className="text-center py-8">
+        <div className="py-8 text-center">
           <p className="text-muted-foreground">관리자가 없습니다.</p>
         </div>
       )}
     </div>
-  );
-};
+  )
+}

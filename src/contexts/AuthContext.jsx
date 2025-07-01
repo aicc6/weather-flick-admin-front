@@ -97,14 +97,6 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const register = async (userData) => {
-    try {
-      const response = await apiService.register(userData)
-      return { success: true, data: response }
-    } catch (error) {
-      return { success: false, error: error.message }
-    }
-  }
 
   const logout = () => {
     localStorage.removeItem('token')
@@ -116,7 +108,6 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
-    register,
     logout,
     isAuthenticated: !!user,
   }

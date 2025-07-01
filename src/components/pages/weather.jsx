@@ -261,10 +261,10 @@ export const WeatherPage = () => {
                   data.sky_condition !== 'DB03' &&
                   data.sky_condition !== 'DB04',
               ) && (
-                <div className="text-muted-foreground text-sm">
-                  현재 활성화된 날씨 알림이 없습니다.
-                </div>
-              )}
+                  <div className="text-muted-foreground text-sm">
+                    현재 활성화된 날씨 알림이 없습니다.
+                  </div>
+                )}
             </div>
           </CardContent>
         </Card>

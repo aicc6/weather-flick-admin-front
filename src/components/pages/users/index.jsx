@@ -879,8 +879,8 @@ export function UsersPage() {
                             <span>
                               {admin.created_at
                                 ? new Date(
-                                    admin.created_at,
-                                  ).toLocaleDateString()
+                                  admin.created_at,
+                                ).toLocaleDateString()
                                 : 'N/A'}
                             </span>
                           </div>
