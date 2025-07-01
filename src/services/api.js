@@ -5,7 +5,7 @@ class ApiService {
   // Auth endpoints
   async login(email, password) {
     try {
-      const response = await http.POST('/api/v1/auth/login', {
+      const response = await http.POST('/auth/login', {
         body: { email, password },
       })
 
@@ -23,44 +23,44 @@ class ApiService {
 
 
   async getCurrentUser() {
-    const response = await authHttp.GET('/api/v1/auth/me')
+    const response = await authHttp.GET('/auth/me')
     return await response.json()
   }
 
   // Admin management endpoints
   async getAdmins(skip = 0, limit = 100) {
-    const response = await authHttp.GET('/admins/', {
+    const response = await authHttp.GET('/auth/admins', {
       params: { query: { skip, limit } },
     })
     return await response.json()
   }
 
   async createAdmin(adminData) {
-    const response = await authHttp.POST('/admins/', {
+    const response = await authHttp.POST('/auth/admins', {
       body: adminData,
     })
     return await response.json()
   }
 
   async updateAdmin(adminId, adminData) {
-    const response = await authHttp.PUT(`/admins/${adminId}`, {
+    const response = await authHttp.PUT(`/auth/admins/${adminId}`, {
       body: adminData,
     })
     return await response.json()
   }
 
   async deleteAdmin(adminId) {
-    const response = await authHttp.DELETE(`/admins/${adminId}`)
+    const response = await authHttp.DELETE(`/auth/admins/${adminId}`)
     return await response.json()
   }
 
   async activateAdmin(adminId) {
-    const response = await authHttp.PUT(`/admins/${adminId}/activate`)
+    const response = await authHttp.PUT(`/auth/admins/${adminId}/activate`)
     return await response.json()
   }
 
   async deactivateAdmin(adminId) {
-    const response = await authHttp.PUT(`/admins/${adminId}/deactivate`)
+    const response = await authHttp.PUT(`/auth/admins/${adminId}/deactivate`)
     return await response.json()
   }
 
