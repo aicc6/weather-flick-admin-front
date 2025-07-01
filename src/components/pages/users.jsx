@@ -446,7 +446,7 @@ export const UsersPage = () => {
                     <TableHead>이메일 인증</TableHead>
                     <TableHead>선호 지역</TableHead>
                     <TableHead>가입일</TableHead>
-                    {user?.is_superuser && <TableHead>액션</TableHead>}
+                    {user && <TableHead>액션</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -489,7 +489,7 @@ export const UsersPage = () => {
                           'ko-KR',
                         )}
                       </TableCell>
-                      {user?.is_superuser && (
+                      {user && (
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

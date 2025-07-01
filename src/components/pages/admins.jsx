@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
 import { apiService } from '../../services/api'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -35,6 +36,7 @@ import {
 } from '../ui/alert-dialog'
 
 export const AdminsPage = () => {
+  const { user } = useAuth()
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -92,7 +94,7 @@ export const AdminsPage = () => {
 
   const handleDeleteAdmin = async (adminId) => {
     try {
-      await apiService.deleteAdmin(adminId)
+      await apiService.deleteAdminPermanently(adminId)
       fetchAdmins()
     } catch (error) {
       setError('관리자 삭제에 실패했습니다.')
@@ -123,6 +125,20 @@ export const AdminsPage = () => {
       admin.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       admin.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  // 슈퍼유저가 아닌 경우 접근 거부
+  if (!user?.is_superuser) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <div className="mb-2 text-lg text-red-600">접근 권한이 없습니다</div>
+          <p className="text-muted-foreground">
+            이 페이지는 슈퍼유저만 접근할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
