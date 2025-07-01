@@ -55,10 +55,13 @@ export const AdminsPage = () => {
   const fetchAdmins = async () => {
     try {
       setLoading(true)
-      const data = await apiService.getAdmins()
-      setAdmins(data)
+      const data = await apiService.getAdmins(1, 50)
+      console.log('Admins API response:', data)
+      setAdmins(data.admins || [])
     } catch (error) {
+      console.error('Failed to fetch admins:', error)
       setError('관리자 목록을 불러오는데 실패했습니다.')
+      setAdmins([]) // 에러 시에도 빈 배열로 초기화
     } finally {
       setLoading(false)
     }
@@ -77,7 +80,7 @@ export const AdminsPage = () => {
 
   const handleUpdateAdmin = async () => {
     try {
-      await apiService.updateAdmin(selectedAdmin.id, formData)
+      await apiService.updateAdmin(selectedAdmin.admin_id, formData)
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
       setFormData({ email: '', username: '', password: '' })
@@ -114,10 +117,11 @@ export const AdminsPage = () => {
     }
   }
 
-  const filteredAdmins = admins.filter(
+  const filteredAdmins = (Array.isArray(admins) ? admins : []).filter(
     (admin) =>
-      admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      admin.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      admin.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   if (loading) {
@@ -212,7 +216,7 @@ export const AdminsPage = () => {
 
       <div className="grid gap-4">
         {filteredAdmins.map((admin) => (
-          <Card key={admin.id}>
+          <Card key={admin.admin_id}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -324,7 +328,7 @@ export const AdminsPage = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDeactivateAdmin(admin.id)}
+                      onClick={() => handleDeactivateAdmin(admin.admin_id)}
                     >
                       비활성화
                     </Button>
@@ -332,7 +336,7 @@ export const AdminsPage = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleActivateAdmin(admin.id)}
+                      onClick={() => handleActivateAdmin(admin.admin_id)}
                     >
                       활성화
                     </Button>
@@ -355,7 +359,7 @@ export const AdminsPage = () => {
                       <AlertDialogFooter>
                         <AlertDialogCancel>취소</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => handleDeleteAdmin(admin.id)}
+                          onClick={() => handleDeleteAdmin(admin.admin_id)}
                         >
                           삭제
                         </AlertDialogAction>

@@ -21,13 +21,22 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem('token')
         const savedUser = localStorage.getItem('user')
-        
+
         if (token && savedUser) {
           // 저장된 사용자 정보 먼저 복원 (빠른 UI 업데이트)
           const userData = JSON.parse(savedUser)
-          setUser(userData)
-          
-          // 백그라운드에서 토큰 유효성 검증
+
+          // 새로운 필드가 없는 경우 강제로 최신 정보 가져오기
+          const hasNewFields =
+            'is_superuser' in userData &&
+            'is_active' in userData &&
+            'username' in userData
+
+          if (hasNewFields) {
+            setUser(userData)
+          }
+
+          // 백그라운드에서 토큰 유효성 검증 (새 필드가 없거나 정기 업데이트)
           try {
             const currentUserData = await apiService.getCurrentUser()
             setUser(currentUserData)
@@ -67,15 +76,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await apiService.login(email, password)
-      
+
       // API 응답 구조에 맞게 토큰 저장
       const token = response.token?.access_token
       if (!token) {
         throw new Error('토큰을 받지 못했습니다.')
       }
-      
+
       localStorage.setItem('token', token)
-      
+
       // 로그인 응답에서 바로 관리자 정보 사용
       if (response.admin) {
         setUser(response.admin)
@@ -96,7 +105,6 @@ export const AuthProvider = ({ children }) => {
       }
     }
   }
-
 
   const logout = () => {
     localStorage.removeItem('token')

@@ -1,6 +1,14 @@
 import { useAuth } from '../../contexts/AuthContext'
 import { Button } from '../ui/button'
-import { LogOut, User, Users, Home, Cloud, Settings, FileText } from 'lucide-react'
+import {
+  LogOut,
+  User,
+  Users,
+  Home,
+  Cloud,
+  Settings,
+  FileText,
+} from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   DropdownMenu,
@@ -22,11 +30,11 @@ export const DefaultLayout = ({ children }) => {
   const navigation = [
     { name: '대시보드', href: '/', icon: Home },
     { name: '사용자 관리', href: '/users', icon: Users },
-    { name: '컨텐츠 관리', href: '/content', icon: FileText },
-    { name: '시스템 관리', href: '/system', icon: Settings },
     ...(user?.is_superuser
       ? [{ name: '관리자 관리', href: '/admins', icon: User }]
       : []),
+    { name: '컨텐츠 관리', href: '/content', icon: FileText },
+    { name: '시스템 관리', href: '/system', icon: Settings },
     { name: '날씨 정보', href: '/weather', icon: Cloud },
   ]
 
