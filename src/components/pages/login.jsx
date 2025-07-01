@@ -52,9 +52,6 @@ export const LoginPage = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Weather Flick Admin
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            관리자 계정으로 로그인하세요
-          </p>
         </div>
 
         <Card>
@@ -114,30 +111,6 @@ export const LoginPage = () => {
               </Button>
             </form>
 
-            <div className="mt-6 space-y-4">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>테스트 계정:</strong>
-                  <br />
-                  이메일: admin@weatherflick.com
-                  <br />
-                  비밀번호: admin123
-                </AlertDescription>
-              </Alert>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  계정이 없으신가요?{' '}
-                  <Link
-                    to="/sign-up"
-                    className="font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    회원가입
-                  </Link>
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

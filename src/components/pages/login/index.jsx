@@ -167,15 +167,6 @@ export function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-8 rounded-lg bg-gray-50 p-4">
-              <p className="text-center text-sm text-gray-600">
-                <span className="font-semibold">테스트 계정:</span>
-                <br />
-                이메일: admin@weatherflick.com
-                <br />
-                비밀번호: admin123
-              </p>
-            </div>
           </CardContent>
         </Card>
 
