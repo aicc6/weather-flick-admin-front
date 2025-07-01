@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 class ApiService {
   constructor() {
@@ -62,13 +62,15 @@ class ApiService {
   // Auth endpoints
   async login(email, password) {
     try {
-      const formData = new FormData()
-      formData.append('username', email)
-      formData.append('password', password)
-
-      const response = await fetch(`${this.baseURL}/auth/login`, {
+      const response = await fetch(`${this.baseURL}/api/v1/auth/login`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
       })
 
       if (!response.ok) {
@@ -91,7 +93,7 @@ class ApiService {
   }
 
   async getCurrentUser() {
-    return this.request('/auth/me')
+    return this.request('/api/v1/auth/me')
   }
 
   // Admin management endpoints
