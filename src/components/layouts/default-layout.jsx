@@ -36,6 +36,7 @@ export const DefaultLayout = ({ children }) => {
     { name: '컨텐츠 관리', href: '/content', icon: FileText },
     { name: '시스템 관리', href: '/system', icon: Settings },
     { name: '날씨 정보', href: '/weather', icon: Cloud },
+    { name: '관광지 관리', href: '/admin/tourist-attractions', icon: FileText },
   ]
 
   return (
@@ -45,6 +46,11 @@ export const DefaultLayout = ({ children }) => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
+              <img
+                src="/logo.jpg"
+                alt="Weather Flick Logo"
+                className="mr-2 h-8 w-8 rounded"
+              />
               <h1 className="text-xl font-semibold text-gray-900">
                 Weather Flick Admin
               </h1>
