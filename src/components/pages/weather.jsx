@@ -17,6 +17,7 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { Alert, AlertDescription } from '../ui/alert'
+import { Badge } from '../ui/badge'
 
 export const WeatherPage = () => {
   const [weatherData, setWeatherData] = useState({})
@@ -85,6 +86,50 @@ export const WeatherPage = () => {
     { code: '184', name: '제주' },
   ]
 
+  // DB 기반 날씨 요약 상태
+  const [dbWeatherData, setDbWeatherData] = useState({})
+  const [dbWeatherLoading, setDbWeatherLoading] = useState(true)
+  const [dbWeatherError, setDbWeatherError] = useState('')
+  const [dbWeatherLastUpdated, setDbWeatherLastUpdated] = useState(null)
+  // 페이지네이션 상태
+  const [dbWeatherPage, setDbWeatherPage] = useState(1)
+  const dbWeatherPageSize = 4
+
+  const fetchDbWeatherData = async () => {
+    try {
+      setDbWeatherLoading(true)
+      setDbWeatherError('')
+      const res = await fetch('http://localhost:8000/weather/summary-db')
+      const data = await res.json()
+      const regionMap = {}
+      data.regions?.forEach((region) => {
+        regionMap[region.city_code || region.city_name] = {
+          ...region,
+          region_name: region.city_name,
+          temperature: region.temperature,
+          humidity: region.humidity,
+          wind_speed: region.wind_speed,
+          sky_condition: region.sky_condition,
+        }
+      })
+      setDbWeatherData(regionMap)
+      setDbWeatherLastUpdated(
+        data.summary?.last_updated
+          ? new Date(data.summary.last_updated)
+          : new Date(),
+      )
+    } catch (err) {
+      setDbWeatherError('DB 날씨 데이터를 불러오는데 실패했습니다.')
+      setDbWeatherData({})
+    } finally {
+      setDbWeatherLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchDbWeatherData()
+  }, [])
+
   if (loading && Object.keys(weatherData).length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -104,8 +149,11 @@ export const WeatherPage = () => {
             기상청 API를 통해 실시간으로 업데이트되는 날씨 정보입니다.
           </p>
         </div>
-
-        <Button onClick={fetchWeatherData} disabled={loading}>
+        <Button
+          onClick={fetchWeatherData}
+          disabled={loading}
+          className="rounded-lg"
+        >
           <RefreshCw
             className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`}
           />
@@ -114,14 +162,14 @@ export const WeatherPage = () => {
       </div>
 
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="rounded-lg">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {lastUpdated && (
-        <div className="text-muted-foreground text-sm">
+        <div className="text-muted-foreground mb-2 text-sm">
           마지막 업데이트: {lastUpdated.toLocaleString()}
         </div>
       )}
@@ -132,30 +180,37 @@ export const WeatherPage = () => {
           if (!data) return null
 
           return (
-            <Card key={region.code}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card
+              key={region.code}
+              className="flex flex-col items-center justify-center p-4"
+            >
+              <CardHeader className="flex w-full flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   {data.region_name}
                 </CardTitle>
                 {getWeatherIcon(data.sky_condition)}
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+              <CardContent className="flex flex-col items-center">
+                <span className="mb-1 text-3xl font-bold">
                   {data.temperature !== 'N/A' ? `${data.temperature}°C` : 'N/A'}
-                </div>
-                <p className="text-muted-foreground text-xs">
+                </span>
+                <Badge variant="outline" className="mb-2">
                   {getWeatherDescription(data.sky_condition)}
-                </p>
-                <div className="text-muted-foreground mt-2 space-y-1 text-xs">
-                  <div>
-                    습도:{' '}
-                    {data.humidity !== 'N/A' ? `${data.humidity}%` : 'N/A'}
+                </Badge>
+                <div className="text-muted-foreground mt-2 w-full space-y-1 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span>습도</span>
+                    <span>
+                      {data.humidity !== 'N/A' ? `${data.humidity}%` : 'N/A'}
+                    </span>
                   </div>
-                  <div>
-                    풍속:{' '}
-                    {data.wind_speed !== 'N/A'
-                      ? `${data.wind_speed}m/s`
-                      : 'N/A'}
+                  <div className="flex items-center justify-between">
+                    <span>풍속</span>
+                    <span>
+                      {data.wind_speed !== 'N/A'
+                        ? `${data.wind_speed} m/s`
+                        : 'N/A'}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -175,56 +230,49 @@ export const WeatherPage = () => {
           <CardContent>
             <div className="space-y-4">
               {(() => {
-                const validData = Object.values(weatherData).filter(
-                  (data) => data.temperature !== 'N/A',
+                const validData = Object.values(dbWeatherData).filter(
+                  (data) =>
+                    data.temperature !== undefined && data.temperature !== null,
                 )
                 const temperatures = validData.map((data) =>
                   parseInt(data.temperature),
                 )
-
                 if (temperatures.length === 0) {
                   return (
                     <div className="text-muted-foreground text-sm">
-                      데이터가 없습니다.
+                      DB 데이터가 없습니다.
                     </div>
                   )
                 }
-
                 const avgTemp = (
                   temperatures.reduce((a, b) => a + b, 0) / temperatures.length
                 ).toFixed(1)
                 const maxTemp = Math.max(...temperatures)
                 const minTemp = Math.min(...temperatures)
-                const maxTempRegion = Object.values(weatherData).find(
+                const maxTempRegion = validData.find(
                   (data) => parseInt(data.temperature) === maxTemp,
                 )
-                const minTempRegion = Object.values(weatherData).find(
+                const minTempRegion = validData.find(
                   (data) => parseInt(data.temperature) === minTemp,
                 )
-
                 return (
                   <>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">평균 기온</span>
-                      <span className="text-sm">{avgTemp}°C</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">최고 기온</span>
-                      <span className="text-sm">
-                        {maxTemp}°C ({maxTempRegion?.region_name})
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">최저 기온</span>
-                      <span className="text-sm">
-                        {minTemp}°C ({minTempRegion?.region_name})
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        데이터 업데이트
-                      </span>
-                      <span className="text-sm text-green-600">정상</span>
+                    <div className="mb-2 flex flex-wrap gap-4 text-sm">
+                      <div>
+                        <span className="font-medium">평균:</span> {avgTemp}°C
+                      </div>
+                      <div>
+                        <span className="font-medium">최고:</span> {maxTemp}°C{' '}
+                        <span className="text-xs text-gray-500">
+                          ({maxTempRegion?.region_name})
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">최저:</span> {minTemp}°C{' '}
+                        <span className="text-xs text-gray-500">
+                          ({minTempRegion?.region_name})
+                        </span>
+                      </div>
                     </div>
                   </>
                 )
@@ -261,10 +309,10 @@ export const WeatherPage = () => {
                   data.sky_condition !== 'DB03' &&
                   data.sky_condition !== 'DB04',
               ) && (
-                  <div className="text-muted-foreground text-sm">
-                    현재 활성화된 날씨 알림이 없습니다.
-                  </div>
-                )}
+                <div className="text-muted-foreground text-sm">
+                  현재 활성화된 날씨 알림이 없습니다.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -274,30 +322,197 @@ export const WeatherPage = () => {
         <CardHeader>
           <CardTitle>날씨 데이터 관리</CardTitle>
           <CardDescription>
-            Weather Flick의 날씨 데이터를 관리할 수 있습니다.
+            DB에 저장된 주요 도시의 최신 날씨 통계와 관리 정보를 한눈에 확인할
+            수 있습니다.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="text-sm">
-              <span className="font-medium">데이터 업데이트:</span>
-              <br />
-              실시간 날씨 데이터가 10분마다 자동으로 업데이트됩니다.
+          <div className="text-muted-foreground mb-4 text-sm">
+            DB에 저장된 주요 도시의 최신 날씨 통계와 상태를 한눈에 확인할 수
+            있습니다. <br />
+            실시간 데이터와 다를 수 있으며, 관리/분석용으로 활용하세요.
+          </div>
+          <div className="mb-4 flex flex-wrap items-center gap-4 rounded-md bg-gray-50 px-4 py-3 text-sm dark:bg-gray-900/40">
+            <div>
+              <span className="font-semibold">도시 수:</span>{' '}
+              {Object.keys(dbWeatherData).length}
             </div>
-            <div className="text-sm">
-              <span className="font-medium">API 연동:</span>
-              <br />
-              기상청 API와 연동되어 정확한 날씨 정보를 제공합니다.
+            {dbWeatherLastUpdated && (
+              <div className="text-xs text-gray-500">
+                업데이트: {dbWeatherLastUpdated.toLocaleString()}
+              </div>
+            )}
+            <Button
+              onClick={fetchDbWeatherData}
+              disabled={dbWeatherLoading}
+              size="sm"
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${dbWeatherLoading ? 'animate-spin' : ''}`}
+              />
+              새로고침
+            </Button>
+          </div>
+          {dbWeatherError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{dbWeatherError}</AlertDescription>
+            </Alert>
+          )}
+          <div className="mb-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {dbWeatherLoading && Object.keys(dbWeatherData).length === 0 ? (
+                <div className="col-span-4 flex h-32 items-center justify-center">
+                  <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-gray-900"></div>
+                </div>
+              ) : (
+                Object.values(dbWeatherData)
+                  .slice(
+                    (dbWeatherPage - 1) * dbWeatherPageSize,
+                    dbWeatherPage * dbWeatherPageSize,
+                  )
+                  .map((data) => (
+                    <Card
+                      key={data.region_name}
+                      className="border border-gray-200 shadow-none dark:border-gray-700"
+                    >
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                          {data.region_name}
+                        </CardTitle>
+                        {(() => {
+                          if (!data.sky_condition)
+                            return <Cloud className="h-4 w-4 text-gray-400" />
+                          if (data.sky_condition.includes('맑'))
+                            return <Sun className="h-4 w-4 text-yellow-500" />
+                          if (data.sky_condition.includes('구름'))
+                            return <Cloud className="h-4 w-4 text-gray-500" />
+                          if (data.sky_condition.includes('비'))
+                            return (
+                              <CloudRain className="h-4 w-4 text-blue-500" />
+                            )
+                          if (data.sky_condition.includes('눈'))
+                            return (
+                              <CloudSnow className="h-4 w-4 text-blue-300" />
+                            )
+                          return <Cloud className="h-4 w-4 text-gray-400" />
+                        })()}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">
+                          {data.temperature !== undefined
+                            ? `${data.temperature}°C`
+                            : 'N/A'}
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                          {(() => {
+                            if (!data.sky_condition) return '알 수 없음'
+                            if (data.sky_condition.includes('맑')) return '맑음'
+                            if (data.sky_condition.includes('구름'))
+                              return '구름 많음'
+                            if (data.sky_condition.includes('비')) return '비'
+                            if (data.sky_condition.includes('눈')) return '눈'
+                            return data.sky_condition
+                          })()}
+                        </p>
+                        <div className="text-muted-foreground mt-2 space-y-1 text-xs">
+                          <div>
+                            습도:{' '}
+                            {data.humidity !== undefined
+                              ? `${data.humidity}%`
+                              : 'N/A'}
+                          </div>
+                          <div>
+                            풍속:{' '}
+                            {data.wind_speed !== undefined
+                              ? `${data.wind_speed}m/s`
+                              : 'N/A'}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+              )}
             </div>
-            <div className="text-sm">
-              <span className="font-medium">알림 시스템:</span>
-              <br />
-              특정 날씨 조건에서 자동으로 알림을 발송합니다.
+            {/* 페이지네이션 버튼 */}
+            {Object.keys(dbWeatherData).length > dbWeatherPageSize && (
+              <div className="flex max-w-full justify-center overflow-x-auto pt-2 pb-1">
+                <div className="flex flex-wrap gap-1">
+                  {(() => {
+                    const totalPages = Math.ceil(
+                      Object.keys(dbWeatherData).length / dbWeatherPageSize,
+                    )
+                    const maxPages = 10
+                    const [pageGroup, setPageGroup] = [
+                      Math.floor((dbWeatherPage - 1) / maxPages),
+                      (v) => setDbWeatherPage(v * maxPages + 1),
+                    ]
+                    const startPage = pageGroup * maxPages + 1
+                    const endPage = Math.min(
+                      startPage + maxPages - 1,
+                      totalPages,
+                    )
+                    const pageButtons = []
+                    if (pageGroup > 0) {
+                      pageButtons.push(
+                        <button
+                          key="prev-group"
+                          onClick={() => setDbWeatherPage(startPage - maxPages)}
+                          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                          style={{ minWidth: 28 }}
+                        >
+                          {'<'}
+                        </button>,
+                      )
+                    }
+                    for (let i = startPage; i <= endPage; i++) {
+                      pageButtons.push(
+                        <button
+                          key={i}
+                          onClick={() => setDbWeatherPage(i)}
+                          className={`rounded-md border px-2 py-1 text-xs font-medium transition-colors duration-100 outline-none focus:ring-2 focus:ring-blue-400 ${
+                            dbWeatherPage === i
+                              ? 'border-blue-600 bg-blue-600 text-white shadow-md'
+                              : 'border-gray-300 bg-transparent text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700'
+                          } `}
+                          style={{ minWidth: 28 }}
+                          aria-current={
+                            dbWeatherPage === i ? 'page' : undefined
+                          }
+                        >
+                          {i}
+                        </button>,
+                      )
+                    }
+                    if (endPage < totalPages) {
+                      pageButtons.push(
+                        <button
+                          key="more"
+                          onClick={() => setDbWeatherPage(endPage + 1)}
+                          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                          style={{ minWidth: 28 }}
+                        >
+                          더보기
+                        </button>,
+                      )
+                    }
+                    return pageButtons
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mt-6 space-y-2 border-t pt-4 text-xs text-gray-500 dark:text-gray-400">
+            <div>
+              • DB 요약 데이터는 주기적으로 갱신되며, 실시간 데이터와 다를 수
+              있습니다.
             </div>
-            <div className="text-sm">
-              <span className="font-medium">데이터 백업:</span>
-              <br />
-              날씨 데이터는 매일 자동으로 백업됩니다.
+            <div>
+              • 데이터는 매일 자동 백업되며, 관리자가 직접 수동 갱신/복구할 수
+              있습니다.
+            </div>
+            <div>
+              • 기상청 API 장애 시, DB 데이터가 최신이 아닐 수 있습니다.
             </div>
           </div>
         </CardContent>

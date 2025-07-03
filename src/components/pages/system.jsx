@@ -15,6 +15,8 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Progress } from '../ui/progress'
+import { Globe, MapPin, CreditCard } from 'lucide-react'
 
 // Polling hook
 function usePollingSystemStatus(url, interval = 5000) {
@@ -24,10 +26,16 @@ function usePollingSystemStatus(url, interval = 5000) {
     const fetchData = async () => {
       try {
         const res = await fetch(url)
+        if (!res.ok) {
+          // 에러 응답일 때 텍스트로 받아서 콘솔에 출력
+          const errorText = await res.text()
+          console.error('API Error:', res.status, errorText)
+          return
+        }
         const json = await res.json()
         setData(json)
       } catch (e) {
-        // 에러 시 이전 데이터 유지
+        console.error('Fetch error:', e)
       }
       timer = setTimeout(fetchData, interval)
     }
@@ -48,7 +56,7 @@ function usePollingSystemStatus(url, interval = 5000) {
 // }
 
 export const SystemPage = () => {
-  const status = usePollingSystemStatus('/api/system-status', 5000)
+  const status = usePollingSystemStatus('/api/v1/admin/system/status', 8000)
 
   return (
     <div className="space-y-6">
@@ -69,9 +77,9 @@ export const SystemPage = () => {
         <TabsContent value="monitoring" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">서버 상태</CardTitle>
-                <Server className="text-muted-foreground h-4 w-4" />
+                <Server className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-2">
@@ -87,11 +95,11 @@ export const SystemPage = () => {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   데이터베이스
                 </CardTitle>
-                <Database className="text-muted-foreground h-4 w-4" />
+                <Database className="h-5 w-5 text-green-500" />
               </CardHeader>
               <CardContent>
                 <div className="flex items-center space-x-2">
@@ -107,9 +115,9 @@ export const SystemPage = () => {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">API 성능</CardTitle>
-                <Activity className="text-muted-foreground h-4 w-4" />
+                <Activity className="h-5 w-5 text-purple-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -120,9 +128,9 @@ export const SystemPage = () => {
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">에러율</CardTitle>
-                <AlertTriangle className="text-muted-foreground h-4 w-4" />
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
@@ -135,11 +143,9 @@ export const SystemPage = () => {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle>서버 리소스</CardTitle>
-                <CardDescription>
-                  CPU, 메모리, 디스크 사용률을 확인합니다.
-                </CardDescription>
+                <Activity className="h-5 w-5 text-blue-400" />
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -149,12 +155,10 @@ export const SystemPage = () => {
                       {status?.resource?.cpu ?? '...'}%
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full bg-blue-600"
-                      style={{ width: `${status?.resource?.cpu ?? 0}%` }}
-                    ></div>
-                  </div>
+                  <Progress
+                    value={status?.resource?.cpu ?? 0}
+                    className="h-2"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -164,12 +168,10 @@ export const SystemPage = () => {
                       {status?.resource?.memory ?? '...'}%
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full bg-yellow-500"
-                      style={{ width: `${status?.resource?.memory ?? 0}%` }}
-                    ></div>
-                  </div>
+                  <Progress
+                    value={status?.resource?.memory ?? 0}
+                    className="h-2 bg-yellow-500"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -179,45 +181,69 @@ export const SystemPage = () => {
                       {status?.resource?.disk ?? '...'}%
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full bg-green-500"
-                      style={{ width: `${status?.resource?.disk ?? 0}%` }}
-                    ></div>
-                  </div>
+                  <Progress
+                    value={status?.resource?.disk ?? 0}
+                    className="h-2 bg-green-500"
+                  />
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle>외부 API 상태</CardTitle>
-                <CardDescription>
-                  연동된 외부 서비스의 상태를 확인합니다.
-                </CardDescription>
+                <Globe className="h-5 w-5 text-blue-400" />
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">기상청 API</span>
-                  <Badge variant="default">
+              <CardContent className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-400" />
+                  <span className="text-xs">날씨</span>
+                  <Badge
+                    variant={
+                      status?.external?.weather === '정상'
+                        ? 'success'
+                        : 'destructive'
+                    }
+                  >
                     {status?.external?.weather ?? '...'}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">관광공사 API</span>
-                  <Badge variant="default">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-green-400" />
+                  <span className="text-xs">관광</span>
+                  <Badge
+                    variant={
+                      status?.external?.tour === '정상'
+                        ? 'success'
+                        : 'destructive'
+                    }
+                  >
                     {status?.external?.tour ?? '...'}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">지도 API</span>
-                  <Badge variant="default">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-yellow-400" />
+                  <span className="text-xs">지도</span>
+                  <Badge
+                    variant={
+                      status?.external?.map === '정상'
+                        ? 'success'
+                        : 'destructive'
+                    }
+                  >
                     {status?.external?.map ?? '...'}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">결제 API</span>
-                  <Badge variant="secondary">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-pink-400" />
+                  <span className="text-xs">결제</span>
+                  <Badge
+                    variant={
+                      status?.external?.payment === '정상'
+                        ? 'success'
+                        : 'destructive'
+                    }
+                  >
                     {status?.external?.payment ?? '...'}
                   </Badge>
                 </div>

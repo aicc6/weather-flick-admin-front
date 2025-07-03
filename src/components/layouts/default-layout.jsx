@@ -8,6 +8,8 @@ import {
   Cloud,
   Settings,
   FileText,
+  Moon,
+  Sun as SunIcon,
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import {
@@ -18,10 +20,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { useEffect, useState } from 'react'
 
 export const DefaultLayout = ({ children }) => {
   const { user, logout } = useAuth()
   const location = useLocation()
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark'
+    }
+    return false
+  })
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }, [darkMode])
+
+  const toggleDarkMode = () => setDarkMode((prev) => !prev)
 
   const handleLogout = () => {
     logout()
@@ -40,9 +61,9 @@ export const DefaultLayout = ({ children }) => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
       {/* Header */}
-      <header className="border-b bg-white shadow-sm">
+      <header className="border-b bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
@@ -51,12 +72,24 @@ export const DefaultLayout = ({ children }) => {
                 alt="Weather Flick Logo"
                 className="mr-2 h-8 w-8 rounded"
               />
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 Weather Flick Admin
               </h1>
             </div>
 
             <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                className="relative h-8 w-8 rounded-full"
+                onClick={toggleDarkMode}
+                aria-label="다크/라이트 모드 토글"
+              >
+                {darkMode ? (
+                  <SunIcon className="h-5 w-5 text-yellow-400" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-700" />
+                )}
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -91,7 +124,7 @@ export const DefaultLayout = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm">
+        <div className="w-64 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <nav className="mt-5 px-2">
             <div className="space-y-1">
               {navigation.map((item) => {
@@ -102,15 +135,15 @@ export const DefaultLayout = ({ children }) => {
                     to={item.href}
                     className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
                       isActive
-                        ? 'border-r-2 border-blue-700 bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'border-r-2 border-blue-700 bg-blue-100 text-blue-700 dark:bg-gray-900 dark:text-blue-400'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white'
                     }`}
                   >
                     <item.icon
                       className={`mr-3 h-5 w-5 ${
                         isActive
-                          ? 'text-blue-700'
-                          : 'text-gray-400 group-hover:text-gray-500'
+                          ? 'text-blue-700 dark:text-blue-400'
+                          : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-200'
                       }`}
                     />
                     {item.name}

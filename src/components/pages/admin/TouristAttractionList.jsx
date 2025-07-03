@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import {
   Card,
   CardHeader,
-  CardContent,
   CardTitle,
   CardDescription,
+  CardContent,
 } from '../../ui/card'
 import {
   Pagination,
@@ -250,7 +250,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                       수정
                     </button>
                     <button
-                      className="btn btn-sm btn-destructive rounded border border-red-400 px-2 py-1 text-red-600"
+                      className="btn btn-sm btn-destructive rounded border border-red-400 px-4 py-1 text-red-600"
                       onClick={() => handleDelete(a.content_id)}
                     >
                       삭제
@@ -260,9 +260,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
               ))}
             </tbody>
           </table>
-        </CardContent>
-        {/* 페이지네이션 */}
-        <CardContent>
+          {/* 페이지네이션 */}
           <div className="mt-4 flex justify-center">{renderPagination()}</div>
         </CardContent>
       </Card>
