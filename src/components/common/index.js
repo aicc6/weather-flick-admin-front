@@ -1,4 +1,5 @@
 // 공통 컴포넌트들의 중앙 export
+export { default as ErrorBoundary } from './ErrorBoundary'
 export { LoadingSpinner } from './LoadingSpinner'
 export { ErrorDisplay } from './ErrorDisplay'
 export { PageHeader } from './PageHeader'

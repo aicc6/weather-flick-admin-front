@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { DefaultLayout } from '../components/layouts/default-layout'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
+import { ErrorBoundary } from '../components/common'
 
 // 레이지 로딩으로 페이지 컴포넌트들 import
 const LoginPage = lazy(() =>
@@ -48,9 +49,11 @@ const TouristAttractionAdminPage = lazy(() =>
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
-  <Suspense fallback={<LoadingSpinner text="페이지를 불러오는 중..." />}>
-    {children}
-  </Suspense>
+  <ErrorBoundary>
+    <Suspense fallback={<LoadingSpinner text="페이지를 불러오는 중..." />}>
+      {children}
+    </Suspense>
+  </ErrorBoundary>
 )
 
 // 보호된 레이아웃 컴포넌트

@@ -23,13 +23,16 @@ import { Alert, AlertDescription } from '../ui/alert'
 import { Badge } from '../ui/badge'
 
 export const WeatherPage = () => {
-  // RTK Query 훅들
+  // RTK Query 훅들 - 실시간 날씨는 선택적으로 사용
   const {
     data: weatherData = {},
     isLoading: loading,
     error,
     refetch: refetchWeather,
-  } = useGetCurrentWeatherQuery()
+  } = useGetCurrentWeatherQuery(undefined, {
+    // 실시간 날씨 API 오류 시에도 페이지가 로드되도록 설정
+    skip: false,
+  })
 
   const {
     data: weatherSummaryData = {},
@@ -39,14 +42,23 @@ export const WeatherPage = () => {
   } = useGetWeatherSummaryQuery()
 
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [showRealTimeWeather, setShowRealTimeWeather] = useState(true)
 
   useEffect(() => {
     setLastUpdated(new Date())
 
-    // 10분마다 자동 새로고침
+    // 실시간 날씨 API 오류 발생 시 자동으로 비활성화
+    if (error && showRealTimeWeather) {
+      console.warn('실시간 날씨 API 오류로 인해 DB 데이터만 표시합니다:', error)
+      setShowRealTimeWeather(false)
+    }
+
+    // 10분마다 자동 새로고침 (DB 요약 데이터만)
     const interval = setInterval(
       () => {
-        refetchWeather()
+        if (showRealTimeWeather && !error) {
+          refetchWeather()
+        }
         refetchSummary()
         setLastUpdated(new Date())
       },
@@ -54,7 +66,7 @@ export const WeatherPage = () => {
     )
 
     return () => clearInterval(interval)
-  }, [])
+  }, [error, showRealTimeWeather])
 
   const getWeatherIcon = (skyCondition) => {
     switch (skyCondition) {
@@ -116,7 +128,25 @@ export const WeatherPage = () => {
     ? new Date(weatherSummaryData.summary.last_updated)
     : new Date()
 
-  if (loading && Object.keys(weatherData).length === 0) {
+  // 실시간 날씨 데이터가 없으면 DB 데이터를 대체 사용
+  const displayWeatherData =
+    error || Object.keys(weatherData).length === 0
+      ? Object.fromEntries(
+          regions.map((region) => [
+            region.code,
+            dbWeatherData[region.name] || {
+              region_name: region.name,
+              temperature: 'N/A',
+              humidity: 'N/A',
+              wind_speed: 'N/A',
+              sky_condition: null,
+            },
+          ]),
+        )
+      : weatherData
+
+  // 페이지 로딩 조건 수정 - DB 데이터도 없을 때만 로딩 표시
+  if (summaryLoading && Object.keys(dbWeatherData).length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
@@ -135,26 +165,54 @@ export const WeatherPage = () => {
             기상청 API를 통해 실시간으로 업데이트되는 날씨 정보입니다.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            refetchWeather()
-            refetchSummary()
-            setLastUpdated(new Date())
-          }}
-          disabled={loading}
-          className="rounded-lg"
-        >
-          <RefreshCw
-            className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`}
-          />
-          새로고침
-        </Button>
+        <div className="flex gap-2">
+          {error && (
+            <Button
+              onClick={() => {
+                setShowRealTimeWeather(true)
+                refetchWeather()
+              }}
+              variant="outline"
+              className="rounded-lg"
+            >
+              실시간 날씨 재시도
+            </Button>
+          )}
+          <Button
+            onClick={() => {
+              if (showRealTimeWeather && !error) {
+                refetchWeather()
+              }
+              refetchSummary()
+              setLastUpdated(new Date())
+            }}
+            disabled={loading || summaryLoading}
+            className="rounded-lg"
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading || summaryLoading ? 'animate-spin' : ''}`}
+            />
+            새로고침
+          </Button>
+        </div>
       </div>
 
       {error && (
         <Alert variant="destructive" className="rounded-lg">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            실시간 날씨 정보를 불러올 수 없습니다. DB 저장 데이터로 표시됩니다.
+            {error.data?.detail && ` (${error.data.detail})`}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {summaryError && (
+        <Alert variant="destructive" className="rounded-lg">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            DB 날씨 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -166,17 +224,28 @@ export const WeatherPage = () => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {regions.map((region) => {
-          const data = weatherData[region.code]
+          const data = displayWeatherData[region.code]
           if (!data) return null
+
+          const isFromDB = error || Object.keys(weatherData).length === 0
 
           return (
             <Card
               key={region.code}
-              className="flex flex-col items-center justify-center p-4"
+              className={`flex flex-col items-center justify-center p-4 ${
+                isFromDB
+                  ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950'
+                  : ''
+              }`}
             >
               <CardHeader className="flex w-full flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   {data.region_name}
+                  {isFromDB && (
+                    <Badge variant="secondary" className="ml-1 text-xs">
+                      DB
+                    </Badge>
+                  )}
                 </CardTitle>
                 {getWeatherIcon(data.sky_condition)}
               </CardHeader>
@@ -278,7 +347,7 @@ export const WeatherPage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {Object.values(weatherData).map((data) => {
+              {Object.values(displayWeatherData).map((data) => {
                 if (
                   data.sky_condition === 'DB03' ||
                   data.sky_condition === 'DB04'
@@ -294,7 +363,7 @@ export const WeatherPage = () => {
                 }
                 return null
               })}
-              {Object.values(weatherData).every(
+              {Object.values(displayWeatherData).every(
                 (data) =>
                   data.sky_condition !== 'DB03' &&
                   data.sky_condition !== 'DB04',
