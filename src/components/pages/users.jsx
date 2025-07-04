@@ -104,7 +104,7 @@ export const UsersPage = () => {
   // 로컬 상태 (UI 전용)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('users')
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [_selectedUser, _setSelectedUser] = useState(null)
   const [isCreateAdminDialogOpen, setIsCreateAdminDialogOpen] = useState(false)
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false)
@@ -423,7 +423,7 @@ export const UsersPage = () => {
                           onClick={(e) => {
                             console.log('상세보기 클릭됨', item)
                             e.stopPropagation()
-                            setSelectedUser(item)
+                            _setSelectedUser(item)
                           }}
                         >
                           <Eye className="mr-2 h-4 w-4" />

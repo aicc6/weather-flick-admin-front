@@ -51,7 +51,7 @@ import {
  */
 export function UsersPage() {
   const { user, isAuthenticated } = useAuth()
-  const [activeTab, setActiveTab] = useState('users')
+  const [_activeTab, _setActiveTab] = useState('users')
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 

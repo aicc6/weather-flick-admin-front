@@ -2,7 +2,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { STORAGE_KEYS } from '../../constants/storage'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000',
   prepareHeaders: (headers) => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (token) {

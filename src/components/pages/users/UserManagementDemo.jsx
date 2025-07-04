@@ -26,7 +26,7 @@ import {
 } from '../../ui/table'
 
 export function UserManagementDemo() {
-  const { user } = useAuth()
+  const { user: _user } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteUserId, setDeleteUserId] = useState(null)
 

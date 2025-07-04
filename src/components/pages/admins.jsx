@@ -48,7 +48,7 @@ export const AdminsPage = () => {
     data: adminsData,
     isLoading: loading,
     error,
-    refetch: refetchAdmins,
+    refetch: _refetchAdmins,
   } = useGetAdminsQuery({ page: 1, size: 50 })
 
   const [createAdminMutation] = useCreateAdminMutation()

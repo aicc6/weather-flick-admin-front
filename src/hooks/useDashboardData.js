@@ -53,7 +53,7 @@ export function useDashboardData() {
           ? new Date(data.summary.last_updated)
           : new Date(),
       )
-    } catch (err) {
+    } catch {
       setWeatherError('날씨 데이터를 불러오는데 실패했습니다.')
       setWeatherData({})
     } finally {

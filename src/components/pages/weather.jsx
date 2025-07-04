@@ -66,7 +66,7 @@ export const WeatherPage = () => {
     )
 
     return () => clearInterval(interval)
-  }, [error, showRealTimeWeather])
+  }, [error, showRealTimeWeather, refetchWeather, refetchSummary])
 
   const getWeatherIcon = (skyCondition) => {
     switch (skyCondition) {
@@ -504,7 +504,7 @@ export const WeatherPage = () => {
                       Object.keys(dbWeatherData).length / dbWeatherPageSize,
                     )
                     const maxPages = 10
-                    const [pageGroup, setPageGroup] = [
+                    const [pageGroup, _setPageGroup] = [
                       Math.floor((dbWeatherPage - 1) / maxPages),
                       (v) => setDbWeatherPage(v * maxPages + 1),
                     ]
