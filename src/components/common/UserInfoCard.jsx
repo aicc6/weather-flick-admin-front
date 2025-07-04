@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge'
 export function UserInfoCard({ user }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="card-header-standard">
         <div>
           <CardTitle>사용자 정보</CardTitle>
           <CardDescription>{user?.email}</CardDescription>
@@ -13,7 +13,7 @@ export function UserInfoCard({ user }) {
         <CheckCircle className="h-6 w-6 text-blue-500" />
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-2 text-sm">
+        <div className="form-layout text-sm">
           <div className="flex items-center gap-2">
             <span className="font-semibold">이름:</span>
             <span>{user?.username}</span>

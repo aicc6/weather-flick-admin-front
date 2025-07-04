@@ -4,7 +4,7 @@ import { Badge } from '../ui/badge'
 export function StatsCard({ title, description, icon: Icon, iconColor, total, active, inactive, totalColor }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="card-header-standard">
         <div>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
@@ -12,7 +12,7 @@ export function StatsCard({ title, description, icon: Icon, iconColor, total, ac
         <Icon className={`h-6 w-6 ${iconColor}`} />
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex-between gap-standard">
           <div className="flex flex-col items-center">
             <span className="text-muted-foreground text-xs">총</span>
             <span className={`text-lg font-bold ${totalColor}`}>

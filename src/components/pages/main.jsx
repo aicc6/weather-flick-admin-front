@@ -7,6 +7,7 @@ import { StatsCard } from '../common/StatsCard'
 import { WeatherStatsCard } from '../common/WeatherStatsCard'
 import { SystemStatusCard } from '../common/SystemStatusCard'
 import { TourismStatsCard } from '../common/TourismStatsCard'
+import { StatsGrid } from '../layouts/StatsGrid'
 
 export const MainPage = () => {
   const { user } = useAuth()
@@ -19,10 +20,10 @@ export const MainPage = () => {
   } = useDashboardData()
 
   return (
-    <div className="space-y-6">
+    <div className="page-layout">
       <DashboardHeader />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <StatsGrid>
         <UserInfoCard user={user} />
         <StatsCard
           title="사용자 관리"
@@ -44,9 +45,9 @@ export const MainPage = () => {
           inactive={adminSummary.inactive}
           totalColor="text-purple-600"
         />
-      </div>
+      </StatsGrid>
 
-      <div className="space-y-6">
+      <div className="section-layout">
         <WeatherStatsCard weatherData={weatherData} />
         <SystemStatusCard systemStatus={systemStatus} />
         <TourismStatsCard tourSummary={tourSummary} />
