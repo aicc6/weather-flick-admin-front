@@ -1,0 +1,170 @@
+# Weather Flick Admin Front - Team Rules
+
+## 프로젝트 개요
+React 18 기반의 관리자 웹 애플리케이션으로, Redux Toolkit + RTK Query를 사용한 상태 관리와 Tailwind CSS + shadcn/ui를 통한 스타일링을 적용합니다.
+
+## 기술 스택
+- **Frontend**: React 18.3.1, Vite 6.3.5
+- **상태 관리**: Redux Toolkit 2.2.3, RTK Query
+- **스타일링**: Tailwind CSS 3.4.1, shadcn/ui
+- **라우팅**: React Router DOM 6.28.0
+- **HTTP 클라이언트**: RTK Query (primary), fetch (special cases)
+- **아이콘**: Lucide React 0.456.0
+
+## 코딩 규칙
+
+### 컴포넌트 작성
+- 함수형 컴포넌트만 사용하고 명명된 export 사용
+- 단일 파일 최대 300줄 권장
+- 훅은 컴포넌트 최상단에 배치
+- 이벤트 핸들러는 handle 접두사 사용
+- 조건부 렌더링은 early return 패턴 사용
+
+```javascript
+export function ComponentName() {
+  const { data, isLoading, error } = useGetDataQuery()
+  const [localState, setLocalState] = useState(initialValue)
+  
+  const handleSubmit = async (formData) => {
+    try {
+      await submitMutation(formData).unwrap()
+    } catch (error) {
+      console.error('Submit failed:', error)
+    }
+  }
+  
+  if (isLoading) return <LoadingSpinner />
+  if (error) return <ErrorMessage error={error} />
+  
+  return (
+    <div className="container mx-auto p-6">
+      {/* content */}
+    </div>
+  )
+}
+```
+
+### 상태 관리
+- RTK Query를 주요 API 클라이언트로 사용
+- 일반적인 CRUD 작업: RTK Query
+- 특수한 경우(파일 업로드, 외부 API): fetch 사용
+
+```javascript
+export const usersApi = createApi({
+  reducerPath: 'usersApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['User', 'UserStats'],
+  endpoints: (builder) => ({
+    getUsers: builder.query({
+      query: (params) => ({ url: '/users', params }),
+      providesTags: ['User'],
+    }),
+    createUser: builder.mutation({
+      query: (userData) => ({
+        url: '/users',
+        method: 'POST',
+        body: userData,
+      }),
+      invalidatesTags: ['User', 'UserStats'],
+    }),
+  }),
+})
+```
+
+### 스타일링
+- Tailwind CSS 클래스 순서: 레이아웃 → 스타일링 → 상태
+- shadcn/ui 컴포넌트 적극 활용
+- 인라인 스타일 사용 금지
+
+```javascript
+<div className="flex items-center justify-between mb-4 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+```
+
+### Import 순서
+```javascript
+// 1. React 관련
+import { useState, useEffect } from 'react'
+
+// 2. 외부 라이브러리
+import { useSelector, useDispatch } from 'react-redux'
+
+// 3. UI 컴포넌트
+import { Button } from '../ui/button'
+import { Card } from '../ui/card'
+
+// 4. 내부 훅/API
+import { useAuth } from '../contexts/AuthContext'
+import { useGetUsersQuery } from '../store/api/usersApi'
+
+// 5. 아이콘
+import { User, Settings, LogOut } from 'lucide-react'
+```
+
+### 에러 처리 및 로딩 상태
+```javascript
+const handleAsyncOperation = async () => {
+  try {
+    await someMutation(data).unwrap()
+  } catch (error) {
+    console.error('Operation failed:', error)
+    const errorMessage = error.data?.detail || error.message || '작업에 실패했습니다.'
+  }
+}
+
+if (isLoading) {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <Loader2 className="h-6 w-6 animate-spin" />
+      <span className="ml-2">데이터를 불러오는 중...</span>
+    </div>
+  )
+}
+```
+
+## 파일 구조
+```
+src/
+├── components/
+│   ├── ui/             # shadcn/ui 기본 컴포넌트
+│   ├── common/         # 프로젝트 공통 컴포넌트
+│   ├── layouts/        # 레이아웃 컴포넌트
+│   └── pages/          # 페이지별 컴포넌트
+├── store/
+│   ├── api/           # RTK Query API
+│   └── slices/        # Redux 슬라이스
+├── contexts/           # React Context
+├── hooks/              # 커스텀 훅
+├── utils/              # 유틸리티 함수
+├── constants/          # 상수 정의
+└── lib/               # 외부 라이브러리 설정
+```
+
+## 금지 사항
+- 클래스형 컴포넌트 사용
+- 인라인 스타일 사용
+- var 키워드 사용 (const/let만 사용)
+- console.log 남기기 (개발 완료 후 제거)
+- 500줄 이상의 거대한 컴포넌트
+
+## 성능 최적화
+- 무거운 컴포넌트는 React.memo 사용
+- 코드 스플리팅을 위한 lazy loading 준비
+- RTK Query의 자동 캐싱 기능 활용
+
+## 커밋 메시지 규칙
+- feat: 새로운 기능 추가
+- fix: 버그 수정
+- refactor: 코드 리팩토링
+- style: 스타일 변경 (기능 변경 없음)
+- docs: 문서 수정
+- test: 테스트 추가/수정
+- chore: 빌드/패키지 관련 작업
+
+## 프로젝트 특이사항
+- 인증: JWT 기반, localStorage 저장
+- 권한: 슈퍼유저/관리자 구분
+- API 베이스: RTK Query baseQueryWithAuth 사용
+- 에러 처리: 표준화된 에러 메시지 구조
+- 테마: Tailwind CSS 다크 모드 지원 준비
+
+이 규칙을 따라 일관된 코드 품질과 팀 협업 효율성을 유지하세요.
