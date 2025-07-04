@@ -64,7 +64,7 @@ export default function TouristAttractionForm({ contentId, onDone }) {
       const endpoint = contentId
         ? `/tourist-attractions/${contentId}`
         : '/tourist-attractions/'
-      
+
       if (contentId) {
         await authHttp.PUT(endpoint, { body: form })
       } else {

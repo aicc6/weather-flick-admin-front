@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { 
+import {
   useGetUserStatsQuery,
   useGetUsersQuery,
   useDeleteUserMutation,
@@ -29,12 +29,6 @@ import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Badge } from '../ui/badge'
-import { LoadingSpinner } from '../common/LoadingSpinner'
-import { ErrorDisplay } from '../common/ErrorDisplay'
-import { PageHeader } from '../common/PageHeader'
-import { StatusBadge } from '../common/StatusBadge'
-import { SearchInput } from '../common/SearchInput'
-import { ConfirmDialog } from '../common/ConfirmDialog'
 import {
   Dialog,
   DialogContent,
@@ -75,12 +69,27 @@ import {
 
 export const UsersPage = () => {
   const { user } = useAuth()
-  
+
   // RTK Query 훅들
-  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetUserStatsQuery()
-  const { data: usersData, isLoading: usersLoading, error: usersError, refetch: refetchUsers } = useGetUsersQuery({ page: 1, size: 50 })
-  const { data: adminsData, isLoading: adminsLoading, error: adminsError, refetch: refetchAdmins } = useGetAdminsQuery({ page: 1, limit: 50 })
-  
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useGetUserStatsQuery()
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    error: usersError,
+    refetch: refetchUsers,
+  } = useGetUsersQuery({ page: 1, size: 50 })
+  const {
+    data: adminsData,
+    isLoading: adminsLoading,
+    error: adminsError,
+    refetch: refetchAdmins,
+  } = useGetAdminsQuery({ page: 1, limit: 50 })
+
   // Mutation 훅들
   const [createAdmin] = useCreateAdminMutation()
   const [deleteUser] = useDeleteUserMutation()
@@ -91,13 +100,14 @@ export const UsersPage = () => {
   const [deactivateUser] = useDeactivateUserMutation()
   const [activateAdmin] = useActivateAdminMutation()
   const [deactivateAdmin] = useDeactivateAdminMutation()
-  
+
   // 로컬 상태 (UI 전용)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('users')
   const [selectedUser, setSelectedUser] = useState(null)
   const [isCreateAdminDialogOpen, setIsCreateAdminDialogOpen] = useState(false)
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false)
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
   const [newAdmin, setNewAdmin] = useState({
@@ -207,9 +217,7 @@ export const UsersPage = () => {
     } catch (error) {
       console.error('Failed to reset password:', error)
       const errorMsg =
-        error.data?.detail ||
-        error.message ||
-        '비밀번호 초기화에 실패했습니다.'
+        error.data?.detail || error.message || '비밀번호 초기화에 실패했습니다.'
       alert(errorMsg)
     }
   }

@@ -19,20 +19,20 @@ const authSlice = createSlice({
       state.error = null
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(action.payload))
     },
-    
+
     setLoading: (state, action) => {
       state.loading = action.payload
     },
-    
+
     setError: (state, action) => {
       state.error = action.payload
       state.loading = false
     },
-    
+
     clearError: (state) => {
       state.error = null
     },
-    
+
     logout: (state) => {
       state.user = null
       state.isAuthenticated = false
@@ -41,11 +41,11 @@ const authSlice = createSlice({
       localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
       localStorage.removeItem(STORAGE_KEYS.USER)
     },
-    
+
     initializeAuth: (state) => {
       const savedUser = localStorage.getItem(STORAGE_KEYS.USER)
       const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-      
+
       if (savedUser && token) {
         try {
           state.user = JSON.parse(savedUser)

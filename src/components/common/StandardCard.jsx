@@ -1,12 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card'
 
-export function StandardCard({ 
-  title, 
-  description, 
+export function StandardCard({
+  title,
+  description,
   icon: Icon,
   iconColor = 'text-blue-500',
   children,
-  className = ''
+  className = '',
 }) {
   return (
     <Card className={className}>
@@ -17,9 +23,7 @@ export function StandardCard({
         </div>
         {Icon && <Icon className={`h-6 w-6 ${iconColor}`} />}
       </CardHeader>
-      <CardContent>
-        {children}
-      </CardContent>
+      <CardContent>{children}</CardContent>
     </Card>
   )
 }

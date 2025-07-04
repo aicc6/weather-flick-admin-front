@@ -1,12 +1,12 @@
 import { Search } from 'lucide-react'
 import { Input } from '../ui/input'
 
-export function SearchInput({ 
-  value, 
-  onChange, 
-  placeholder = '검색...', 
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = '검색...',
   className = '',
-  onEnter 
+  onEnter,
 }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && onEnter) {

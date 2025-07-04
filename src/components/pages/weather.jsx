@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { 
+import {
   useGetCurrentWeatherQuery,
   useGetWeatherSummaryQuery,
-  useGetAvailableRegionsQuery 
 } from '../../store/api/weatherApi'
 import {
   Card,
@@ -29,27 +28,30 @@ export const WeatherPage = () => {
     data: weatherData = {},
     isLoading: loading,
     error,
-    refetch: refetchWeather
+    refetch: refetchWeather,
   } = useGetCurrentWeatherQuery()
-  
+
   const {
     data: weatherSummaryData = {},
     isLoading: summaryLoading,
     error: summaryError,
-    refetch: refetchSummary
+    refetch: refetchSummary,
   } = useGetWeatherSummaryQuery()
 
   const [lastUpdated, setLastUpdated] = useState(null)
 
   useEffect(() => {
     setLastUpdated(new Date())
-    
+
     // 10분마다 자동 새로고침
-    const interval = setInterval(() => {
-      refetchWeather()
-      refetchSummary()
-      setLastUpdated(new Date())
-    }, 10 * 60 * 1000)
+    const interval = setInterval(
+      () => {
+        refetchWeather()
+        refetchSummary()
+        setLastUpdated(new Date())
+      },
+      10 * 60 * 1000,
+    )
 
     return () => clearInterval(interval)
   }, [])
@@ -96,7 +98,7 @@ export const WeatherPage = () => {
   const dbWeatherPageSize = 4
 
   // DB 날씨 데이터는 weatherSummaryData에서 가져오기
-  const dbWeatherData = weatherSummaryData.regions 
+  const dbWeatherData = weatherSummaryData.regions
     ? weatherSummaryData.regions.reduce((acc, region) => {
         acc[region.city_code || region.city_name] = {
           ...region,
@@ -109,7 +111,7 @@ export const WeatherPage = () => {
         return acc
       }, {})
     : {}
-  
+
   const dbWeatherLastUpdated = weatherSummaryData.summary?.last_updated
     ? new Date(weatherSummaryData.summary.last_updated)
     : new Date()
@@ -344,7 +346,9 @@ export const WeatherPage = () => {
           {summaryError && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>DB 날씨 데이터를 불러오는데 실패했습니다.</AlertDescription>
+              <AlertDescription>
+                DB 날씨 데이터를 불러오는데 실패했습니다.
+              </AlertDescription>
             </Alert>
           )}
           <div className="mb-6">

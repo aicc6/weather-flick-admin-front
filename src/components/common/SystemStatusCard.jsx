@@ -7,7 +7,13 @@ import {
   MapPin,
   CreditCard,
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card'
 import { Badge } from '../ui/badge'
 
 export function SystemStatusCard({ systemStatus }) {
@@ -15,9 +21,7 @@ export function SystemStatusCard({ systemStatus }) {
     <Card>
       <CardHeader>
         <CardTitle>시스템 관리 요약</CardTitle>
-        <CardDescription>
-          서버/DB/API/에러/리소스/외부API 상태
-        </CardDescription>
+        <CardDescription>서버/DB/API/에러/리소스/외부API 상태</CardDescription>
       </CardHeader>
       <CardContent>
         {systemStatus ? (
@@ -66,26 +70,18 @@ export function SystemStatusCard({ systemStatus }) {
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500" />
                 <span className="font-medium">에러율</span>
-                <span className="ml-2 text-xs">
-                  {systemStatus.error.rate}
-                </span>
+                <span className="ml-2 text-xs">{systemStatus.error.rate}</span>
               </div>
             </div>
             {/* 리소스/외부 API */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="font-medium">CPU</span>
-                <Badge variant="outline">
-                  {systemStatus.resource.cpu}%
-                </Badge>
+                <Badge variant="outline">{systemStatus.resource.cpu}%</Badge>
                 <span className="ml-4 font-medium">메모리</span>
-                <Badge variant="outline">
-                  {systemStatus.resource.memory}%
-                </Badge>
+                <Badge variant="outline">{systemStatus.resource.memory}%</Badge>
                 <span className="ml-4 font-medium">디스크</span>
-                <Badge variant="outline">
-                  {systemStatus.resource.disk}%
-                </Badge>
+                <Badge variant="outline">{systemStatus.resource.disk}%</Badge>
               </div>
               <div className="mt-2">
                 <span className="font-medium">외부 API 상태</span>

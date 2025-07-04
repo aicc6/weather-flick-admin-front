@@ -1,16 +1,16 @@
 import { PageHeader } from '../common/PageHeader'
 
-export function PageLayout({ 
-  title, 
-  description, 
+export function PageLayout({
+  title,
+  description,
   icon,
   action,
   children,
-  className = '' 
+  className = '',
 }) {
   return (
     <div className={`page-layout ${className}`}>
-      <PageHeader 
+      <PageHeader
         title={title}
         description={description}
         icon={icon}

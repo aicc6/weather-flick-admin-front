@@ -10,7 +10,7 @@ import { Label } from '../ui/label'
 
 export function StyleguideDemo() {
   return (
-    <PageLayout 
+    <PageLayout
       title="스타일 가이드 데모"
       description="새로운 유틸리티 클래스와 컴포넌트들의 사용 예시"
       icon={Settings}
@@ -18,19 +18,19 @@ export function StyleguideDemo() {
     >
       {/* 통계 그리드 */}
       <StatsGrid columns={3}>
-        <StandardCard 
+        <StandardCard
           title="사용자"
           description="총 사용자 수"
           icon={Users}
           iconColor="text-blue-500"
         >
           <div className="flex-col-center">
-            <span className="text-2xl font-bold text-primary">1,234</span>
+            <span className="text-primary text-2xl font-bold">1,234</span>
             <StatusBadge status={true} type="active" />
           </div>
         </StandardCard>
 
-        <StandardCard 
+        <StandardCard
           title="서버 상태"
           description="시스템 모니터링"
           icon={Database}
@@ -48,7 +48,7 @@ export function StyleguideDemo() {
           </div>
         </StandardCard>
 
-        <StandardCard 
+        <StandardCard
           title="활동"
           description="최근 활동 내역"
           icon={Settings}
@@ -62,7 +62,7 @@ export function StyleguideDemo() {
       </StatsGrid>
 
       {/* 폼 레이아웃 데모 */}
-      <StandardCard 
+      <StandardCard
         title="폼 레이아웃 예시"
         description="새로운 FormLayout 컴포넌트 사용"
       >
@@ -77,7 +77,7 @@ export function StyleguideDemo() {
             <Label htmlFor="name">이름</Label>
             <Input id="name" placeholder="이름을 입력하세요" />
           </div>
-          
+
           <div className="form-field">
             <Label htmlFor="email">이메일</Label>
             <Input id="email" type="email" placeholder="이메일을 입력하세요" />
@@ -97,7 +97,7 @@ export function StyleguideDemo() {
       </StandardCard>
 
       {/* 유틸리티 클래스 데모 */}
-      <StandardCard 
+      <StandardCard
         title="유틸리티 클래스 예시"
         description="새로운 CSS 유틸리티 클래스들"
       >
@@ -106,11 +106,15 @@ export function StyleguideDemo() {
             <span className="page-title">페이지 제목 스타일</span>
             <Button variant="outline">버튼</Button>
           </div>
-          
+
           <div className="button-group">
             <Button size="sm">버튼 1</Button>
-            <Button size="sm" variant="outline">버튼 2</Button>
-            <Button size="sm" variant="ghost">버튼 3</Button>
+            <Button size="sm" variant="outline">
+              버튼 2
+            </Button>
+            <Button size="sm" variant="ghost">
+              버튼 3
+            </Button>
           </div>
 
           <div className="stats-grid-4">

@@ -11,13 +11,8 @@ import { StatsGrid } from '../layouts/StatsGrid'
 
 export const MainPage = () => {
   const { user } = useAuth()
-  const {
-    tourSummary,
-    userSummary,
-    adminSummary,
-    weatherData,
-    systemStatus,
-  } = useDashboardData()
+  const { tourSummary, userSummary, adminSummary, weatherData, systemStatus } =
+    useDashboardData()
 
   return (
     <div className="page-layout">

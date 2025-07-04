@@ -93,7 +93,9 @@ export const usersApi = createApi({
         url: `/users/${userId}/reset-password`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, userId) => [{ type: 'User', id: userId }],
+      invalidatesTags: (result, error, userId) => [
+        { type: 'User', id: userId },
+      ],
     }),
 
     searchUsers: builder.query({

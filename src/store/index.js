@@ -17,7 +17,7 @@ export const store = configureStore({
     [contentApi.reducerPath]: contentApi.reducer,
     [systemApi.reducerPath]: systemApi.reducer,
     [weatherApi.reducerPath]: weatherApi.reducer,
-    
+
     // Regular slices
     auth: authReducer,
     ui: uiReducer,
@@ -40,5 +40,5 @@ export const store = configureStore({
       .concat(contentApi.middleware)
       .concat(systemApi.middleware)
       .concat(weatherApi.middleware),
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: import.meta.env.MODE !== 'production',
 })

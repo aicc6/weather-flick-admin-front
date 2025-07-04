@@ -1,9 +1,9 @@
-export function PageHeader({ 
-  title, 
-  description, 
-  action, 
+export function PageHeader({
+  title,
+  description,
+  action,
   icon: Icon,
-  className = '' 
+  className = '',
 }) {
   if (action) {
     return (

@@ -28,18 +28,18 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
       let endpoint = '/tourist-attractions/'
       const queryParams = {
         limit: pageSize,
-        offset: (pageNum - 1) * pageSize
+        offset: (pageNum - 1) * pageSize,
       }
-      
+
       if (search.name || search.category || search.region) {
         endpoint = '/tourist-attractions/search/'
         if (search.name) queryParams.name = search.name
         if (search.category) queryParams.category = search.category
         if (search.region) queryParams.region = search.region
       }
-      
+
       const res = await authHttp.GET(endpoint, {
-        params: { query: queryParams }
+        params: { query: queryParams },
       })
       const result = await res.json()
       setData(result)

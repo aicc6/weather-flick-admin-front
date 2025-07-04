@@ -14,7 +14,7 @@ export const contentApi = createApi({
         if (params.search) queryParams.append('search', params.search)
         if (params.category) queryParams.append('category', params.category)
         if (params.region) queryParams.append('region', params.region)
-        
+
         return `/api/v1/destinations?${queryParams.toString()}`
       },
       providesTags: ['Destination'],

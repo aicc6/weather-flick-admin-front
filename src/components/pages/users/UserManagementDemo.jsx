@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Users, Plus } from 'lucide-react'
-import { useGetUsersQuery, useDeleteUserMutation } from '../../../store/api/usersApi'
+import {
+  useGetUsersQuery,
+  useDeleteUserMutation,
+} from '../../../store/api/usersApi'
 import { useAuth } from '../../../contexts/AuthContext'
 
 // 새로운 공통 컴포넌트들 사용
@@ -32,10 +35,11 @@ export function UserManagementDemo() {
 
   const users = usersData?.users || []
 
-  const filteredUsers = users.filter((user) =>
-    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const handleDeleteUser = async () => {
@@ -54,7 +58,7 @@ export function UserManagementDemo() {
   // 에러 상태 - 새로운 ErrorDisplay 사용
   if (error) {
     return (
-      <ErrorDisplay 
+      <ErrorDisplay
         error={error}
         onRetry={refetch}
         variant="center"
@@ -72,8 +76,7 @@ export function UserManagementDemo() {
         icon={Users}
         action={
           <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            새 사용자
+            <Plus className="h-4 w-4" />새 사용자
           </Button>
         }
       />
@@ -103,7 +106,9 @@ export function UserManagementDemo() {
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{user.full_name || '이름 없음'}</p>
+                      <p className="font-medium">
+                        {user.full_name || '이름 없음'}
+                      </p>
                       <p className="text-sm text-gray-500">ID: {user.id}</p>
                     </div>
                   </TableCell>
@@ -131,7 +136,7 @@ export function UserManagementDemo() {
           </Table>
 
           {filteredUsers.length === 0 && (
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <p className="text-muted-foreground">
                 {searchTerm ? '검색 결과가 없습니다.' : '사용자가 없습니다.'}
               </p>

@@ -1,16 +1,13 @@
 import { createContext, useContext, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { 
-  setUser, 
-  setLoading, 
-  setError, 
-  logout as logoutAction, 
-  initializeAuth 
+import {
+  setUser,
+  setLoading,
+  setError,
+  logout as logoutAction,
+  initializeAuth,
 } from '../store/slices/authSlice'
-import { 
-  useLoginMutation, 
-  useGetCurrentUserQuery 
-} from '../store/api/authApi'
+import { useLoginMutation, useGetCurrentUserQuery } from '../store/api/authApi'
 import { STORAGE_KEYS } from '../constants/storage'
 
 const AuthContext = createContext()
@@ -25,11 +22,15 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch()
-  const { user, loading, error, isAuthenticated } = useSelector((state) => state.auth)
-  
+  const { user, loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth,
+  )
+
   // RTK Query 훅들
   const [loginMutation] = useLoginMutation()
-  const { refetch: getCurrentUser } = useGetCurrentUserQuery(undefined, { skip: true })
+  const { refetch: getCurrentUser } = useGetCurrentUserQuery(undefined, {
+    skip: true,
+  })
 
   // 초기화 시 Redux store 초기화
   useEffect(() => {
@@ -62,7 +63,8 @@ export const AuthProvider = ({ children }) => {
       return { success: true }
     } catch (error) {
       console.error('Login failed:', error)
-      const errorMessage = error.data?.detail || error.message || '로그인에 실패했습니다.'
+      const errorMessage =
+        error.data?.detail || error.message || '로그인에 실패했습니다.'
       dispatch(setError(errorMessage))
       return {
         success: false,

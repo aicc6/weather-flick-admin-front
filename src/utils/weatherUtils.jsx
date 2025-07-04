@@ -24,11 +24,11 @@ export function getWeatherDescription(skyCondition) {
 
 export function calculateWeatherStats(weatherData) {
   const validData = Object.values(weatherData).filter(
-    (data) => data.temperature !== undefined && data.temperature !== null
+    (data) => data.temperature !== undefined && data.temperature !== null,
   )
-  
+
   const temperatures = validData.map((data) => parseInt(data.temperature))
-  
+
   if (temperatures.length === 0) {
     return null
   }
@@ -36,16 +36,16 @@ export function calculateWeatherStats(weatherData) {
   const avgTemp = (
     temperatures.reduce((a, b) => a + b, 0) / temperatures.length
   ).toFixed(1)
-  
+
   const maxTemp = Math.max(...temperatures)
   const minTemp = Math.min(...temperatures)
-  
+
   const maxTempRegion = validData.find(
-    (data) => parseInt(data.temperature) === maxTemp
+    (data) => parseInt(data.temperature) === maxTemp,
   )
-  
+
   const minTempRegion = validData.find(
-    (data) => parseInt(data.temperature) === minTemp
+    (data) => parseInt(data.temperature) === minTemp,
   )
 
   return {

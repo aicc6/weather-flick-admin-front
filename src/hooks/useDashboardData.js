@@ -4,26 +4,26 @@ import { authHttp } from '../lib/http'
 export function useDashboardData() {
   // 관광지 대시보드 요약 데이터
   const [tourSummary, setTourSummary] = useState({ items: [], total: 0 })
-  
+
   // 사용자/관리자 요약 데이터
   const [userSummary, setUserSummary] = useState({
     total: 0,
     active: 0,
     inactive: 0,
   })
-  
+
   const [adminSummary, setAdminSummary] = useState({
     total: 0,
     active: 0,
     inactive: 0,
   })
-  
+
   // DB 기반 날씨 요약 데이터
   const [weatherData, setWeatherData] = useState({})
   const [weatherLoading, setWeatherLoading] = useState(true)
   const [weatherError, setWeatherError] = useState('')
   const [weatherLastUpdated, setWeatherLastUpdated] = useState(null)
-  
+
   // 시스템 상태 요약 데이터
   const [systemStatus, setSystemStatus] = useState(null)
 
@@ -33,7 +33,7 @@ export function useDashboardData() {
       setWeatherError('')
       const res = await authHttp.GET('/weather/summary-db')
       const data = await res.json()
-      
+
       // Convert to { code: data } map for compatibility
       const regionMap = {}
       data.regions?.forEach((region) => {
@@ -46,12 +46,12 @@ export function useDashboardData() {
           sky_condition: region.sky_condition,
         }
       })
-      
+
       setWeatherData(regionMap)
       setWeatherLastUpdated(
         data.summary?.last_updated
           ? new Date(data.summary.last_updated)
-          : new Date()
+          : new Date(),
       )
     } catch (err) {
       setWeatherError('날씨 데이터를 불러오는데 실패했습니다.')

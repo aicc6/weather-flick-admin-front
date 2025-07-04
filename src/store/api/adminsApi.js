@@ -12,7 +12,7 @@ export const adminsApi = createApi({
         if (params.page) queryParams.append('page', params.page.toString())
         if (params.limit) queryParams.append('limit', params.limit.toString())
         if (params.search) queryParams.append('search', params.search)
-        
+
         return `/auth/admins?${queryParams.toString()}`
       },
       providesTags: ['Admin'],
@@ -79,7 +79,9 @@ export const adminsApi = createApi({
         url: `/auth/admins/${adminId}/reset-password`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, adminId) => [{ type: 'Admin', id: adminId }],
+      invalidatesTags: (result, error, adminId) => [
+        { type: 'Admin', id: adminId },
+      ],
     }),
 
     updateAdminStatus: builder.mutation({
@@ -88,7 +90,9 @@ export const adminsApi = createApi({
         method: 'PUT',
         body: { status },
       }),
-      invalidatesTags: (result, error, { adminId }) => [{ type: 'Admin', id: adminId }],
+      invalidatesTags: (result, error, { adminId }) => [
+        { type: 'Admin', id: adminId },
+      ],
     }),
   }),
 })

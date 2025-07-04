@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { 
+import {
   useGetAdminsQuery,
   useCreateAdminMutation,
   useUpdateAdminMutation,
-  useDeleteAdminMutation
+  useDeleteAdminMutation,
 } from '../../store/api/adminsApi'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -42,15 +42,15 @@ import {
 
 export const AdminsPage = () => {
   const { user } = useAuth()
-  
+
   // RTK Query 훅들
   const {
     data: adminsData,
     isLoading: loading,
     error,
-    refetch: refetchAdmins
+    refetch: refetchAdmins,
   } = useGetAdminsQuery({ page: 1, size: 50 })
-  
+
   const [createAdminMutation] = useCreateAdminMutation()
   const [updateAdminMutation] = useUpdateAdminMutation()
   const [deleteAdminMutation] = useDeleteAdminMutation()
@@ -80,9 +80,9 @@ export const AdminsPage = () => {
 
   const handleUpdateAdmin = async () => {
     try {
-      await updateAdminMutation({ 
-        adminId: selectedAdmin.admin_id, 
-        data: formData 
+      await updateAdminMutation({
+        adminId: selectedAdmin.admin_id,
+        data: formData,
       }).unwrap()
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
@@ -325,7 +325,7 @@ export const AdminsPage = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDeactivateAdmin(admin.admin_id)}
+                      onClick={() => console.log('비활성화:', admin.admin_id)}
                     >
                       비활성화
                     </Button>
@@ -333,7 +333,7 @@ export const AdminsPage = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleActivateAdmin(admin.admin_id)}
+                      onClick={() => console.log('활성화:', admin.admin_id)}
                     >
                       활성화
                     </Button>

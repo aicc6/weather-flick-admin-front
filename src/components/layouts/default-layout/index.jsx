@@ -1,12 +1,16 @@
 import { Footer } from './footer'
 import { Header } from './header'
+import { Breadcrumb } from '../../common/Breadcrumb'
 
 export function DefaultLayout({ children }) {
   return (
-    <div>
+    <div className="bg-background min-h-screen">
       <Header />
 
-      <main>{children}</main>
+      <main className="container-padded">
+        <Breadcrumb className="mb-6" />
+        {children}
+      </main>
 
       <Footer />
     </div>

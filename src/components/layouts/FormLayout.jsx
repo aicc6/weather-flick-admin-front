@@ -1,20 +1,18 @@
 import { Button } from '../ui/button'
 
-export function FormLayout({ 
-  children, 
+export function FormLayout({
+  children,
   onSubmit,
   onCancel,
   submitText = '저장',
   cancelText = '취소',
   showActions = true,
-  className = ''
+  className = '',
 }) {
   return (
     <form onSubmit={onSubmit} className={`section-layout ${className}`}>
-      <div className="form-layout">
-        {children}
-      </div>
-      
+      <div className="form-layout">{children}</div>
+
       {showActions && (
         <div className="form-actions">
           {onCancel && (
@@ -22,9 +20,7 @@ export function FormLayout({
               {cancelText}
             </Button>
           )}
-          <Button type="submit">
-            {submitText}
-          </Button>
+          <Button type="submit">{submitText}</Button>
         </div>
       )}
     </form>

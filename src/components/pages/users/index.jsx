@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '../../../components/ui/button'
 import { Input } from '../../../components/ui/input'
 import { Card, CardContent } from '../../../components/ui/card'
@@ -40,10 +40,10 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { useAuth } from '../../../contexts/AuthContext'
-import { 
+import {
   useGetUsersQuery,
   useCreateUserMutation,
-  useDeleteUserMutation
+  useDeleteUserMutation,
 } from '../../../store/api/usersApi'
 
 /**
@@ -56,13 +56,13 @@ export function UsersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
 
   // RTK Query 훅들
-  const { 
-    data: usersData, 
-    isLoading: loading, 
-    error, 
-    refetch: refetchUsers 
+  const {
+    data: usersData,
+    isLoading: loading,
+    error,
+    refetch: refetchUsers,
   } = useGetUsersQuery(undefined, { skip: !isAuthenticated })
-  
+
   const [createUserMutation] = useCreateUserMutation()
   const [deleteUserMutation] = useDeleteUserMutation()
 
@@ -174,9 +174,7 @@ export function UsersPage() {
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
           <p className="mb-4 text-red-600">{error.message || error}</p>
           <div className="space-x-2">
-            <Button onClick={() => refetchUsers()}>
-              다시 시도
-            </Button>
+            <Button onClick={() => refetchUsers()}>다시 시도</Button>
             <Button
               variant="outline"
               onClick={() => (window.location.href = '/login')}

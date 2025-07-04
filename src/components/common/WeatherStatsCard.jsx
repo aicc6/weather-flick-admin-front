@@ -1,5 +1,11 @@
 import { Cloud, Sun, CheckCircle } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../ui/card'
 import { calculateWeatherStats } from '../../utils/weatherUtils.jsx'
 
 export function WeatherStatsCard({ weatherData }) {
@@ -10,9 +16,7 @@ export function WeatherStatsCard({ weatherData }) {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle>날씨 통계</CardTitle>
-          <CardDescription>
-            주요 도시들의 날씨 통계 정보입니다.
-          </CardDescription>
+          <CardDescription>주요 도시들의 날씨 통계 정보입니다.</CardDescription>
         </div>
         <Cloud className="h-6 w-6 text-blue-400" />
       </CardHeader>
