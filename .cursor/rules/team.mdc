@@ -1,37 +1,781 @@
----
-description:
-globs:
-alwaysApply: false
----
-You are a Senior Front-End Developer and an Expert in ReactJS, JavaScript, HTML, CSS and modern UI/UX frameworks (e.g., TailwindCSS, Shadcn, Radix). You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual, thoughtful answers, and are a genius at reasoning.
+# Weather Flick Admin Dashboard - Cursor Team Rules
 
-- Follow the user’s requirements carefully & to the letter.
-- First think step-by-step - describe your plan for what to build in pseudocode, written out in great detail.
-- Confirm, then write code!
-- Always write correct, best practice, DRY principle (Dont Repeat Yourself), bug free, fully functional and working code also it should be aligned to listed rules down below at Code Implementation Guidelines .
-- Focus on easy and readability code, over being performant.
-- Fully implement all requested functionality.
-- Leave NO todo’s, placeholders or missing pieces.
-- Ensure code is complete! Verify thoroughly finalised.
-- Include all required imports, and ensure proper naming of key components.
-- Be concise Minimize any other prose.
-- If you think there might not be a correct answer, you say so.
-- If you do not know the answer, say so, instead of guessing.
+## 프로젝트 개요
+Weather Flick 관리자 대시보드는 시스템 관리, 사용자 관리, 데이터 모니터링을 위한 React 18 + Redux Toolkit 기반 관리 콘솔입니다.
 
-### Coding Environment
-The user asks questions about the following coding languages:
-- ReactJS
-- JavaScript
-- TailwindCSS
-- HTML
-- CSS
+## 기술 스택 (서비스 프로젝트 구조 통일)
+- **Framework**: React 18.3.1
+- **Build Tool**: Vite 6.3.5
+- **Styling**: Tailwind CSS 4.1.10
+- **Router**: React Router DOM 7.6.2
+- **State Management**: Redux Toolkit 2.8.2 + RTK Query
+- **UI Components**: shadcn/ui + Radix UI
+- **Form**: React Hook Form + Zod
+- **Icons**: Lucide React
+- **Charts**: Recharts (React 차트 라이브러리)
+- **Code Quality**: ESLint + Prettier
 
-### Code Implementation Guidelines
-Follow these rules when you write code:
-- Use early returns whenever possible to make the code more readable.
-- Always use Tailwind classes for styling HTML elements; avoid using CSS or tags.
-- Use “class:” instead of the tertiary operator in class tags whenever possible.
-- Use descriptive variable and function/const names. Also, event functions should be named with a “handle” prefix, like “handleClick” for onClick and “handleKeyDown” for onKeyDown.
-- Implement accessibility features on elements. For example, a tag should have a tabindex=“0”, aria-label, on:click, and on:keydown, and similar attributes.
+## 📁 필수 프로젝트 구조 (서비스 프로젝트 구조 통일)
 
-- Use consts instead of functions, for example, “const toggle = () =>”. Also, define a type if possible.
+```
+src/
+├── components/            # 재사용 가능한 컴포넌트
+│   ├── ui/               # shadcn/ui 컴포넌트 (25개)
+│   ├── common/           # 공통 컴포넌트
+│   ├── admin/            # 관리자 전용 컴포넌트
+│   │   ├── dashboard/    # 대시보드 컴포넌트
+│   │   ├── users/        # 사용자 관리 컴포넌트
+│   │   ├── system/       # 시스템 관리 컴포넌트
+│   │   └── auth/         # 권한 관리 컴포넌트
+│   └── icons/            # 커스텀 아이콘
+├── pages/                # 페이지 컴포넌트
+│   ├── auth/             # 관리자 인증 페이지
+│   ├── dashboard/        # 대시보드 메인
+│   ├── users/            # 사용자 관리 페이지
+│   ├── destinations/     # 여행지 관리 페이지
+│   ├── weather/          # 날씨 데이터 관리
+│   └── system/           # 시스템 설정 및 모니터링
+├── layouts/              # 레이아웃 컴포넌트
+│   ├── AdminLayout.jsx   # 관리자 레이아웃
+│   └── AuthLayout.jsx    # 인증 레이아웃
+├── store/                # Redux 상태 관리
+│   ├── slices/           # Redux 슬라이스
+│   │   ├── authSlice.js  # 인증 상태
+│   │   ├── usersSlice.js # 사용자 데이터
+│   │   └── systemSlice.js # 시스템 상태
+│   ├── api/              # RTK Query API
+│   │   ├── authApi.js    # 인증 API
+│   │   ├── usersApi.js   # 사용자 API
+│   │   └── systemApi.js  # 시스템 API
+│   └── index.js          # 스토어 설정
+├── hooks/                # 커스텀 훅
+│   ├── useAuth.js        # 인증 훅
+│   ├── usePermissions.js # 권한 관리 훅
+│   └── useAdminTable.js  # 관리자 테이블 훅
+├── services/             # API 서비스
+│   ├── api.js            # 기본 API 클라이언트
+│   └── auth.js           # 인증 서비스
+├── utils/                # 유틸리티 함수
+│   ├── permissions.js    # 권한 관리 유틸리티
+│   ├── formatters.js     # 데이터 포매터
+│   └── validation.js     # 입력 검증 유틸리티
+├── data/                 # 정적 데이터
+│   ├── mockData.js       # 목 데이터
+│   └── constants.js      # 상수 정의
+├── schemas/              # Zod 스키마
+│   ├── auth.js           # 인증 스키마
+│   └── admin.js          # 관리자 스키마
+└── constants/            # 상수 정의
+    ├── roles.js          # 역할 상수
+    └── permissions.js    # 권한 상수
+```
+
+## 관리자 대시보드 특화 규칙
+
+### 1. 권한 기반 접근 제어 (RBAC) 패턴
+
+#### 역할 기반 라우팅 필수
+```jsx
+// ✅ 필수: 모든 관리자 페이지에 역할 기반 라우팅 적용
+import { RoleBasedRoute } from '@/components/auth/RoleBasedRoute'
+
+const AdminUserManagement = () => {
+  return (
+    <RoleBasedRoute requiredRole="super_admin">
+      <UserManagementPage />
+    </RoleBasedRoute>
+  )
+}
+
+// ✅ 컴포넌트 레벨 권한 체크
+import { usePermissions } from '@/components/auth/RoleBasedRoute'
+
+const AdminComponent = () => {
+  const { isSuperAdmin, isAdmin, hasRole } = usePermissions()
+  
+  return (
+    <div>
+      {isSuperAdmin && <SuperAdminPanel />}
+      {isAdmin && <AdminPanel />}
+      {hasRole('user') && <UserPanel />}
+    </div>
+  )
+}
+```
+
+#### 데이터 접근 권한 체크
+```jsx
+// ✅ API 호출 시 권한 확인
+const useSecureApiCall = (endpoint, requiredRole) => {
+  const { hasRole } = usePermissions()
+  
+  const fetchData = useCallback(async () => {
+    if (!hasRole(requiredRole)) {
+      throw new Error('접근 권한이 없습니다.')
+    }
+    return await apiClient.get(endpoint)
+  }, [endpoint, requiredRole, hasRole])
+  
+  return { fetchData }
+}
+```
+
+### 2. 관리자 대시보드 UI/UX 패턴
+
+#### 통계 대시보드 컴포넌트
+```jsx
+// ✅ 표준화된 통계 카드 사용
+import { StatsCard } from '@/components/common/StatsCard'
+
+const AdminDashboard = () => {
+  const { data: userStats } = useUserStats()
+  
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatsCard
+        title="전체 사용자"
+        description="시스템 등록 사용자"
+        icon={Users}
+        iconColor="text-blue-500"
+        total={userStats.total}
+        active={userStats.active}
+        inactive={userStats.inactive}
+        totalColor="text-blue-600"
+      />
+      <StatsCard
+        title="관광지"
+        description="등록된 관광지 수"
+        icon={MapPin}
+        iconColor="text-green-500"
+        total={attractionStats.total}
+        active={attractionStats.active}
+        inactive={attractionStats.inactive}
+        totalColor="text-green-600"
+      />
+    </div>
+  )
+}
+```
+
+#### 관리자 전용 데이터 테이블
+```jsx
+// ✅ 관리자 테이블 표준 패턴
+const AdminTable = memo(({ data, columns, onEdit, onDelete, onToggleStatus }) => {
+  const [selectedRows, setSelectedRows] = useState([])
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
+  
+  const handleBulkAction = useCallback((action) => {
+    switch (action) {
+      case 'activate':
+        onBulkStatusChange(selectedRows, true)
+        break
+      case 'deactivate':
+        onBulkStatusChange(selectedRows, false)
+        break
+      case 'delete':
+        onBulkDelete(selectedRows)
+        break
+    }
+  }, [selectedRows, onBulkStatusChange, onBulkDelete])
+  
+  return (
+    <div className="admin-table-container">
+      {/* 테이블 액션 바 */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleBulkAction('activate')}
+            disabled={selectedRows.length === 0}
+          >
+            선택 활성화
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleBulkAction('deactivate')}
+            disabled={selectedRows.length === 0}
+          >
+            선택 비활성화
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleBulkAction('delete')}
+            disabled={selectedRows.length === 0}
+          >
+            선택 삭제
+          </Button>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {selectedRows.length}개 선택됨
+        </div>
+      </div>
+      
+      {/* 테이블 본체 */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={selectedRows.length === data.length}
+                onCheckedChange={handleSelectAll}
+              />
+            </TableHead>
+            {columns.map(column => (
+              <TableHead key={column.key}>
+                {column.sortable ? (
+                  <button
+                    onClick={() => handleSort(column.key)}
+                    className="flex items-center gap-1 hover:text-foreground"
+                  >
+                    {column.header}
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                ) : (
+                  column.header
+                )}
+              </TableHead>
+            ))}
+            <TableHead className="text-right">액션</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedData.map(item => (
+            <TableRow key={item.id}>
+              <TableCell>
+                <Checkbox
+                  checked={selectedRows.includes(item.id)}
+                  onCheckedChange={() => handleSelectRow(item.id)}
+                />
+              </TableCell>
+              {columns.map(column => (
+                <TableCell key={column.key}>
+                  {column.render ? column.render(item) : item[column.key]}
+                </TableCell>
+              ))}
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onEdit(item)}>
+                      편집
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onToggleStatus(item)}>
+                      {item.is_active ? '비활성화' : '활성화'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(item)}
+                      className="text-destructive"
+                    >
+                      삭제
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+})
+```
+
+### 3. 보안 강화 패턴 (관리자 특화)
+
+#### 민감한 데이터 마스킹
+```jsx
+// ✅ 민감한 정보 표시 시 마스킹 처리
+const MaskedData = ({ data, type, showFull = false }) => {
+  const [isRevealed, setIsRevealed] = useState(showFull)
+  
+  const maskData = (value, type) => {
+    switch (type) {
+      case 'email':
+        return value.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+      case 'phone':
+        return value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-****-$3')
+      case 'id':
+        return value.replace(/(.{4})(.*)/, '$1***')
+      default:
+        return '***'
+    }
+  }
+  
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-mono">
+        {isRevealed ? data : maskData(data, type)}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsRevealed(!isRevealed)}
+      >
+        {isRevealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </Button>
+    </div>
+  )
+}
+```
+
+#### 중요 액션 확인 다이얼로그
+```jsx
+// ✅ 중요한 관리자 작업 시 확인 다이얼로그 필수
+const AdminActionButton = ({ action, onConfirm, children, ...props }) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  
+  const handleConfirm = async () => {
+    try {
+      await onConfirm()
+      setIsConfirmOpen(false)
+    } catch (error) {
+      console.error('Action failed:', error)
+    }
+  }
+  
+  return (
+    <>
+      <Button
+        onClick={() => setIsConfirmOpen(true)}
+        {...props}
+      >
+        {children}
+      </Button>
+      
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>작업 확인</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 작업을 실행하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              <br />
+              <strong>작업: {action}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              className="bg-destructive text-destructive-foreground"
+            >
+              확인
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
+```
+
+### 4. 시스템 모니터링 및 알림 패턴
+
+#### 실시간 시스템 상태 표시
+```jsx
+// ✅ 시스템 상태 모니터링 컴포넌트
+const SystemStatus = () => {
+  const { data: systemHealth } = useSystemHealth()
+  const { data: serverStats } = useServerStats()
+  
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <SystemStatusCard
+        title="서버 상태"
+        status={systemHealth.server}
+        uptime={serverStats.uptime}
+        lastChecked={systemHealth.lastChecked}
+      />
+      <SystemStatusCard
+        title="데이터베이스"
+        status={systemHealth.database}
+        connections={serverStats.dbConnections}
+        responseTime={systemHealth.dbResponseTime}
+      />
+      <SystemStatusCard
+        title="API 상태"
+        status={systemHealth.api}
+        requestsPerMinute={serverStats.requestsPerMinute}
+        errorRate={systemHealth.errorRate}
+      />
+    </div>
+  )
+}
+```
+
+#### 관리자 알림 시스템
+```jsx
+// ✅ 관리자 전용 알림 시스템
+const AdminNotifications = () => {
+  const { data: notifications } = useAdminNotifications()
+  
+  return (
+    <div className="admin-notifications">
+      {notifications.map(notification => (
+        <div
+          key={notification.id}
+          className={cn(
+            "border-l-4 p-4 mb-2",
+            {
+              'border-red-500 bg-red-50': notification.level === 'critical',
+              'border-yellow-500 bg-yellow-50': notification.level === 'warning',
+              'border-blue-500 bg-blue-50': notification.level === 'info',
+            }
+          )}
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <h4 className="font-semibold">{notification.title}</h4>
+              <p className="text-sm text-muted-foreground">
+                {notification.message}
+              </p>
+              <time className="text-xs text-muted-foreground">
+                {formatDateTime(notification.createdAt)}
+              </time>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => markAsRead(notification.id)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+### 5. Redux Toolkit 상태 관리 패턴
+
+#### 관리자 전용 API 슬라이스
+```jsx
+// ✅ RTK Query로 관리자 API 관리
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQuery } from './baseQuery'
+
+export const adminApi = createApi({
+  reducerPath: 'adminApi',
+  baseQuery: baseQuery,
+  tagTypes: ['User', 'Admin', 'System', 'Content'],
+  endpoints: (builder) => ({
+    // 사용자 관리
+    getUsers: builder.query({
+      query: ({ page = 1, limit = 10, search = '', status = 'all' }) => ({
+        url: '/admin/users',
+        params: { page, limit, search, status }
+      }),
+      providesTags: ['User']
+    }),
+    
+    updateUserStatus: builder.mutation({
+      query: ({ userId, status }) => ({
+        url: `/admin/users/${userId}/status`,
+        method: 'PUT',
+        body: { status }
+      }),
+      invalidatesTags: ['User']
+    }),
+    
+    // 시스템 관리
+    getSystemHealth: builder.query({
+      query: () => '/admin/system/health',
+      providesTags: ['System']
+    }),
+    
+    getSystemLogs: builder.query({
+      query: ({ level = 'all', page = 1, limit = 50 }) => ({
+        url: '/admin/system/logs',
+        params: { level, page, limit }
+      }),
+      providesTags: ['System']
+    })
+  })
+})
+
+export const {
+  useGetUsersQuery,
+  useUpdateUserStatusMutation,
+  useGetSystemHealthQuery,
+  useGetSystemLogsQuery
+} = adminApi
+```
+
+#### 관리자 UI 상태 관리
+```jsx
+// ✅ 관리자 대시보드 UI 상태 슬라이스
+const adminUiSlice = createSlice({
+  name: 'adminUi',
+  initialState: {
+    sidebar: {
+      isCollapsed: false,
+      activeSection: 'dashboard'
+    },
+    tableSettings: {
+      pageSize: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    },
+    notifications: {
+      isOpen: false,
+      unreadCount: 0
+    },
+    activeFilters: {}
+  },
+  reducers: {
+    toggleSidebar: (state) => {
+      state.sidebar.isCollapsed = !state.sidebar.isCollapsed
+    },
+    setActiveSection: (state, action) => {
+      state.sidebar.activeSection = action.payload
+    },
+    updateTableSettings: (state, action) => {
+      state.tableSettings = { ...state.tableSettings, ...action.payload }
+    },
+    setNotificationCount: (state, action) => {
+      state.notifications.unreadCount = action.payload
+    },
+    setActiveFilters: (state, action) => {
+      state.activeFilters = action.payload
+    }
+  }
+})
+```
+
+### 6. 성능 최적화 패턴
+
+#### 대용량 데이터 테이블 최적화
+```jsx
+// ✅ 가상화된 테이블 for 대용량 데이터
+import { useVirtualizer } from '@tanstack/react-virtual'
+
+const VirtualizedTable = ({ data, columns }) => {
+  const parentRef = useRef()
+  
+  const rowVirtualizer = useVirtualizer({
+    count: data.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 50,
+    overscan: 10
+  })
+  
+  return (
+    <div
+      ref={parentRef}
+      className="h-[400px] overflow-auto"
+    >
+      <div
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative'
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+          <div
+            key={virtualRow.index}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${virtualRow.size}px`,
+              transform: `translateY(${virtualRow.start}px)`
+            }}
+          >
+            <TableRow data={data[virtualRow.index]} columns={columns} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+```
+
+#### 차트 및 데이터 시각화 최적화
+```jsx
+// ✅ 차트 컴포넌트 지연 로딩
+const LazyChart = lazy(() => import('./Chart'))
+
+const DashboardChart = ({ data, type }) => {
+  const [shouldRender, setShouldRender] = useState(false)
+  const chartRef = useRef()
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRender(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.1 }
+    )
+    
+    if (chartRef.current) {
+      observer.observe(chartRef.current)
+    }
+    
+    return () => observer.disconnect()
+  }, [])
+  
+  return (
+    <div ref={chartRef} className="chart-container">
+      {shouldRender ? (
+        <Suspense fallback={<ChartSkeleton />}>
+          <LazyChart data={data} type={type} />
+        </Suspense>
+      ) : (
+        <ChartSkeleton />
+      )}
+    </div>
+  )
+}
+```
+
+### 7. 에러 처리 및 로깅 패턴
+
+#### 관리자 전용 에러 핸들링
+```jsx
+// ✅ 상세한 에러 정보 표시 (관리자용)
+const AdminErrorBoundary = ({ children }) => {
+  const [hasError, setHasError] = useState(false)
+  const [error, setError] = useState(null)
+  
+  const logError = (error, errorInfo) => {
+    // 관리자 에러 로깅
+    console.error('Admin Error:', error)
+    console.error('Error Info:', errorInfo)
+    
+    // 에러 리포팅 서비스로 전송
+    sendErrorReport({
+      error: error.toString(),
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    })
+  }
+  
+  if (hasError) {
+    return (
+      <div className="error-boundary-admin">
+        <h2>관리자 시스템 오류</h2>
+        <details className="error-details">
+          <summary>오류 상세 정보</summary>
+          <pre>{error?.stack}</pre>
+        </details>
+        <Button onClick={() => {
+          setHasError(false)
+          setError(null)
+        }}>
+          다시 시도
+        </Button>
+      </div>
+    )
+  }
+  
+  return children
+}
+```
+
+## 파일 구조 표준
+
+```
+src/
+├── components/
+│   ├── admin/              # 관리자 전용 컴포넌트
+│   │   ├── UserManagement/
+│   │   ├── SystemMonitor/
+│   │   └── DataAnalytics/
+│   ├── auth/               # 인증 및 권한 관리
+│   │   ├── RoleBasedRoute.jsx
+│   │   └── PermissionGuard.jsx
+│   ├── common/             # 공통 컴포넌트
+│   │   ├── AdminTable.jsx
+│   │   ├── StatsCard.jsx
+│   │   └── SystemStatusCard.jsx
+│   └── ui/                 # 기본 UI 컴포넌트
+├── features/               # 기능별 모듈
+│   ├── dashboard/
+│   ├── user-management/
+│   ├── system-monitoring/
+│   └── data-analytics/
+├── hooks/                  # 관리자 전용 훅
+│   ├── useAdminPermissions.js
+│   ├── useSystemHealth.js
+│   └── useDataTable.js
+├── store/                  # Redux 상태 관리
+│   ├── slices/
+│   │   ├── authSlice.js
+│   │   ├── adminUiSlice.js
+│   │   └── systemSlice.js
+│   └── api/
+│       ├── adminApi.js
+│       ├── usersApi.js
+│       └── systemApi.js
+└── utils/                  # 유틸리티 함수
+    ├── adminHelpers.js
+    ├── dataTransforms.js
+    └── securityHelpers.js
+```
+
+## 관리자 대시보드 필수 체크리스트
+
+- [ ] 모든 관리자 페이지에 권한 기반 접근 제어 적용
+- [ ] 민감한 데이터 마스킹 및 보안 처리
+- [ ] 중요 작업 시 확인 다이얼로그 구현
+- [ ] 실시간 시스템 상태 모니터링
+- [ ] 대용량 데이터 처리 최적화
+- [ ] 관리자 전용 에러 핸들링 및 로깅
+- [ ] 테이블 정렬, 필터링, 페이징 기능
+- [ ] 벌크 액션 (일괄 처리) 기능
+- [ ] 반응형 관리자 UI 구현
+- [ ] 접근성 (ARIA) 속성 추가
+
+## 보안 주의사항
+
+- ❌ 민감한 정보 평문 표시 금지
+- ❌ 권한 확인 없는 API 호출 금지
+- ❌ 클라이언트 사이드 전용 권한 체크 금지
+- ❌ 관리자 토큰 localStorage 장기 저장 금지
+- ❌ 에러 메시지에 시스템 정보 노출 금지
+
+## 성능 최적화 필수사항
+
+- ✅ 대용량 테이블 가상화 적용
+- ✅ 차트 컴포넌트 지연 로딩
+- ✅ 데이터 페칭 최적화 (RTK Query)
+- ✅ 메모이제이션 적극 활용
+- ✅ 불필요한 리렌더링 방지
+
+## 개발 명령어
+
+```bash
+# 개발 서버 실행
+npm run dev
+
+# 린트 검사 (관리자 보안 규칙 포함)
+npm run lint
+
+# 자동 수정
+npm run lint:fix
+
+# 코드 포맷팅
+npm run format
+
+# 프로덕션 빌드
+npm run build
+```
+
+이 규칙들을 준수하여 보안성과 사용성을 갖춘 관리자 대시보드를 구축하세요.
