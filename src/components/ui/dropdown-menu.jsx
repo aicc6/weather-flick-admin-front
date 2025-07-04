@@ -1,3 +1,4 @@
+import * as React from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
 
@@ -13,14 +14,17 @@ function DropdownMenuPortal({ ...props }) {
   )
 }
 
-function DropdownMenuTrigger({ ...props }) {
+const DropdownMenuTrigger = React.forwardRef((props, ref) => {
   return (
     <DropdownMenuPrimitive.Trigger
+      ref={ref}
       data-slot="dropdown-menu-trigger"
       {...props}
     />
   )
-}
+})
+
+DropdownMenuTrigger.displayName = 'DropdownMenuTrigger'
 
 function DropdownMenuContent({ className, sideOffset = 4, ...props }) {
   return (
@@ -44,9 +48,10 @@ function DropdownMenuGroup({ ...props }) {
   )
 }
 
-function DropdownMenuItem({ className, inset, variant = 'default', ...props }) {
+const DropdownMenuItem = React.forwardRef(({ className, inset, variant = 'default', ...props }, ref) => {
   return (
     <DropdownMenuPrimitive.Item
+      ref={ref}
       data-slot="dropdown-menu-item"
       data-inset={inset}
       data-variant={variant}
@@ -57,7 +62,9 @@ function DropdownMenuItem({ className, inset, variant = 'default', ...props }) {
       {...props}
     />
   )
-}
+})
+
+DropdownMenuItem.displayName = 'DropdownMenuItem'
 
 function DropdownMenuCheckboxItem({ className, children, checked, ...props }) {
   return (

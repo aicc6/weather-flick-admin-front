@@ -100,7 +100,15 @@ class ApiService {
 
   async getUserStats() {
     const response = await authHttp.GET('/users/stats')
-    return await response.json()
+    const data = await response.json()
+    
+    // 백엔드 응답을 프론트엔드 기대 형태로 변환
+    return {
+      total: data.total_users || 0,
+      active: data.active_users || 0,
+      inactive: (data.total_users || 0) - (data.active_users || 0),
+      admins: data.admin_users || 0
+    }
   }
 
   async getUserById(userId) {
