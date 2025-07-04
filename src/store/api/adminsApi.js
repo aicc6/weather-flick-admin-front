@@ -64,6 +64,32 @@ export const adminsApi = createApi({
       }),
       invalidatesTags: (result, error, id) => [{ type: 'Admin', id }],
     }),
+
+    // apiService에서 이관될 메서드들
+    deleteAdminPermanently: builder.mutation({
+      query: (adminId) => ({
+        url: `/auth/admins/${adminId}/permanent`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Admin'],
+    }),
+
+    resetAdminPassword: builder.mutation({
+      query: (adminId) => ({
+        url: `/auth/admins/${adminId}/reset-password`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, adminId) => [{ type: 'Admin', id: adminId }],
+    }),
+
+    updateAdminStatus: builder.mutation({
+      query: ({ adminId, status }) => ({
+        url: `/auth/admins/${adminId}/status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: (result, error, { adminId }) => [{ type: 'Admin', id: adminId }],
+    }),
   }),
 })
 
@@ -75,4 +101,7 @@ export const {
   useDeleteAdminMutation,
   useActivateAdminMutation,
   useDeactivateAdminMutation,
+  useDeleteAdminPermanentlyMutation,
+  useResetAdminPasswordMutation,
+  useUpdateAdminStatusMutation,
 } = adminsApi

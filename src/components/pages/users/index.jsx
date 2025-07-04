@@ -39,8 +39,12 @@ import {
   Trash2,
   AlertCircle,
 } from 'lucide-react'
-import { apiService } from '../../../services/api'
 import { useAuth } from '../../../contexts/AuthContext'
+import { 
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useDeleteUserMutation
+} from '../../../store/api/usersApi'
 
 /**
  * URL: '/users'
@@ -51,10 +55,17 @@ export function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Users state
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  // RTK Query 훅들
+  const { 
+    data: usersData, 
+    isLoading: loading, 
+    error, 
+    refetch: refetchUsers 
+  } = useGetUsersQuery(undefined, { skip: !isAuthenticated })
+  
+  const [createUserMutation] = useCreateUserMutation()
+  const [deleteUserMutation] = useDeleteUserMutation()
+
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false)
   const [userFormData, setUserFormData] = useState({
     full_name: '',
@@ -64,38 +75,8 @@ export function UsersPage() {
     is_active: true,
   })
 
-  // 사용자 목록 불러오기
-  const loadUsers = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const data = await apiService.getUsers()
-      // 항상 배열로 세팅
-      setUsers(Array.isArray(data) ? data : data.users || [])
-    } catch (err) {
-      console.error('Failed to load users:', err)
-      if (err.message.includes('401') || err.message.includes('403')) {
-        setError('권한이 없습니다. 슈퍼유저로 로그인해주세요.')
-      } else if (err.message.includes('Failed to fetch')) {
-        setError(
-          '서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.',
-        )
-      } else {
-        setError('사용자 목록을 불러오는데 실패했습니다: ' + err.message)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadUsers()
-    } else {
-      setLoading(false)
-      setError('로그인이 필요합니다.')
-    }
-  }, [isAuthenticated])
+  // 사용자 목록 (RTK Query 데이터에서 가져오기)
+  const users = usersData?.users || []
 
   // 사용자 생성
   const handleCreateUser = async () => {
@@ -110,7 +91,7 @@ export function UsersPage() {
 
     try {
       console.log('Creating user:', userFormData)
-      await apiService.createUser(userFormData)
+      await createUserMutation(userFormData).unwrap()
       setIsCreateUserDialogOpen(false)
       setUserFormData({
         full_name: '',
@@ -119,7 +100,6 @@ export function UsersPage() {
         password: '',
         is_active: true,
       })
-      loadUsers()
     } catch (err) {
       console.error('Failed to create user:', err)
       alert(`사용자 생성에 실패했습니다: ${err.message}`)
@@ -130,8 +110,7 @@ export function UsersPage() {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('정말로 이 사용자를 삭제하시겠습니까?')) {
       try {
-        await apiService.deleteUser(userId)
-        loadUsers()
+        await deleteUserMutation(userId).unwrap()
       } catch (err) {
         console.error('Failed to delete user:', err)
         alert(`사용자 삭제에 실패했습니다: ${err.message}`)
@@ -193,14 +172,9 @@ export function UsersPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <p className="mb-4 text-red-600">{error}</p>
+          <p className="mb-4 text-red-600">{error.message || error}</p>
           <div className="space-x-2">
-            <Button
-              onClick={() => {
-                setError(null)
-                loadUsers()
-              }}
-            >
+            <Button onClick={() => refetchUsers()}>
               다시 시도
             </Button>
             <Button

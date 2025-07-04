@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { apiService } from '../../services/api'
+import { 
+  useGetAdminsQuery,
+  useCreateAdminMutation,
+  useUpdateAdminMutation,
+  useDeleteAdminMutation
+} from '../../store/api/adminsApi'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -37,9 +42,19 @@ import {
 
 export const AdminsPage = () => {
   const { user } = useAuth()
-  const [admins, setAdmins] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  
+  // RTK Query 훅들
+  const {
+    data: adminsData,
+    isLoading: loading,
+    error,
+    refetch: refetchAdmins
+  } = useGetAdminsQuery({ page: 1, size: 50 })
+  
+  const [createAdminMutation] = useCreateAdminMutation()
+  const [updateAdminMutation] = useUpdateAdminMutation()
+  const [deleteAdminMutation] = useDeleteAdminMutation()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -50,72 +65,38 @@ export const AdminsPage = () => {
     password: '',
   })
 
-  useEffect(() => {
-    fetchAdmins()
-  }, [])
-
-  const fetchAdmins = async () => {
-    try {
-      setLoading(true)
-      const data = await apiService.getAdmins(1, 50)
-      console.log('Admins API response:', data)
-      setAdmins(data.admins || [])
-    } catch (error) {
-      console.error('Failed to fetch admins:', error)
-      setError('관리자 목록을 불러오는데 실패했습니다.')
-      setAdmins([]) // 에러 시에도 빈 배열로 초기화
-    } finally {
-      setLoading(false)
-    }
-  }
+  // 관리자 목록 (RTK Query 데이터에서 가져오기)
+  const admins = adminsData?.admins || []
 
   const handleCreateAdmin = async () => {
     try {
-      await apiService.createAdmin(formData)
+      await createAdminMutation(formData).unwrap()
       setIsCreateDialogOpen(false)
       setFormData({ email: '', username: '', password: '' })
-      fetchAdmins()
     } catch (error) {
-      setError('관리자 생성에 실패했습니다.')
+      console.error('관리자 생성에 실패했습니다:', error)
     }
   }
 
   const handleUpdateAdmin = async () => {
     try {
-      await apiService.updateAdmin(selectedAdmin.admin_id, formData)
+      await updateAdminMutation({ 
+        adminId: selectedAdmin.admin_id, 
+        data: formData 
+      }).unwrap()
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
       setFormData({ email: '', username: '', password: '' })
-      fetchAdmins()
     } catch (error) {
-      setError('관리자 수정에 실패했습니다.')
+      console.error('관리자 수정에 실패했습니다:', error)
     }
   }
 
   const handleDeleteAdmin = async (adminId) => {
     try {
-      await apiService.deleteAdminPermanently(adminId)
-      fetchAdmins()
+      await deleteAdminMutation(adminId).unwrap()
     } catch (error) {
-      setError('관리자 삭제에 실패했습니다.')
-    }
-  }
-
-  const handleActivateAdmin = async (adminId) => {
-    try {
-      await apiService.activateAdmin(adminId)
-      fetchAdmins()
-    } catch (error) {
-      setError('관리자 활성화에 실패했습니다.')
-    }
-  }
-
-  const handleDeactivateAdmin = async (adminId) => {
-    try {
-      await apiService.deactivateAdmin(adminId)
-      fetchAdmins()
-    } catch (error) {
-      setError('관리자 비활성화에 실패했습니다.')
+      console.error('관리자 삭제에 실패했습니다:', error)
     }
   }
 

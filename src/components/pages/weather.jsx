@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
-import { apiService } from '../../services/api'
-import { authHttp } from '../../lib/http'
+import { 
+  useGetCurrentWeatherQuery,
+  useGetWeatherSummaryQuery,
+  useGetAvailableRegionsQuery 
+} from '../../store/api/weatherApi'
 import {
   Card,
   CardContent,
@@ -21,31 +24,32 @@ import { Alert, AlertDescription } from '../ui/alert'
 import { Badge } from '../ui/badge'
 
 export const WeatherPage = () => {
-  const [weatherData, setWeatherData] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // RTK Query 훅들
+  const {
+    data: weatherData = {},
+    isLoading: loading,
+    error,
+    refetch: refetchWeather
+  } = useGetCurrentWeatherQuery()
+  
+  const {
+    data: weatherSummaryData = {},
+    isLoading: summaryLoading,
+    error: summaryError,
+    refetch: refetchSummary
+  } = useGetWeatherSummaryQuery()
+
   const [lastUpdated, setLastUpdated] = useState(null)
 
-  const fetchWeatherData = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const data = await apiService.getCurrentWeather()
-      setWeatherData(data)
-      setLastUpdated(new Date())
-    } catch (err) {
-      setError('날씨 데이터를 불러오는데 실패했습니다.')
-      console.error('Weather data fetch failed:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchWeatherData()
-
+    setLastUpdated(new Date())
+    
     // 10분마다 자동 새로고침
-    const interval = setInterval(fetchWeatherData, 10 * 60 * 1000)
+    const interval = setInterval(() => {
+      refetchWeather()
+      refetchSummary()
+      setLastUpdated(new Date())
+    }, 10 * 60 * 1000)
 
     return () => clearInterval(interval)
   }, [])
@@ -87,24 +91,14 @@ export const WeatherPage = () => {
     { code: '184', name: '제주' },
   ]
 
-  // DB 기반 날씨 요약 상태
-  const [dbWeatherData, setDbWeatherData] = useState({})
-  const [dbWeatherLoading, setDbWeatherLoading] = useState(true)
-  const [dbWeatherError, setDbWeatherError] = useState('')
-  const [dbWeatherLastUpdated, setDbWeatherLastUpdated] = useState(null)
   // 페이지네이션 상태
   const [dbWeatherPage, setDbWeatherPage] = useState(1)
   const dbWeatherPageSize = 4
 
-  const fetchDbWeatherData = async () => {
-    try {
-      setDbWeatherLoading(true)
-      setDbWeatherError('')
-      const res = await authHttp.GET('/weather/summary-db')
-      const data = await res.json()
-      const regionMap = {}
-      data.regions?.forEach((region) => {
-        regionMap[region.city_code || region.city_name] = {
+  // DB 날씨 데이터는 weatherSummaryData에서 가져오기
+  const dbWeatherData = weatherSummaryData.regions 
+    ? weatherSummaryData.regions.reduce((acc, region) => {
+        acc[region.city_code || region.city_name] = {
           ...region,
           region_name: region.city_name,
           temperature: region.temperature,
@@ -112,24 +106,13 @@ export const WeatherPage = () => {
           wind_speed: region.wind_speed,
           sky_condition: region.sky_condition,
         }
-      })
-      setDbWeatherData(regionMap)
-      setDbWeatherLastUpdated(
-        data.summary?.last_updated
-          ? new Date(data.summary.last_updated)
-          : new Date(),
-      )
-    } catch (err) {
-      setDbWeatherError('DB 날씨 데이터를 불러오는데 실패했습니다.')
-      setDbWeatherData({})
-    } finally {
-      setDbWeatherLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchDbWeatherData()
-  }, [])
+        return acc
+      }, {})
+    : {}
+  
+  const dbWeatherLastUpdated = weatherSummaryData.summary?.last_updated
+    ? new Date(weatherSummaryData.summary.last_updated)
+    : new Date()
 
   if (loading && Object.keys(weatherData).length === 0) {
     return (
@@ -151,7 +134,11 @@ export const WeatherPage = () => {
           </p>
         </div>
         <Button
-          onClick={fetchWeatherData}
+          onClick={() => {
+            refetchWeather()
+            refetchSummary()
+            setLastUpdated(new Date())
+          }}
           disabled={loading}
           className="rounded-lg"
         >
@@ -344,25 +331,25 @@ export const WeatherPage = () => {
               </div>
             )}
             <Button
-              onClick={fetchDbWeatherData}
-              disabled={dbWeatherLoading}
+              onClick={() => refetchSummary()}
+              disabled={summaryLoading}
               size="sm"
             >
               <RefreshCw
-                className={`mr-2 h-4 w-4 ${dbWeatherLoading ? 'animate-spin' : ''}`}
+                className={`mr-2 h-4 w-4 ${summaryLoading ? 'animate-spin' : ''}`}
               />
               새로고침
             </Button>
           </div>
-          {dbWeatherError && (
+          {summaryError && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{dbWeatherError}</AlertDescription>
+              <AlertDescription>DB 날씨 데이터를 불러오는데 실패했습니다.</AlertDescription>
             </Alert>
           )}
           <div className="mb-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {dbWeatherLoading && Object.keys(dbWeatherData).length === 0 ? (
+              {summaryLoading && Object.keys(dbWeatherData).length === 0 ? (
                 <div className="col-span-4 flex h-32 items-center justify-center">
                   <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-gray-900"></div>
                 </div>

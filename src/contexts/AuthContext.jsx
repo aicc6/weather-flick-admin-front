@@ -7,7 +7,10 @@ import {
   logout as logoutAction, 
   initializeAuth 
 } from '../store/slices/authSlice'
-import { apiService } from '../services/api'
+import { 
+  useLoginMutation, 
+  useGetCurrentUserQuery 
+} from '../store/api/authApi'
 import { STORAGE_KEYS } from '../constants/storage'
 
 const AuthContext = createContext()
@@ -23,6 +26,10 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch()
   const { user, loading, error, isAuthenticated } = useSelector((state) => state.auth)
+  
+  // RTK Query 훅들
+  const [loginMutation] = useLoginMutation()
+  const { refetch: getCurrentUser } = useGetCurrentUserQuery(undefined, { skip: true })
 
   // 초기화 시 Redux store 초기화
   useEffect(() => {
@@ -32,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       dispatch(setLoading(true))
-      const response = await apiService.login(email, password)
+      const response = await loginMutation({ email, password }).unwrap()
       console.log('로그인 응답:', response)
 
       // API 응답 구조에 맞게 토큰 저장
@@ -48,17 +55,18 @@ export const AuthProvider = ({ children }) => {
         dispatch(setUser(response.admin))
       } else {
         // 응답에 관리자 정보가 없으면 별도로 조회
-        const userData = await apiService.getCurrentUser()
+        const { data: userData } = await getCurrentUser()
         dispatch(setUser(userData))
       }
 
       return { success: true }
     } catch (error) {
       console.error('Login failed:', error)
-      dispatch(setError(error.message || '로그인에 실패했습니다.'))
+      const errorMessage = error.data?.detail || error.message || '로그인에 실패했습니다.'
+      dispatch(setError(errorMessage))
       return {
         success: false,
-        error: error.message || '로그인에 실패했습니다.',
+        error: errorMessage,
       }
     }
   }

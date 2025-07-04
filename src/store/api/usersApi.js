@@ -4,7 +4,7 @@ import { baseQueryWithAuth } from './baseQuery'
 export const usersApi = createApi({
   reducerPath: 'usersApi',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['User'],
+  tagTypes: ['User', 'UserStats'],
   endpoints: (builder) => ({
     getUsers: builder.query({
       query: (params = {}) => {
@@ -65,6 +65,52 @@ export const usersApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
     }),
+
+    // apiService에서 이관될 메서드들
+    getUserStats: builder.query({
+      query: () => '/users/stats',
+      providesTags: ['UserStats'],
+    }),
+
+    activateUser: builder.mutation({
+      query: (userId) => ({
+        url: `/users/${userId}/activate`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['User', 'UserStats'],
+    }),
+
+    deactivateUser: builder.mutation({
+      query: (userId) => ({
+        url: `/users/${userId}/deactivate`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['User', 'UserStats'],
+    }),
+
+    resetUserPassword: builder.mutation({
+      query: (userId) => ({
+        url: `/users/${userId}/reset-password`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, userId) => [{ type: 'User', id: userId }],
+    }),
+
+    searchUsers: builder.query({
+      query: (keyword, limit = 20) => ({
+        url: '/users/search',
+        params: { keyword, limit },
+      }),
+      providesTags: ['User'],
+    }),
+
+    getUsersByRegion: builder.query({
+      query: (region) => ({
+        url: '/users/by-region',
+        params: { region },
+      }),
+      providesTags: ['User'],
+    }),
   }),
 })
 
@@ -75,4 +121,10 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUpdateUserStatusMutation,
+  useGetUserStatsQuery,
+  useActivateUserMutation,
+  useDeactivateUserMutation,
+  useResetUserPasswordMutation,
+  useSearchUsersQuery,
+  useGetUsersByRegionQuery,
 } = usersApi

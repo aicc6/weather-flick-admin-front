@@ -1,6 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { apiService } from '../../services/api'
+import { 
+  useGetUserStatsQuery,
+  useGetUsersQuery,
+  useDeleteUserMutation,
+  useResetUserPasswordMutation,
+  useActivateUserMutation,
+  useDeactivateUserMutation,
+} from '../../store/api/usersApi'
+import {
+  useGetAdminsQuery,
+  useCreateAdminMutation,
+  useDeleteAdminPermanentlyMutation,
+  useResetAdminPasswordMutation,
+  useActivateAdminMutation,
+  useDeactivateAdminMutation,
+} from '../../store/api/adminsApi'
 import { Card } from '../ui/card'
 import {
   Table,
@@ -54,16 +69,29 @@ import {
 
 export const UsersPage = () => {
   const { user } = useAuth()
-  const [stats, setStats] = useState(null)
-  const [users, setUsers] = useState([])
-  const [admins, setAdmins] = useState([])
-  const [loading, setLoading] = useState(true)
+  
+  // RTK Query 훅들
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetUserStatsQuery()
+  const { data: usersData, isLoading: usersLoading, error: usersError, refetch: refetchUsers } = useGetUsersQuery({ page: 1, size: 50 })
+  const { data: adminsData, isLoading: adminsLoading, error: adminsError, refetch: refetchAdmins } = useGetAdminsQuery({ page: 1, limit: 50 })
+  
+  // Mutation 훅들
+  const [createAdmin] = useCreateAdminMutation()
+  const [deleteUser] = useDeleteUserMutation()
+  const [deleteAdminPermanently] = useDeleteAdminPermanentlyMutation()
+  const [resetUserPassword] = useResetUserPasswordMutation()
+  const [resetAdminPassword] = useResetAdminPasswordMutation()
+  const [activateUser] = useActivateUserMutation()
+  const [deactivateUser] = useDeactivateUserMutation()
+  const [activateAdmin] = useActivateAdminMutation()
+  const [deactivateAdmin] = useDeactivateAdminMutation()
+  
+  // 로컬 상태 (UI 전용)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('users')
   const [selectedUser, setSelectedUser] = useState(null)
   const [isCreateAdminDialogOpen, setIsCreateAdminDialogOpen] = useState(false)
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
-    useState(false)
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
   const [newAdmin, setNewAdmin] = useState({
@@ -73,44 +101,24 @@ export const UsersPage = () => {
     phone: '',
   })
 
-  // 데이터 로드
+  // 파생 상태
+  const users = usersData?.users || []
+  const admins = adminsData?.admins || []
+  const loading = statsLoading || usersLoading || adminsLoading
+  const error = statsError || usersError || adminsError
+
+  // 에러 로깅
   useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      console.log('Loading user management data...')
-
-      const [userStats, usersList, adminsList] = await Promise.all([
-        apiService.getUserStats(),
-        apiService.getUsers(1, 50),
-        apiService.getAdmins(1, 50),
-      ])
-
-      console.log('User stats:', userStats)
-      console.log('Users list:', usersList)
-      console.log('Admins list:', adminsList)
-
-      setStats(userStats)
-      setUsers(usersList.users || [])
-      setAdmins(adminsList.admins || [])
-
-      console.log('Data loaded successfully')
-    } catch (error) {
+    if (error) {
       console.error('Failed to load data:', error)
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      })
-
-      // 사용자에게 에러 표시
-      alert(`데이터 로딩에 실패했습니다: ${error.message}`)
-    } finally {
-      setLoading(false)
     }
+  }, [error])
+
+  // 데이터 새로고침
+  const handleRefreshData = () => {
+    refetchStats()
+    refetchUsers()
+    refetchAdmins()
   }
 
   // 검색 필터링
@@ -129,10 +137,10 @@ export const UsersPage = () => {
   // 관리자 생성
   const handleCreateAdmin = async () => {
     try {
-      await apiService.createAdmin(newAdmin)
+      await createAdmin(newAdmin).unwrap()
       setIsCreateAdminDialogOpen(false)
       setNewAdmin({ email: '', name: '', password: '', phone: '' })
-      loadData()
+      // RTK Query가 자동으로 캐시를 무효화하므로 수동 리로딩 불필요
     } catch (error) {
       console.error('Failed to create admin:', error)
       alert('관리자 생성에 실패했습니다.')
@@ -145,18 +153,17 @@ export const UsersPage = () => {
 
     try {
       if (activeTab === 'users') {
-        await apiService.deleteUser(actionUser.user_id)
+        await deleteUser(actionUser.user_id).unwrap()
       } else {
-        await apiService.deleteAdminPermanently(actionUser.admin_id)
+        await deleteAdminPermanently(actionUser.admin_id).unwrap()
       }
 
-      await loadData()
       setIsDeleteDialogOpen(false)
       setActionUser(null)
     } catch (error) {
       console.error('Failed to delete:', error)
       const errorMsg =
-        error.response?.data?.detail || error.message || '삭제에 실패했습니다.'
+        error.data?.detail || error.message || '삭제에 실패했습니다.'
       alert(errorMsg)
     }
   }
@@ -171,7 +178,7 @@ export const UsersPage = () => {
       let response
 
       if (activeTab === 'users') {
-        response = await apiService.resetUserPassword(userId)
+        response = await resetUserPassword(userId).unwrap()
 
         if (response.email_sent) {
           alert(
@@ -183,19 +190,18 @@ export const UsersPage = () => {
           )
         }
       } else {
-        response = await apiService.resetAdminPassword(userId)
+        response = await resetAdminPassword(userId).unwrap()
         alert(
           `관리자 비밀번호가 초기화되었습니다.\n\n임시 비밀번호: ${response.temporary_password}\n\n안전한 곳에 기록한 후 관리자에게 전달해주세요.`,
         )
       }
 
-      await loadData()
       setIsResetPasswordDialogOpen(false)
       setActionUser(null)
     } catch (error) {
       console.error('Failed to reset password:', error)
       const errorMsg =
-        error.response?.data?.detail ||
+        error.data?.detail ||
         error.message ||
         '비밀번호 초기화에 실패했습니다.'
       alert(errorMsg)
@@ -206,15 +212,14 @@ export const UsersPage = () => {
   const handleToggleAdminStatus = async (adminId, isActive) => {
     try {
       if (isActive) {
-        await apiService.deactivateAdmin(adminId)
+        await deactivateAdmin(adminId).unwrap()
       } else {
-        await apiService.activateAdmin(adminId)
+        await activateAdmin(adminId).unwrap()
       }
-      await loadData()
     } catch (error) {
       console.error('Failed to toggle admin status:', error)
       const errorMsg =
-        error.response?.data?.detail ||
+        error.data?.detail ||
         error.message ||
         '관리자 상태 변경에 실패했습니다.'
       alert(errorMsg)
@@ -225,15 +230,14 @@ export const UsersPage = () => {
   const handleToggleUserStatus = async (userId, isActive) => {
     try {
       if (isActive) {
-        await apiService.deactivateUser(userId)
+        await deactivateUser(userId).unwrap()
       } else {
-        await apiService.activateUser(userId)
+        await activateUser(userId).unwrap()
       }
-      await loadData()
     } catch (error) {
       console.error('Failed to toggle user status:', error)
       const errorMsg =
-        error.response?.data?.detail ||
+        error.data?.detail ||
         error.message ||
         '사용자 상태 변경에 실패했습니다.'
       alert(errorMsg)
@@ -256,7 +260,7 @@ export const UsersPage = () => {
           <div className="mb-2 text-lg text-red-600">
             데이터를 불러올 수 없습니다
           </div>
-          <Button onClick={loadData}>다시 시도</Button>
+          <Button onClick={handleRefreshData}>다시 시도</Button>
         </div>
       </div>
     )
