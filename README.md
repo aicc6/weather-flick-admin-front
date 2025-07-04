@@ -22,17 +22,18 @@ Weather Flick Admin Frontend는 서비스 운영진이 사용자, 콘텐츠, 시
 | **언어** | JavaScript (JSX) | ES2022 | 개발 속도 및 팀 역량 |
 | **빌드 도구** | Vite | 6.3.5 | 빠른 개발 서버 |
 | **스타일링** | TailwindCSS + Radix UI | 4.1.10 | 접근성 중심 디자인 |
-| **상태 관리** | Redux Toolkit + Context API | 2.8.2 | 복잡한 관리자 상태 |
+| **상태 관리** | Redux Toolkit + RTK Query | 2.8.2 | 서버 상태 최적화 |
 | **라우팅** | React Router | 7.6.2 | 최신 라우팅 시스템 |
 | **폼 관리** | React Hook Form + Zod | 7.58.1 | 성능과 검증 |
-| **HTTP 클라이언트** | Custom Fetch | - | 가벼운 번들 크기 |
+| **HTTP 클라이언트** | Custom Fetch + RTK Query | - | 3중 레이어 구조 |
+| **아이콘** | Lucide React | 0.522.0 | 가벼운 아이콘 세트 |
 
 ## 📁 프로젝트 구조
 
 ```
 src/
-├── components/          # 컴포넌트 (67개)
-│   ├── ui/             # Radix UI 컴포넌트 (29개)
+├── components/          # 컴포넌트 (47개)
+│   ├── ui/             # Radix UI 컴포넌트 (30개)
 │   ├── auth/           # 인증 컴포넌트
 │   ├── layouts/        # 레이아웃 컴포넌트
 │   ├── pages/          # 페이지 컴포넌트
@@ -46,9 +47,9 @@ src/
 │   ├── system/         # 시스템 관리
 │   └── weather/        # 날씨 관리
 ├── store/              # Redux 스토어
-│   ├── api/            # RTK Query API
-│   └── slices/         # 상태 슬라이스
-├── contexts/           # React Context
+│   ├── api/            # RTK Query API (5개)
+│   └── slices/         # 상태 슬라이스 (2개)
+├── contexts/           # React Context (AuthContext)
 ├── lib/                # 커스텀 HTTP 클라이언트
 ├── services/           # API 서비스
 ├── hooks/              # 커스텀 훅
@@ -114,32 +115,42 @@ VITE_ADMIN_SESSION_TIMEOUT=3600000
 
 ### 상태 관리 전략
 
-- **Redux Toolkit**: 복잡한 관리자 데이터 상태 관리
-- **Context API**: 인증 및 전역 UI 상태
-- **RTK Query**: 서버 상태 관리 및 캐싱
+- **RTK Query**: 서버 상태 관리 및 자동 캐싱 (Primary)
+- **Redux Toolkit**: UI 상태 및 클라이언트 상태
+- **Context API**: 인증 상태 관리
 
 ```javascript
-// Redux 사용 예시 (관리자 데이터)
+// RTK Query 사용 예시 (서버 상태)
 import { useGetAdminsQuery } from '@/store/api/adminsApi';
+import { useGetUsersStatsQuery } from '@/store/api/usersApi';
 
 const { data: admins, isLoading } = useGetAdminsQuery();
+const { data: userStats } = useGetUsersStatsQuery();
 
 // Context API 사용 예시 (인증)
 const { user, login, logout } = useAuth();
 ```
 
-### HTTP 통신
+### HTTP 통신 (3중 레이어 구조)
 
-커스텀 fetch 기반 HTTP 클라이언트 사용:
+효율적인 API 통신을 위한 계층화된 구조:
 
 ```javascript
-import { authHttp } from '@/lib/http';
+// 1. RTK Query API (주 사용)
+import { useGetAdminsStatsQuery } from '@/store/api/adminsApi';
+const { data: stats } = useGetAdminsStatsQuery();
 
-// 관리자 인증이 필요한 API 호출
+// 2. 커스텀 HTTP 클라이언트
+import { authHttp } from '@/lib/http';
 const response = await authHttp.GET('/auth/admins/stats');
+
+// 3. 기본 API 서비스
+import { authAPI } from '@/services/api';
+const result = await authAPI.getAdminStats();
 
 // 자동 Bearer 토큰 관리
 // 관리자 권한 검증 포함
+// 에러 처리 및 재시도 로직
 ```
 
 ### 컴포넌트 설계
@@ -176,9 +187,18 @@ python run_dev.py  # 개발 서버 (포트: 9000)
 
 - `/auth/*` - 관리자 인증
 - `/auth/admins/*` - 관리자 관리
-- `/auth/users/*` - 사용자 관리
-- `/auth/content/*` - 콘텐츠 관리
-- `/auth/system/*` - 시스템 관리
+- `/users/*` - 사용자 관리 및 통계
+- `/tourist-attractions/*` - 관광지 관리
+- `/weather/*` - 날씨 데이터 조회
+- `/api/v1/admin/system/*` - 시스템 상태 관리
+
+**실제 구현된 엔드포인트 예시:**
+```javascript
+GET /auth/admins/stats     // 관리자 통계
+GET /users/stats           // 사용자 통계
+GET /tourist-attractions/  // 관광지 목록
+GET /weather/summary-db    // 날씨 요약
+```
 
 ## 📱 주요 페이지
 
