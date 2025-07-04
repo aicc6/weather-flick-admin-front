@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { apiService } from '../../services/api'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card'
+import { Card } from '../ui/card'
 import {
   Table,
   TableBody,
@@ -16,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Badge } from '../ui/badge'
@@ -27,7 +21,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '../ui/dialog'
 import {
   AlertDialog,
@@ -38,16 +31,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '../ui/alert-dialog'
-import { Label } from '../ui/label'
 import {
-  Search,
   Users,
   UserPlus,
   Shield,
-  Activity,
-  CalendarDays,
   MoreHorizontal,
   Trash2,
   Eye,
@@ -74,8 +62,8 @@ export const UsersPage = () => {
   const [activeTab, setActiveTab] = useState('users')
   const [selectedUser, setSelectedUser] = useState(null)
   const [isCreateAdminDialogOpen, setIsCreateAdminDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false)
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
   const [newAdmin, setNewAdmin] = useState({
@@ -154,20 +142,21 @@ export const UsersPage = () => {
   // 사용자/관리자 삭제
   const handleDeleteItem = async () => {
     if (!actionUser) return
-    
+
     try {
       if (activeTab === 'users') {
         await apiService.deleteUser(actionUser.user_id)
       } else {
         await apiService.deleteAdminPermanently(actionUser.admin_id)
       }
-      
+
       await loadData()
       setIsDeleteDialogOpen(false)
       setActionUser(null)
     } catch (error) {
       console.error('Failed to delete:', error)
-      const errorMsg = error.response?.data?.detail || error.message || '삭제에 실패했습니다.'
+      const errorMsg =
+        error.response?.data?.detail || error.message || '삭제에 실패했습니다.'
       alert(errorMsg)
     }
   }
@@ -175,34 +164,43 @@ export const UsersPage = () => {
   // 사용자 비밀번호 초기화
   const handleResetUserPassword = async () => {
     if (!actionUser) return
-    
+
     try {
-      const userId = activeTab === 'users' ? actionUser.user_id : actionUser.admin_id
+      const userId =
+        activeTab === 'users' ? actionUser.user_id : actionUser.admin_id
       let response
-      
+
       if (activeTab === 'users') {
         response = await apiService.resetUserPassword(userId)
-        
+
         if (response.email_sent) {
-          alert(`사용자 '${response.email}'로 임시 비밀번호가 이메일로 전송되었습니다.\n\n${response.note || ''}`)
+          alert(
+            `사용자 '${response.email}'로 임시 비밀번호가 이메일로 전송되었습니다.\n\n${response.note || ''}`,
+          )
         } else {
-          alert(`이메일 전송에 실패했습니다.\n임시 비밀번호: ${response.temporary_password || 'N/A'}\n\n관리자가 직접 사용자에게 전달해주세요.`)
+          alert(
+            `이메일 전송에 실패했습니다.\n임시 비밀번호: ${response.temporary_password || 'N/A'}\n\n관리자가 직접 사용자에게 전달해주세요.`,
+          )
         }
       } else {
         response = await apiService.resetAdminPassword(userId)
-        alert(`관리자 비밀번호가 초기화되었습니다.\n\n임시 비밀번호: ${response.temporary_password}\n\n안전한 곳에 기록한 후 관리자에게 전달해주세요.`)
+        alert(
+          `관리자 비밀번호가 초기화되었습니다.\n\n임시 비밀번호: ${response.temporary_password}\n\n안전한 곳에 기록한 후 관리자에게 전달해주세요.`,
+        )
       }
-      
+
       await loadData()
       setIsResetPasswordDialogOpen(false)
       setActionUser(null)
     } catch (error) {
       console.error('Failed to reset password:', error)
-      const errorMsg = error.response?.data?.detail || error.message || '비밀번호 초기화에 실패했습니다.'
+      const errorMsg =
+        error.response?.data?.detail ||
+        error.message ||
+        '비밀번호 초기화에 실패했습니다.'
       alert(errorMsg)
     }
   }
-
 
   // 관리자 상태 변경
   const handleToggleAdminStatus = async (adminId, isActive) => {
@@ -343,42 +341,59 @@ export const UsersPage = () => {
           <TableBody>
             {(activeTab === 'users' ? filteredUsers : filteredAdmins).map(
               (item) => (
-                <TableRow key={activeTab === 'users' ? item.user_id : item.admin_id} className="transition hover:bg-gray-50">
+                <TableRow
+                  key={activeTab === 'users' ? item.user_id : item.admin_id}
+                  className="transition hover:bg-gray-50"
+                >
                   <TableCell>{item.email}</TableCell>
                   <TableCell>{item.nickname || item.name}</TableCell>
                   <TableCell>
-                    <Badge variant={
-                      activeTab === 'users' 
-                        ? (item.is_active ? 'success' : 'destructive')
-                        : (item.status === 'ACTIVE' ? 'success' : 'destructive')
-                    }>
-                      {activeTab === 'users' 
-                        ? (item.is_active ? '활성' : '비활성')
-                        : (item.status === 'ACTIVE' ? '활성' : '비활성')
+                    <Badge
+                      variant={
+                        activeTab === 'users'
+                          ? item.is_active
+                            ? 'success'
+                            : 'destructive'
+                          : item.status === 'ACTIVE'
+                            ? 'success'
+                            : 'destructive'
                       }
+                    >
+                      {activeTab === 'users'
+                        ? item.is_active
+                          ? '활성'
+                          : '비활성'
+                        : item.status === 'ACTIVE'
+                          ? '활성'
+                          : '비활성'}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={
-                      activeTab === 'users'
-                        ? (item.is_superuser ? 'success' : 'outline')
-                        : 'outline'
-                    }>
-                      {activeTab === 'users'
-                        ? (item.is_superuser ? '슈퍼유저' : '일반')
-                        : '관리자'
+                    <Badge
+                      variant={
+                        activeTab === 'users'
+                          ? item.is_superuser
+                            ? 'success'
+                            : 'outline'
+                          : 'outline'
                       }
+                    >
+                      {activeTab === 'users'
+                        ? item.is_superuser
+                          ? '슈퍼유저'
+                          : '일반'
+                        : '관리자'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           className="h-8 w-8 p-0"
                           onClick={(e) => {
-                            console.log('드롭다운 버튼 클릭됨', item);
-                            e.stopPropagation();
+                            console.log('드롭다운 버튼 클릭됨', item)
+                            e.stopPropagation()
                           }}
                         >
                           <span className="sr-only">메뉴 열기</span>
@@ -386,25 +401,31 @@ export const UsersPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={(e) => {
-                            console.log('상세보기 클릭됨', item);
-                            e.stopPropagation();
-                            setSelectedUser(item);
+                            console.log('상세보기 클릭됨', item)
+                            e.stopPropagation()
+                            setSelectedUser(item)
                           }}
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           상세보기
                         </DropdownMenuItem>
-                        
+
                         {activeTab === 'users' ? (
                           <>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                console.log('사용자 비밀번호 초기화 클릭됨', item);
-                                e.stopPropagation();
-                                setActionUser(item);
-                                setTimeout(() => setIsResetPasswordDialogOpen(true), 0);
+                                console.log(
+                                  '사용자 비밀번호 초기화 클릭됨',
+                                  item,
+                                )
+                                e.stopPropagation()
+                                setActionUser(item)
+                                setTimeout(
+                                  () => setIsResetPasswordDialogOpen(true),
+                                  0,
+                                )
                               }}
                             >
                               <KeyRound className="mr-2 h-4 w-4" />
@@ -412,9 +433,12 @@ export const UsersPage = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                console.log('사용자 상태 변경 클릭됨', item);
-                                e.stopPropagation();
-                                handleToggleUserStatus(item.user_id, item.is_active);
+                                console.log('사용자 상태 변경 클릭됨', item)
+                                e.stopPropagation()
+                                handleToggleUserStatus(
+                                  item.user_id,
+                                  item.is_active,
+                                )
                               }}
                             >
                               {item.is_active ? (
@@ -431,10 +455,10 @@ export const UsersPage = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                console.log('사용자 삭제 클릭됨', item);
-                                e.stopPropagation();
-                                setActionUser(item);
-                                setTimeout(() => setIsDeleteDialogOpen(true), 0);
+                                console.log('사용자 삭제 클릭됨', item)
+                                e.stopPropagation()
+                                setActionUser(item)
+                                setTimeout(() => setIsDeleteDialogOpen(true), 0)
                               }}
                               className="text-red-600"
                             >
@@ -446,10 +470,16 @@ export const UsersPage = () => {
                           <>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                console.log('관리자 비밀번호 초기화 클릭됨', item);
-                                e.stopPropagation();
-                                setActionUser(item);
-                                setTimeout(() => setIsResetPasswordDialogOpen(true), 0);
+                                console.log(
+                                  '관리자 비밀번호 초기화 클릭됨',
+                                  item,
+                                )
+                                e.stopPropagation()
+                                setActionUser(item)
+                                setTimeout(
+                                  () => setIsResetPasswordDialogOpen(true),
+                                  0,
+                                )
                               }}
                             >
                               <KeyRound className="mr-2 h-4 w-4" />
@@ -457,9 +487,12 @@ export const UsersPage = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
-                                console.log('관리자 상태 변경 클릭됨', item);
-                                e.stopPropagation();
-                                handleToggleAdminStatus(item.admin_id, item.status === 'ACTIVE');
+                                console.log('관리자 상태 변경 클릭됨', item)
+                                e.stopPropagation()
+                                handleToggleAdminStatus(
+                                  item.admin_id,
+                                  item.status === 'ACTIVE',
+                                )
                               }}
                             >
                               {item.status === 'ACTIVE' ? (
@@ -478,10 +511,13 @@ export const UsersPage = () => {
                             {user?.email === 'admin@weatherflick.com' && (
                               <DropdownMenuItem
                                 onClick={(e) => {
-                                  console.log('관리자 삭제 클릭됨', item);
-                                  e.stopPropagation();
-                                  setActionUser(item);
-                                  setTimeout(() => setIsDeleteDialogOpen(true), 0);
+                                  console.log('관리자 삭제 클릭됨', item)
+                                  e.stopPropagation()
+                                  setActionUser(item)
+                                  setTimeout(
+                                    () => setIsDeleteDialogOpen(true),
+                                    0,
+                                  )
                                 }}
                                 className="text-red-600"
                               >
@@ -554,21 +590,25 @@ export const UsersPage = () => {
       </Dialog>
 
       {/* 비밀번호 초기화 확인 다이얼로그 */}
-      <AlertDialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+      <AlertDialog
+        open={isResetPasswordDialogOpen}
+        onOpenChange={setIsResetPasswordDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {activeTab === 'users' ? '사용자' : '관리자'} 비밀번호 초기화
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {activeTab === 'users' 
+              {activeTab === 'users'
                 ? `사용자 '${actionUser?.nickname || actionUser?.email}'의 비밀번호를 초기화하시겠습니까?\n\n임시 비밀번호가 사용자의 이메일 주소로 전송됩니다.`
-                : `관리자 '${actionUser?.name || actionUser?.email}'의 비밀번호를 초기화하시겠습니까?\n\n임시 비밀번호가 생성되어 화면에 표시됩니다.`
-              }
+                : `관리자 '${actionUser?.name || actionUser?.email}'의 비밀번호를 초기화하시겠습니까?\n\n임시 비밀번호가 생성되어 화면에 표시됩니다.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setActionUser(null)}>취소</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setActionUser(null)}>
+              취소
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleResetUserPassword}>
               초기화
             </AlertDialogAction>
@@ -577,24 +617,27 @@ export const UsersPage = () => {
       </AlertDialog>
 
       {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
               {activeTab === 'users' ? '사용자' : '관리자'} 삭제
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {activeTab === 'users' 
+              {activeTab === 'users'
                 ? `사용자 '${actionUser?.nickname || actionUser?.email}'를 정말 삭제하시겠습니까?`
-                : `관리자 '${actionUser?.name || actionUser?.email}'를 정말 삭제하시겠습니까?`
-              }
+                : `관리자 '${actionUser?.name || actionUser?.email}'를 정말 삭제하시겠습니까?`}
               <br />
-              <br />
-              이 작업은 되돌릴 수 없습니다.
+              <br />이 작업은 되돌릴 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setActionUser(null)}>취소</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setActionUser(null)}>
+              취소
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteItem}
               className="bg-red-600 hover:bg-red-700"

@@ -43,8 +43,8 @@ const createHttp = ({ baseUrl, headers, fetch = globalThis.fetch }) => {
         headers: {
           ...computedHeaders,
           ...(body &&
-            !(body instanceof FormData) &&
-            !(body instanceof URLSearchParams)
+          !(body instanceof FormData) &&
+          !(body instanceof URLSearchParams)
             ? { 'Content-Type': 'application/json' }
             : {}),
           ...options?.headers,

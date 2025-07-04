@@ -7,14 +7,21 @@ export const usersApi = createApi({
   tagTypes: ['User'],
   endpoints: (builder) => ({
     getUsers: builder.query({
-      query: (params) => {
+      query: (params = {}) => {
         const queryParams = new URLSearchParams()
         if (params.page) queryParams.append('page', params.page.toString())
-        if (params.limit) queryParams.append('limit', params.limit.toString())
-        if (params.search) queryParams.append('search', params.search)
-        if (params.status) queryParams.append('status', params.status)
-        
-        return `/api/v1/users?${queryParams.toString()}`
+        if (params.size) queryParams.append('size', params.size.toString())
+        if (params.email) queryParams.append('email', params.email)
+        if (params.nickname) queryParams.append('nickname', params.nickname)
+        if (
+          params.is_active !== undefined &&
+          params.is_active !== null &&
+          params.is_active !== ''
+        ) {
+          queryParams.append('is_active', params.is_active)
+        }
+        // 필요시 추가 필드
+        return `/users?${queryParams.toString()}`
       },
       providesTags: ['User'],
     }),

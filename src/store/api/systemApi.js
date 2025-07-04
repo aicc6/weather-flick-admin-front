@@ -21,14 +21,20 @@ export const systemApi = createApi({
     }),
 
     getLogs: builder.query({
-      query: (params) => {
+      query: (params = {}) => {
         const queryParams = new URLSearchParams()
+        const allowed = ['page', 'size', 'level', 'source', 'message']
         Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined) {
+          if (
+            allowed.includes(key) &&
+            value !== undefined &&
+            value !== null &&
+            value !== ''
+          ) {
             queryParams.append(key, value.toString())
           }
         })
-        return `/api/v1/admin/logs?${queryParams.toString()}`
+        return `/system/logs?${queryParams.toString()}`
       },
       providesTags: ['Logs'],
     }),

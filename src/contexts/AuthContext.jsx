@@ -76,6 +76,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await apiService.login(email, password)
+      console.log('로그인 응답:', response)
 
       // API 응답 구조에 맞게 토큰 저장
       const token = response.token?.access_token

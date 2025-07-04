@@ -18,6 +18,17 @@ import { useEffect, useState } from 'react'
 import { Progress } from '../ui/progress'
 import { Globe, MapPin, CreditCard } from 'lucide-react'
 import { authHttp } from '../../lib/http'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '../ui/table'
+import { Input } from '../ui/input'
+import { useGetLogsQuery } from '../../store/api/systemApi'
+import { Button } from '../ui/button'
 
 // Polling hook
 function usePollingSystemStatus(url, interval = 5000) {
@@ -171,7 +182,7 @@ export const SystemPage = () => {
                   </div>
                   <Progress
                     value={status?.resource?.memory ?? 0}
-                    className="h-2 bg-yellow-500"
+                    className="h-2"
                   />
                 </div>
 
@@ -184,7 +195,7 @@ export const SystemPage = () => {
                   </div>
                   <Progress
                     value={status?.resource?.disk ?? 0}
-                    className="h-2 bg-green-500"
+                    className="h-2"
                   />
                 </div>
               </CardContent>
@@ -262,11 +273,7 @@ export const SystemPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="py-8 text-center">
-                <p className="text-muted-foreground">
-                  로그 검색 인터페이스가 여기에 표시됩니다.
-                </p>
-              </div>
+              <LogSearchTable />
             </CardContent>
           </Card>
         </TabsContent>
@@ -289,6 +296,118 @@ export const SystemPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
+  )
+}
+
+function LogSearchTable() {
+  const [filters, setFilters] = useState({
+    level: '',
+    source: '',
+    message: '',
+    page: 1,
+    size: 10,
+  })
+  const { data, isLoading, refetch } = useGetLogsQuery(filters)
+
+  const handleChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value, page: 1 })
+  }
+  const handleSearch = (e) => {
+    e.preventDefault()
+    refetch()
+  }
+  const handlePage = (newPage) => {
+    setFilters({ ...filters, page: newPage })
+  }
+
+  return (
+    <div>
+      <form className="mb-4 flex gap-2" onSubmit={handleSearch}>
+        <Input
+          name="level"
+          placeholder="레벨(INFO, ERROR...)"
+          value={filters.level}
+          onChange={handleChange}
+          className="w-32"
+        />
+        <Input
+          name="source"
+          placeholder="소스"
+          value={filters.source}
+          onChange={handleChange}
+          className="w-32"
+        />
+        <Input
+          name="message"
+          placeholder="메시지"
+          value={filters.message}
+          onChange={handleChange}
+          className="flex-1"
+        />
+        <Button type="submit">검색</Button>
+      </form>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>시간</TableHead>
+              <TableHead>레벨</TableHead>
+              <TableHead>소스</TableHead>
+              <TableHead>메시지</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4}>로딩 중...</TableCell>
+              </TableRow>
+            ) : data && data.items && data.items.length > 0 ? (
+              data.items.map((log) => (
+                <TableRow key={log.log_id}>
+                  <TableCell>
+                    {log.created_at
+                      ? new Date(log.created_at).toLocaleString()
+                      : ''}
+                  </TableCell>
+                  <TableCell>{log.level}</TableCell>
+                  <TableCell>{log.source}</TableCell>
+                  <TableCell className="max-w-xs truncate" title={log.message}>
+                    {log.message}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4}>로그가 없습니다.</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      {data && data.total && (
+        <div className="mt-2 flex items-center justify-end gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePage(filters.page - 1)}
+            disabled={filters.page <= 1}
+          >
+            이전
+          </Button>
+          <span className="text-sm">
+            {filters.page} / {Math.ceil(data.total / filters.size)}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handlePage(filters.page + 1)}
+            disabled={filters.page >= Math.ceil(data.total / filters.size)}
+          >
+            다음
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

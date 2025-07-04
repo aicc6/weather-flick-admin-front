@@ -14,7 +14,6 @@ import {
   CloudRain,
   CloudSnow,
   CheckCircle,
-  XCircle,
   Database,
   Server,
   Activity,
@@ -88,7 +87,7 @@ export const MainPage = () => {
       try {
         // 관광지 데이터 fetch
         const tourRes = await authHttp.GET('/tourist-attractions/', {
-          params: { query: { limit: 3, offset: 0 } }
+          params: { query: { limit: 3, offset: 0 } },
         })
         const tourData = await tourRes.json()
         setTourSummary(tourData)
@@ -216,8 +215,8 @@ export const MainPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle>사용자 관리</CardTitle>
-              <CardDescription>전체/활성/비활성 사용자</CardDescription>
+              <CardTitle>사용자 관리 </CardTitle>
+              <CardDescription>총/활성/비활성 사용자</CardDescription>
             </div>
             <Users className="h-6 w-6 text-blue-500" />
           </CardHeader>
@@ -251,8 +250,8 @@ export const MainPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle>관리자 관리</CardTitle>
-              <CardDescription>전체/활성/비활성 관리자</CardDescription>
+              <CardTitle>관리자 요약</CardTitle>
+              <CardDescription>총/활성/비활성 관리자</CardDescription>
             </div>
             <Shield className="h-6 w-6 text-purple-500" />
           </CardHeader>
@@ -260,7 +259,7 @@ export const MainPage = () => {
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col items-center">
                 <span className="text-muted-foreground text-xs">총</span>
-                <span className="text-lg font-bold text-blue-600">
+                <span className="text-lg font-bold text-purple-600">
                   {adminSummary.total}
                 </span>
               </div>
@@ -334,7 +333,7 @@ export const MainPage = () => {
                       </span>
                     </div>
                     <div className="flex flex-col items-center justify-center p-2">
-                      <CloudRain className="mb-1 h-6 w-6 text-blue-500" />
+                      <Sun className="mb-1 h-6 w-6 text-yellow-400" />
                       <span className="font-semibold">최고 기온</span>
                       <span className="text-lg font-bold text-red-600">
                         {maxTemp}°C
@@ -344,7 +343,7 @@ export const MainPage = () => {
                       </span>
                     </div>
                     <div className="flex flex-col items-center justify-center p-2">
-                      <CloudSnow className="mb-1 h-6 w-6 text-blue-300" />
+                      <Cloud className="mb-1 h-6 w-6 text-blue-300" />
                       <span className="font-semibold">최저 기온</span>
                       <span className="text-lg font-bold text-blue-400">
                         {minTemp}°C

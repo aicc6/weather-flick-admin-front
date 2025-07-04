@@ -89,8 +89,10 @@ class ApiService {
       params.email = search
       params.nickname = search
     }
-    if (role) params.role = role
-    if (isActive !== null) params.is_active = isActive
+    if (role && role !== '' && role !== undefined && role !== null)
+      params.role = role
+    if (isActive !== null && isActive !== '' && isActive !== undefined)
+      params.is_active = isActive
 
     const response = await authHttp.GET('/users/', {
       params: { query: params },
