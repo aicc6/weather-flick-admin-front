@@ -126,6 +126,50 @@ export const authHttp = {
     }),
 }
 
+// 응답 처리 헬퍼 함수
+export const handleApiResponse = async (response) => {
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('API Error:', response.status, errorText)
+    throw new Error(`API Error: ${response.status} - ${errorText}`)
+  }
+  return response
+}
+
+// JSON 응답 처리 헬퍼 함수
+export const getJsonResponse = async (response) => {
+  const handledResponse = await handleApiResponse(response)
+  return handledResponse.json()
+}
+
+// 향상된 authHttp - 자동 에러 처리 포함
+export const enhancedAuthHttp = {
+  GET: async (url, options = {}) => {
+    const response = await authHttp.GET(url, options)
+    return handleApiResponse(response)
+  },
+
+  POST: async (url, options = {}) => {
+    const response = await authHttp.POST(url, options)
+    return handleApiResponse(response)
+  },
+
+  PUT: async (url, options = {}) => {
+    const response = await authHttp.PUT(url, options)
+    return handleApiResponse(response)
+  },
+
+  PATCH: async (url, options = {}) => {
+    const response = await authHttp.PATCH(url, options)
+    return handleApiResponse(response)
+  },
+
+  DELETE: async (url, options = {}) => {
+    const response = await authHttp.DELETE(url, options)
+    return handleApiResponse(response)
+  },
+}
+
 // 다른 baseUrl 또는 설정이 필요한 경우를 위한 헬퍼
 export const createApiClient = (config = {}) =>
   createHttp({ ...DEFAULT_CONFIG, ...config })

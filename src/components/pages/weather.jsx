@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiService } from '../../services/api'
+import { authHttp } from '../../lib/http'
 import {
   Card,
   CardContent,
@@ -99,7 +100,7 @@ export const WeatherPage = () => {
     try {
       setDbWeatherLoading(true)
       setDbWeatherError('')
-      const res = await fetch('http://localhost:8000/weather/summary-db')
+      const res = await authHttp.GET('/weather/summary-db')
       const data = await res.json()
       const regionMap = {}
       data.regions?.forEach((region) => {

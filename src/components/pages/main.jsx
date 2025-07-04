@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '../ui/card'
 import { useEffect, useState } from 'react'
+import { authHttp } from '../../lib/http'
 import {
   Cloud,
   Sun,
@@ -53,7 +54,7 @@ export const MainPage = () => {
     try {
       setWeatherLoading(true)
       setWeatherError('')
-      const res = await fetch('http://localhost:8000/weather/summary-db')
+      const res = await authHttp.GET('/weather/summary-db')
       const data = await res.json()
       // Assume data.regions is an array of city weather, summary is stats
       // Convert to { code: data } map for compatibility
@@ -83,40 +84,60 @@ export const MainPage = () => {
   }
 
   useEffect(() => {
-    // 기존 관광지 fetch
-    fetch('/tourist-attractions/?limit=3&offset=0')
-      .then((res) => res.json())
-      .then((data) => setTourSummary(data))
+    const fetchData = async () => {
+      try {
+        // 관광지 데이터 fetch
+        const tourRes = await authHttp.GET('/tourist-attractions/', {
+          params: { query: { limit: 3, offset: 0 } }
+        })
+        const tourData = await tourRes.json()
+        setTourSummary(tourData)
+      } catch (error) {
+        console.error('관광지 데이터 로딩 실패:', error)
+        setTourSummary({ items: [], total: 0 })
+      }
 
-    // 사용자 요약 fetch
-    fetch('/users/stats')
-      .then((res) => res.json())
-      .then((data) =>
+      try {
+        // 사용자 요약 fetch
+        const userRes = await authHttp.GET('/users/stats')
+        const userData = await userRes.json()
         setUserSummary({
-          total: data.total ?? 0,
-          active: data.active ?? 0,
-          inactive: data.inactive ?? 0,
-        }),
-      )
-      .catch(() => setUserSummary({ total: 0, active: 0, inactive: 0 }))
-    // 관리자 요약 fetch
-    fetch('/admins/stats')
-      .then((res) => res.json())
-      .then((data) =>
-        setAdminSummary({
-          total: data.total ?? 0,
-          active: data.active ?? 0,
-          inactive: data.inactive ?? 0,
-        }),
-      )
-      .catch(() => setAdminSummary({ total: 0, active: 0, inactive: 0 }))
-    fetchWeatherData()
+          total: userData.total ?? 0,
+          active: userData.active ?? 0,
+          inactive: userData.inactive ?? 0,
+        })
+      } catch (error) {
+        console.error('사용자 통계 로딩 실패:', error)
+        setUserSummary({ total: 0, active: 0, inactive: 0 })
+      }
 
-    // 시스템 상태 fetch
-    fetch('/api/v1/admin/system/status')
-      .then((res) => res.json())
-      .then(setSystemStatus)
-      .catch(() => setSystemStatus(null))
+      try {
+        // 관리자 요약 fetch
+        const adminRes = await authHttp.GET('/admins/stats')
+        const adminData = await adminRes.json()
+        setAdminSummary({
+          total: adminData.total ?? 0,
+          active: adminData.active ?? 0,
+          inactive: adminData.inactive ?? 0,
+        })
+      } catch (error) {
+        console.error('관리자 통계 로딩 실패:', error)
+        setAdminSummary({ total: 0, active: 0, inactive: 0 })
+      }
+
+      try {
+        // 시스템 상태 fetch
+        const systemRes = await authHttp.GET('/api/v1/admin/system/status')
+        const systemData = await systemRes.json()
+        setSystemStatus(systemData)
+      } catch (error) {
+        console.error('시스템 상태 로딩 실패:', error)
+        setSystemStatus(null)
+      }
+    }
+
+    fetchData()
+    fetchWeatherData()
   }, [])
 
   // 최근 관광지 3개에서 유니크 카테고리/지역 개수 계산

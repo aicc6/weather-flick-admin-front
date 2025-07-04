@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { authHttp } from '../../../lib/http'
 import {
   Card,
   CardHeader,
@@ -23,17 +24,29 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   const pageSize = 10
 
   const fetchList = async (pageNum = page) => {
-    let url = `/tourist-attractions/?limit=${pageSize}&offset=${(pageNum - 1) * pageSize}`
-    if (search.name || search.category || search.region) {
-      const params = new URLSearchParams()
-      if (search.name) params.append('name', search.name)
-      if (search.category) params.append('category', search.category)
-      if (search.region) params.append('region', search.region)
-      url = `/tourist-attractions/search/?${params.toString()}&limit=${pageSize}&offset=${(pageNum - 1) * pageSize}`
+    try {
+      let endpoint = '/tourist-attractions/'
+      const queryParams = {
+        limit: pageSize,
+        offset: (pageNum - 1) * pageSize
+      }
+      
+      if (search.name || search.category || search.region) {
+        endpoint = '/tourist-attractions/search/'
+        if (search.name) queryParams.name = search.name
+        if (search.category) queryParams.category = search.category
+        if (search.region) queryParams.region = search.region
+      }
+      
+      const res = await authHttp.GET(endpoint, {
+        params: { query: queryParams }
+      })
+      const result = await res.json()
+      setData(result)
+    } catch (error) {
+      console.error('관광지 데이터 로딩 실패:', error)
+      setData({ items: [], total: 0 })
     }
-    const res = await fetch(url)
-    const result = await res.json()
-    setData(result)
   }
 
   useEffect(() => {
@@ -43,8 +56,13 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
 
   const handleDelete = async (content_id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
-    await fetch(`/tourist-attractions/${content_id}`, { method: 'DELETE' })
-    fetchList()
+    try {
+      await authHttp.DELETE(`/tourist-attractions/${content_id}`)
+      fetchList()
+    } catch (error) {
+      console.error('관광지 삭제 실패:', error)
+      alert('삭제에 실패했습니다.')
+    }
   }
 
   const totalPages = Math.ceil(data.total / pageSize)

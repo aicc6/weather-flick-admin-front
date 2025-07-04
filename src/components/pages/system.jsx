@@ -17,6 +17,7 @@ import {
 import { useEffect, useState } from 'react'
 import { Progress } from '../ui/progress'
 import { Globe, MapPin, CreditCard } from 'lucide-react'
+import { authHttp } from '../../lib/http'
 
 // Polling hook
 function usePollingSystemStatus(url, interval = 5000) {
@@ -25,7 +26,7 @@ function usePollingSystemStatus(url, interval = 5000) {
     let timer
     const fetchData = async () => {
       try {
-        const res = await fetch(url)
+        const res = await authHttp.GET(url)
         if (!res.ok) {
           // 에러 응답일 때 텍스트로 받아서 콘솔에 출력
           const errorText = await res.text()

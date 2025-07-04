@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { authHttp } from '../../../lib/http'
 import {
   Card,
   CardHeader,
@@ -36,13 +37,21 @@ export default function TouristAttractionForm({ contentId, onDone }) {
   const [form, setForm] = useState(emptyForm)
 
   useEffect(() => {
-    if (contentId) {
-      fetch(`/tourist-attractions/${contentId}`)
-        .then((res) => res.json())
-        .then((data) => setForm(data))
-    } else {
-      setForm(emptyForm)
+    const loadData = async () => {
+      if (contentId) {
+        try {
+          const res = await authHttp.GET(`/tourist-attractions/${contentId}`)
+          const data = await res.json()
+          setForm(data)
+        } catch (error) {
+          console.error('관광지 데이터 로딩 실패:', error)
+          alert('데이터를 불러오는데 실패했습니다.')
+        }
+      } else {
+        setForm(emptyForm)
+      }
     }
+    loadData()
   }, [contentId])
 
   const handleChange = (e) => {
@@ -51,16 +60,21 @@ export default function TouristAttractionForm({ contentId, onDone }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const method = contentId ? 'PUT' : 'POST'
-    const url = contentId
-      ? `/tourist-attractions/${contentId}`
-      : '/tourist-attractions/'
-    await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    onDone()
+    try {
+      const endpoint = contentId
+        ? `/tourist-attractions/${contentId}`
+        : '/tourist-attractions/'
+      
+      if (contentId) {
+        await authHttp.PUT(endpoint, { body: form })
+      } else {
+        await authHttp.POST(endpoint, { body: form })
+      }
+      onDone()
+    } catch (error) {
+      console.error('관광지 저장 실패:', error)
+      alert('저장에 실패했습니다.')
+    }
   }
 
   return (
