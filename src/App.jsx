@@ -11,7 +11,6 @@ import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import TouristAttractionAdminPage from './components/pages/admin/TouristAttractionAdminPage'
 import '@/App.css'
-import { Link } from 'react-router-dom'
 
 function App() {
   return (
@@ -92,14 +91,6 @@ function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
-  )
-}
-
-function Sidebar() {
-  return (
-    <nav>
-      <Link to="/admin/tourist-attractions">관광지 관리</Link>
-    </nav>
   )
 }
 

@@ -1,5 +1,14 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { 
+  setUser, 
+  setLoading, 
+  setError, 
+  logout as logoutAction, 
+  initializeAuth 
+} from '../store/slices/authSlice'
 import { apiService } from '../services/api'
+import { STORAGE_KEYS } from '../constants/storage'
 
 const AuthContext = createContext()
 
@@ -12,69 +21,17 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const { user, loading, error, isAuthenticated } = useSelector((state) => state.auth)
 
-  // 초기화 시 로컬스토리지에서 사용자 정보도 복원
+  // 초기화 시 Redux store 초기화
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const savedUser = localStorage.getItem('user')
-
-        if (token && savedUser) {
-          // 저장된 사용자 정보 먼저 복원 (빠른 UI 업데이트)
-          const userData = JSON.parse(savedUser)
-
-          // 새로운 필드가 없는 경우 강제로 최신 정보 가져오기
-          const hasNewFields =
-            'is_superuser' in userData &&
-            'is_active' in userData &&
-            'username' in userData
-
-          if (hasNewFields) {
-            setUser(userData)
-          }
-
-          // 백그라운드에서 토큰 유효성 검증 (새 필드가 없거나 정기 업데이트)
-          try {
-            const currentUserData = await apiService.getCurrentUser()
-            setUser(currentUserData)
-            localStorage.setItem('user', JSON.stringify(currentUserData))
-          } catch (error) {
-            console.error('Token validation failed:', error)
-            // 토큰이 유효하지 않으면 모든 저장된 데이터 제거
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            setUser(null)
-          }
-        } else if (token) {
-          // 토큰만 있고 사용자 정보가 없는 경우
-          try {
-            const userData = await apiService.getCurrentUser()
-            setUser(userData)
-            localStorage.setItem('user', JSON.stringify(userData))
-          } catch (error) {
-            console.error('Failed to get current user:', error)
-            localStorage.removeItem('token')
-            setUser(null)
-          }
-        }
-      } catch (error) {
-        console.error('Auth initialization failed:', error)
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        setUser(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    initializeAuth()
-  }, [])
+    dispatch(initializeAuth())
+  }, [dispatch])
 
   const login = async (email, password) => {
     try {
+      dispatch(setLoading(true))
       const response = await apiService.login(email, password)
       console.log('로그인 응답:', response)
 
@@ -84,22 +41,21 @@ export const AuthProvider = ({ children }) => {
         throw new Error('토큰을 받지 못했습니다.')
       }
 
-      localStorage.setItem('token', token)
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token)
 
       // 로그인 응답에서 바로 관리자 정보 사용
       if (response.admin) {
-        setUser(response.admin)
-        localStorage.setItem('user', JSON.stringify(response.admin))
+        dispatch(setUser(response.admin))
       } else {
         // 응답에 관리자 정보가 없으면 별도로 조회
         const userData = await apiService.getCurrentUser()
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
+        dispatch(setUser(userData))
       }
 
       return { success: true }
     } catch (error) {
       console.error('Login failed:', error)
+      dispatch(setError(error.message || '로그인에 실패했습니다.'))
       return {
         success: false,
         error: error.message || '로그인에 실패했습니다.',
@@ -108,17 +64,16 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setUser(null)
+    dispatch(logoutAction())
   }
 
   const value = {
     user,
     loading,
+    error,
     login,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
