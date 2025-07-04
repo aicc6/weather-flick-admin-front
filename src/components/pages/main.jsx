@@ -113,7 +113,7 @@ export const MainPage = () => {
 
       try {
         // 관리자 요약 fetch
-        const adminRes = await authHttp.GET('/admins/stats')
+        const adminRes = await authHttp.GET('/auth/admins/stats')
         const adminData = await adminRes.json()
         setAdminSummary({
           total: adminData.total ?? 0,
