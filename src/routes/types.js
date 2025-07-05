@@ -38,7 +38,7 @@ export const ROUTE_META = {
     icon: 'Cloud',
   },
   TOURIST_ATTRACTIONS: {
-    path: '/admin/tourist-attractions',
+    path: '/tourist-attractions',
     title: '관광지 관리',
     breadcrumb: ['대시보드', '관광지 관리'],
     icon: 'MapPin',

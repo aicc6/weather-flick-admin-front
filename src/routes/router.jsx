@@ -41,10 +41,8 @@ const WeatherPage = lazy(() =>
     default: module.WeatherPage,
   })),
 )
-const TouristAttractionAdminPage = lazy(() =>
-  import('../components/pages/admin/TouristAttractionAdminPage').then(
-    (module) => ({ default: module.TouristAttractionAdminPage }),
-  ),
+const TouristAttractionAdminPage = lazy(
+  () => import('../components/pages/TouristAttractionAdminPage'),
 )
 
 // Suspense 래퍼 컴포넌트
@@ -153,7 +151,7 @@ export const router = createBrowserRouter([
     },
   },
   {
-    path: '/admin/tourist-attractions',
+    path: '/tourist-attractions',
     element: (
       <ProtectedLayout>
         <TouristAttractionAdminPage />

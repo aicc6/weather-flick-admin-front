@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { authHttp } from '../../../lib/http'
+import { authHttp } from '../../lib/http'
 import {
   Card,
   CardHeader,
@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardTitle,
   CardDescription,
-} from '../../ui/card'
+} from '../ui/card'
 
 const emptyForm = {
   attraction_name: '',
@@ -40,7 +40,9 @@ export default function TouristAttractionForm({ contentId, onDone }) {
     const loadData = async () => {
       if (contentId) {
         try {
-          const res = await authHttp.GET(`/tourist-attractions/${contentId}`)
+          const res = await authHttp.GET(
+            `/api/tourist-attractions/${contentId}`,
+          )
           const data = await res.json()
           setForm(data)
         } catch (error) {
@@ -55,15 +57,16 @@ export default function TouristAttractionForm({ contentId, onDone }) {
   }, [contentId])
 
   const handleChange = (e) => {
+    if (!e || !e.target) return
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     try {
       const endpoint = contentId
-        ? `/tourist-attractions/${contentId}`
-        : '/tourist-attractions/'
+        ? `/api/tourist-attractions/${contentId}`
+        : '/api/tourist-attractions/'
 
       if (contentId) {
         await authHttp.PUT(endpoint, { body: form })

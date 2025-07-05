@@ -57,7 +57,7 @@ export const DefaultLayout = ({ children }) => {
     { name: '컨텐츠 관리', href: '/content', icon: FileText },
     { name: '시스템 관리', href: '/system', icon: Settings },
     { name: '날씨 정보', href: '/weather', icon: Cloud },
-    { name: '관광지 관리', href: '/admin/tourist-attractions', icon: FileText },
+    { name: '관광지 관리', href: '/tourist-attractions', icon: FileText },
   ]
 
   return (

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { authHttp } from '../../../lib/http'
+import { authHttp } from '../../lib/http'
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '../../ui/card'
+} from '../ui/card'
 import {
   Pagination,
   PaginationContent,
@@ -15,9 +15,9 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-} from '../../ui/pagination'
-import { Alert, AlertDescription } from '../../ui/alert'
-import { Button } from '../../ui/button'
+} from '../ui/pagination'
+import { Alert, AlertDescription } from '../ui/alert'
+import { Button } from '../ui/button'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
 export default function TouristAttractionList({ onEdit, onCreate }) {
