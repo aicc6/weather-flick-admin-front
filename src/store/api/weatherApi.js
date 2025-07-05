@@ -44,7 +44,7 @@ export const weatherApi = createApi({
     }),
 
     getAvailableRegions: builder.query({
-      query: () => '/api/weather/regions',
+      query: () => '/api/weather/cities',
       providesTags: ['WeatherRegions'],
       // 지역 정보는 자주 변경되지 않으므로 더 오래 캐시
       keepUnusedDataFor: 3600, // 1시간

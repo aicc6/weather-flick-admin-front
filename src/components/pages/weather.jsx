@@ -20,7 +20,6 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { Alert, AlertDescription } from '../ui/alert'
-import { Badge } from '../ui/badge'
 
 export const WeatherPage = () => {
   // RTK Query 훅들 - 실시간 날씨는 선택적으로 사용
@@ -98,13 +97,6 @@ export const WeatherPage = () => {
     }
   }
 
-  const regions = [
-    { code: '108', name: '서울' },
-    { code: '159', name: '부산' },
-    { code: '143', name: '대구' },
-    { code: '184', name: '제주' },
-  ]
-
   // 페이지네이션 상태
   const [dbWeatherPage, setDbWeatherPage] = useState(1)
   const dbWeatherPageSize = 4
@@ -127,23 +119,6 @@ export const WeatherPage = () => {
   const dbWeatherLastUpdated = weatherSummaryData.summary?.last_updated
     ? new Date(weatherSummaryData.summary.last_updated)
     : new Date()
-
-  // 실시간 날씨 데이터가 없으면 DB 데이터를 대체 사용
-  const displayWeatherData =
-    error || Object.keys(weatherData).length === 0
-      ? Object.fromEntries(
-          regions.map((region) => [
-            region.code,
-            dbWeatherData[region.name] || {
-              region_name: region.name,
-              temperature: 'N/A',
-              humidity: 'N/A',
-              wind_speed: 'N/A',
-              sky_condition: null,
-            },
-          ]),
-        )
-      : weatherData
 
   // 페이지 로딩 조건 수정 - DB 데이터도 없을 때만 로딩 표시
   if (summaryLoading && Object.keys(dbWeatherData).length === 0) {
@@ -222,62 +197,6 @@ export const WeatherPage = () => {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {regions.map((region) => {
-          const data = displayWeatherData[region.code]
-          if (!data) return null
-
-          const isFromDB = error || Object.keys(weatherData).length === 0
-
-          return (
-            <Card
-              key={region.code}
-              className={`flex flex-col items-center justify-center p-4 ${
-                isFromDB
-                  ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950'
-                  : ''
-              }`}
-            >
-              <CardHeader className="flex w-full flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {data.region_name}
-                  {isFromDB && (
-                    <Badge variant="secondary" className="ml-1 text-xs">
-                      DB
-                    </Badge>
-                  )}
-                </CardTitle>
-                {getWeatherIcon(data.sky_condition)}
-              </CardHeader>
-              <CardContent className="flex flex-col items-center">
-                <span className="mb-1 text-3xl font-bold">
-                  {data.temperature !== 'N/A' ? `${data.temperature}°C` : 'N/A'}
-                </span>
-                <Badge variant="outline" className="mb-2">
-                  {getWeatherDescription(data.sky_condition)}
-                </Badge>
-                <div className="text-muted-foreground mt-2 w-full space-y-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span>습도</span>
-                    <span>
-                      {data.humidity !== 'N/A' ? `${data.humidity}%` : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>풍속</span>
-                    <span>
-                      {data.wind_speed !== 'N/A'
-                        ? `${data.wind_speed} m/s`
-                        : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
@@ -347,7 +266,7 @@ export const WeatherPage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {Object.values(displayWeatherData).map((data) => {
+              {Object.values(dbWeatherData).map((data) => {
                 if (
                   data.sky_condition === 'DB03' ||
                   data.sky_condition === 'DB04'
@@ -363,7 +282,7 @@ export const WeatherPage = () => {
                 }
                 return null
               })}
-              {Object.values(displayWeatherData).every(
+              {Object.values(dbWeatherData).every(
                 (data) =>
                   data.sky_condition !== 'DB03' &&
                   data.sky_condition !== 'DB04',
