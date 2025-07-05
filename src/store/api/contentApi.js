@@ -15,19 +15,19 @@ export const contentApi = createApi({
         if (params.category) queryParams.append('category', params.category)
         if (params.region) queryParams.append('region', params.region)
 
-        return `/api/v1/destinations?${queryParams.toString()}`
+        return `/api/destinations?${queryParams.toString()}`
       },
       providesTags: ['Destination'],
     }),
 
     getDestinationById: builder.query({
-      query: (id) => `/api/v1/destinations/${id}`,
+      query: (id) => `/api/destinations/${id}`,
       providesTags: (result, error, id) => [{ type: 'Destination', id }],
     }),
 
     createDestination: builder.mutation({
       query: (data) => ({
-        url: '/api/v1/destinations',
+        url: '/api/destinations',
         method: 'POST',
         body: data,
       }),
@@ -36,7 +36,7 @@ export const contentApi = createApi({
 
     updateDestination: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/api/v1/destinations/${id}`,
+        url: `/api/destinations/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -45,7 +45,7 @@ export const contentApi = createApi({
 
     deleteDestination: builder.mutation({
       query: (id) => ({
-        url: `/api/v1/destinations/${id}`,
+        url: `/api/destinations/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Destination'],
@@ -53,7 +53,7 @@ export const contentApi = createApi({
 
     updateRecommendationWeight: builder.mutation({
       query: ({ id, weight }) => ({
-        url: `/api/v1/destinations/${id}/weight`,
+        url: `/api/destinations/${id}/weight`,
         method: 'PUT',
         body: { recommendation_weight: weight },
       }),
@@ -61,13 +61,13 @@ export const contentApi = createApi({
     }),
 
     getRecommendationSettings: builder.query({
-      query: () => '/api/v1/admin/recommendation-settings',
+      query: () => '/api/recommendation-settings',
       providesTags: ['RecommendationSettings'],
     }),
 
     updateRecommendationSettings: builder.mutation({
       query: (settings) => ({
-        url: '/api/v1/admin/recommendation-settings',
+        url: '/api/recommendation-settings',
         method: 'PUT',
         body: settings,
       }),

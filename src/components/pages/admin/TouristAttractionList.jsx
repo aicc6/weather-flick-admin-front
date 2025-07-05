@@ -33,14 +33,14 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
     setLoading(true)
     setError(null)
     try {
-      let endpoint = '/tourist-attractions/'
+      let endpoint = '/api/tourist-attractions/'
       const queryParams = {
         limit: pageSize,
         offset: (pageNum - 1) * pageSize,
       }
 
       if (search.name || search.category || search.region) {
-        endpoint = '/tourist-attractions/search/'
+        endpoint = '/api/tourist-attractions/search/'
         if (search.name) queryParams.name = search.name
         if (search.category) queryParams.category = search.category
         if (search.region) queryParams.region = search.region
@@ -74,7 +74,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
     setLoading(true)
     try {
-      const res = await authHttp.DELETE(`/tourist-attractions/${content_id}`)
+      const res = await authHttp.DELETE(
+        `/api/tourist-attractions/${content_id}`,
+      )
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       }

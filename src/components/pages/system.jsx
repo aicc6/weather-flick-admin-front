@@ -68,7 +68,7 @@ function usePollingSystemStatus(url, interval = 5000) {
 // }
 
 export const SystemPage = () => {
-  const status = usePollingSystemStatus('/api/v1/admin/system/status', 8000)
+  const status = usePollingSystemStatus('/api/system/status', 8000)
 
   return (
     <div className="space-y-6">

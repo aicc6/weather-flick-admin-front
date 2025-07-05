@@ -8,7 +8,7 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
-        url: '/auth/login',
+        url: '/api/auth/login',
         method: 'POST',
         body: credentials,
       }),
@@ -16,13 +16,13 @@ export const authApi = createApi({
     }),
 
     getCurrentUser: builder.query({
-      query: () => '/auth/me',
+      query: () => '/api/auth/me',
       providesTags: ['Auth'],
     }),
 
     logout: builder.mutation({
       query: () => ({
-        url: '/auth/logout',
+        url: '/api/auth/logout',
         method: 'POST',
       }),
       invalidatesTags: ['Auth'],
@@ -30,7 +30,7 @@ export const authApi = createApi({
 
     refreshToken: builder.mutation({
       query: () => ({
-        url: '/auth/refresh',
+        url: '/api/auth/refresh',
         method: 'POST',
       }),
     }),

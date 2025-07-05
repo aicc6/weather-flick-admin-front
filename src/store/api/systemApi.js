@@ -7,17 +7,17 @@ export const systemApi = createApi({
   tagTypes: ['SystemStatus', 'DashboardStats', 'Logs'],
   endpoints: (builder) => ({
     getDashboardStats: builder.query({
-      query: () => '/api/v1/admin/dashboard/stats',
+      query: () => '/api/system/status',
       providesTags: ['DashboardStats'],
     }),
 
     getSystemStatus: builder.query({
-      query: () => '/api/v1/admin/system/status',
+      query: () => '/api/system/status',
       providesTags: ['SystemStatus'],
     }),
 
     getServerMetrics: builder.query({
-      query: (serverId) => `/api/v1/admin/system/servers/${serverId}/metrics`,
+      query: (_serverId) => `/api/system/status`,
     }),
 
     getLogs: builder.query({
@@ -34,27 +34,27 @@ export const systemApi = createApi({
             queryParams.append(key, value.toString())
           }
         })
-        return `/system/logs?${queryParams.toString()}`
+        return `/api/system/logs?${queryParams.toString()}`
       },
       providesTags: ['Logs'],
     }),
 
     getApiHealth: builder.query({
-      query: () => '/api/v1/admin/health/external-apis',
+      query: () => '/api/system/status',
     }),
 
     performHealthCheck: builder.mutation({
       query: () => ({
-        url: '/api/v1/admin/health/check',
-        method: 'POST',
+        url: '/api/system/status',
+        method: 'GET',
       }),
       invalidatesTags: ['SystemStatus'],
     }),
 
     restartService: builder.mutation({
-      query: (serviceId) => ({
-        url: `/api/v1/admin/system/services/${serviceId}/restart`,
-        method: 'POST',
+      query: (_serviceId) => ({
+        url: `/api/system/status`,
+        method: 'GET',
       }),
       invalidatesTags: ['SystemStatus'],
     }),

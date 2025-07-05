@@ -21,19 +21,19 @@ export const usersApi = createApi({
           queryParams.append('is_active', params.is_active)
         }
         // 필요시 추가 필드
-        return `/users?${queryParams.toString()}`
+        return `/api/users/?${queryParams.toString()}`
       },
       providesTags: ['User'],
     }),
 
     getUserById: builder.query({
-      query: (id) => `/api/v1/users/${id}`,
+      query: (id) => `/api/users/${id}`,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
 
     createUser: builder.mutation({
       query: (userData) => ({
-        url: '/api/v1/users',
+        url: '/api/users/',
         method: 'POST',
         body: userData,
       }),
@@ -42,7 +42,7 @@ export const usersApi = createApi({
 
     updateUser: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/api/v1/users/${id}`,
+        url: `/api/users/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -51,7 +51,7 @@ export const usersApi = createApi({
 
     deleteUser: builder.mutation({
       query: (id) => ({
-        url: `/api/v1/users/${id}`,
+        url: `/api/users/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['User'],
@@ -59,7 +59,7 @@ export const usersApi = createApi({
 
     updateUserStatus: builder.mutation({
       query: ({ id, status, reason }) => ({
-        url: `/api/v1/users/${id}/status`,
+        url: `/api/users/${id}/status`,
         method: 'PUT',
         body: { status, reason },
       }),
@@ -68,13 +68,13 @@ export const usersApi = createApi({
 
     // apiService에서 이관될 메서드들
     getUserStats: builder.query({
-      query: () => '/users/stats',
+      query: () => '/api/users/stats',
       providesTags: ['UserStats'],
     }),
 
     activateUser: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/activate`,
+        url: `/api/users/${userId}/activate`,
         method: 'POST',
       }),
       invalidatesTags: ['User', 'UserStats'],
@@ -82,7 +82,7 @@ export const usersApi = createApi({
 
     deactivateUser: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/deactivate`,
+        url: `/api/users/${userId}/deactivate`,
         method: 'POST',
       }),
       invalidatesTags: ['User', 'UserStats'],
@@ -90,7 +90,7 @@ export const usersApi = createApi({
 
     resetUserPassword: builder.mutation({
       query: (userId) => ({
-        url: `/users/${userId}/reset-password`,
+        url: `/api/users/${userId}/reset-password`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, userId) => [
@@ -100,7 +100,7 @@ export const usersApi = createApi({
 
     searchUsers: builder.query({
       query: (keyword, limit = 20) => ({
-        url: '/users/search',
+        url: '/api/users/search',
         params: { keyword, limit },
       }),
       providesTags: ['User'],
@@ -108,7 +108,7 @@ export const usersApi = createApi({
 
     getUsersByRegion: builder.query({
       query: (region) => ({
-        url: '/users/by-region',
+        url: '/api/users/region',
         params: { region },
       }),
       providesTags: ['User'],

@@ -13,19 +13,19 @@ export const adminsApi = createApi({
         if (params.limit) queryParams.append('limit', params.limit.toString())
         if (params.search) queryParams.append('search', params.search)
 
-        return `/auth/admins?${queryParams.toString()}`
+        return `/api/admins/?${queryParams.toString()}`
       },
       providesTags: ['Admin'],
     }),
 
     getAdminById: builder.query({
-      query: (id) => `/auth/admins/${id}`,
+      query: (id) => `/api/admins/${id}`,
       providesTags: (result, error, id) => [{ type: 'Admin', id }],
     }),
 
     createAdmin: builder.mutation({
       query: (adminData) => ({
-        url: '/auth/admins',
+        url: '/api/admins/',
         method: 'POST',
         body: adminData,
       }),
@@ -34,7 +34,7 @@ export const adminsApi = createApi({
 
     updateAdmin: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/auth/admins/${id}`,
+        url: `/api/admins/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -43,7 +43,7 @@ export const adminsApi = createApi({
 
     deleteAdmin: builder.mutation({
       query: (id) => ({
-        url: `/auth/admins/${id}`,
+        url: `/api/admins/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Admin'],
@@ -51,7 +51,7 @@ export const adminsApi = createApi({
 
     activateAdmin: builder.mutation({
       query: (id) => ({
-        url: `/auth/admins/${id}/activate`,
+        url: `/api/admins/${id}/activate`,
         method: 'PUT',
       }),
       invalidatesTags: (result, error, id) => [{ type: 'Admin', id }],
@@ -59,7 +59,7 @@ export const adminsApi = createApi({
 
     deactivateAdmin: builder.mutation({
       query: (id) => ({
-        url: `/auth/admins/${id}/deactivate`,
+        url: `/api/admins/${id}/deactivate`,
         method: 'PUT',
       }),
       invalidatesTags: (result, error, id) => [{ type: 'Admin', id }],
@@ -68,7 +68,7 @@ export const adminsApi = createApi({
     // apiService에서 이관될 메서드들
     deleteAdminPermanently: builder.mutation({
       query: (adminId) => ({
-        url: `/auth/admins/${adminId}/permanent`,
+        url: `/api/admins/${adminId}/permanent`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Admin'],
@@ -76,7 +76,7 @@ export const adminsApi = createApi({
 
     resetAdminPassword: builder.mutation({
       query: (adminId) => ({
-        url: `/auth/admins/${adminId}/reset-password`,
+        url: `/api/admins/${adminId}/reset-password`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, adminId) => [
@@ -86,7 +86,7 @@ export const adminsApi = createApi({
 
     updateAdminStatus: builder.mutation({
       query: ({ adminId, status }) => ({
-        url: `/auth/admins/${adminId}/status`,
+        url: `/api/admins/${adminId}/status`,
         method: 'PUT',
         body: { status },
       }),

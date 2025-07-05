@@ -31,7 +31,7 @@ export function useDashboardData() {
     try {
       setWeatherLoading(true)
       setWeatherError('')
-      const res = await authHttp.GET('/weather/summary-db')
+      const res = await authHttp.GET('/api/weather/summary-db')
       const data = await res.json()
 
       // Convert to { code: data } map for compatibility
@@ -65,7 +65,7 @@ export function useDashboardData() {
     const fetchData = async () => {
       try {
         // 관광지 데이터 fetch
-        const tourRes = await authHttp.GET('/tourist-attractions/', {
+        const tourRes = await authHttp.GET('/api/tourist-attractions/', {
           params: { query: { limit: 3, offset: 0 } },
         })
         const tourData = await tourRes.json()
@@ -77,7 +77,7 @@ export function useDashboardData() {
 
       try {
         // 사용자 요약 fetch
-        const userRes = await authHttp.GET('/users/stats')
+        const userRes = await authHttp.GET('/api/users/stats')
         const userData = await userRes.json()
         setUserSummary({
           total: userData.total ?? 0,
@@ -91,7 +91,7 @@ export function useDashboardData() {
 
       try {
         // 관리자 요약 fetch
-        const adminRes = await authHttp.GET('/auth/admins/stats')
+        const adminRes = await authHttp.GET('/api/admins/stats')
         const adminData = await adminRes.json()
         setAdminSummary({
           total: adminData.total ?? 0,
@@ -105,7 +105,7 @@ export function useDashboardData() {
 
       try {
         // 시스템 상태 fetch
-        const systemRes = await authHttp.GET('/api/v1/admin/system/status')
+        const systemRes = await authHttp.GET('/api/system/status')
         const systemData = await systemRes.json()
         setSystemStatus(systemData)
       } catch (error) {

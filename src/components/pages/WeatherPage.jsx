@@ -10,12 +10,12 @@ export default function WeatherPage() {
     async function fetchWeather() {
       try {
         const params = { nx: 60, ny: 127, location: '서울' }
-        const resCurrent = await http.GET('weather/current', {
+        const resCurrent = await http.GET('/api/weather/current', {
           params: { query: params },
         })
         const current = await getJsonResponse(resCurrent)
 
-        const resForecast = await http.GET('weather/forecast', {
+        const resForecast = await http.GET('/api/weather/forecast', {
           params: { query: params },
         })
         const forecast = await getJsonResponse(resForecast)
