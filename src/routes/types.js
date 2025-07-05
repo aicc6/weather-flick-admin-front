@@ -25,12 +25,6 @@ export const ROUTE_META = {
     breadcrumb: ['대시보드', '콘텐츠 관리'],
     icon: 'FileText',
   },
-  SYSTEM: {
-    path: '/system',
-    title: '시스템 관리',
-    breadcrumb: ['대시보드', '시스템 관리'],
-    icon: 'Settings',
-  },
   WEATHER: {
     path: '/weather',
     title: '날씨 관리',
@@ -53,5 +47,4 @@ export const NAVIGATION_ITEMS = [
   ROUTE_META.CONTENT,
   ROUTE_META.WEATHER,
   ROUTE_META.TOURIST_ATTRACTIONS,
-  ROUTE_META.SYSTEM,
 ]

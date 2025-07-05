@@ -31,11 +31,6 @@ const ContentPage = lazy(() =>
     default: module.ContentPage,
   })),
 )
-const SystemPage = lazy(() =>
-  import('../components/pages/system').then((module) => ({
-    default: module.SystemPage,
-  })),
-)
 const WeatherPage = lazy(() =>
   import('../components/pages/weather').then((module) => ({
     default: module.WeatherPage,
@@ -124,18 +119,6 @@ export const router = createBrowserRouter([
     meta: {
       title: '콘텐츠 관리',
       breadcrumb: ['대시보드', '콘텐츠 관리'],
-    },
-  },
-  {
-    path: '/system',
-    element: (
-      <ProtectedLayout>
-        <SystemPage />
-      </ProtectedLayout>
-    ),
-    meta: {
-      title: '시스템 관리',
-      breadcrumb: ['대시보드', '시스템 관리'],
     },
   },
   {

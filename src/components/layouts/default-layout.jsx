@@ -6,7 +6,6 @@ import {
   Users,
   Home,
   Cloud,
-  Settings,
   FileText,
   Moon,
   Sun as SunIcon,
@@ -55,7 +54,6 @@ export const DefaultLayout = ({ children }) => {
       ? [{ name: '관리자 관리', href: '/admins', icon: User }]
       : []),
     { name: '컨텐츠 관리', href: '/content', icon: FileText },
-    { name: '시스템 관리', href: '/system', icon: Settings },
     { name: '날씨 정보', href: '/weather', icon: Cloud },
     { name: '관광지 관리', href: '/tourist-attractions', icon: FileText },
   ]
