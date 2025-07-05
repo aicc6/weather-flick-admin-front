@@ -20,10 +20,13 @@ export function SystemStatusCard() {
       try {
         setLoading(true)
         const response = await authHttp.GET('/api/system/status')
-        if (response.success) {
-          setSystemStatus(response.data)
+        const data = await response.json()
+        
+        if (data.success) {
+          // 새로운 표준 응답 형식: { success: true, data: {...}, message: "..." }
+          setSystemStatus(data.data)
         } else {
-          setError(response.error || '시스템 상태를 불러오지 못했습니다.')
+          setError(data.error?.message || data.message || '시스템 상태를 불러오지 못했습니다.')
         }
       } catch (err) {
         setError(err.message || '시스템 상태를 불러오지 못했습니다.')

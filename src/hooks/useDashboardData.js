@@ -79,10 +79,13 @@ export function useDashboardData() {
         // 사용자 요약 fetch
         const userRes = await authHttp.GET('/api/users/stats')
         const userData = await userRes.json()
+        
+        // 표준 응답 형식 또는 기존 형식 지원
+        const stats = userData.success ? userData.data : userData
         setUserSummary({
-          total: userData.total ?? 0,
-          active: userData.active ?? 0,
-          inactive: userData.inactive ?? 0,
+          total: stats.total_users ?? stats.total ?? 0,
+          active: stats.active_users ?? stats.active ?? 0,
+          inactive: stats.inactive ?? 0,
         })
       } catch (error) {
         console.error('사용자 통계 로딩 실패:', error)
@@ -93,10 +96,13 @@ export function useDashboardData() {
         // 관리자 요약 fetch
         const adminRes = await authHttp.GET('/api/admins/stats')
         const adminData = await adminRes.json()
+        
+        // 표준 응답 형식 또는 기존 형식 지원
+        const stats = adminData.success ? adminData.data : adminData
         setAdminSummary({
-          total: adminData.total ?? 0,
-          active: adminData.active ?? 0,
-          inactive: adminData.inactive ?? 0,
+          total: stats.total ?? 0,
+          active: stats.active ?? 0,
+          inactive: stats.inactive ?? 0,
         })
       } catch (error) {
         console.error('관리자 통계 로딩 실패:', error)
@@ -107,7 +113,14 @@ export function useDashboardData() {
         // 시스템 상태 fetch
         const systemRes = await authHttp.GET('/api/system/status')
         const systemData = await systemRes.json()
-        setSystemStatus(systemData)
+        
+        // 표준 응답 형식 지원
+        if (systemData.success) {
+          setSystemStatus(systemData.data)
+        } else {
+          // 기존 형식 지원
+          setSystemStatus(systemData)
+        }
       } catch (error) {
         console.error('시스템 상태 로딩 실패:', error)
         setSystemStatus(null)

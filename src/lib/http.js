@@ -87,43 +87,74 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+// 401 오류 처리 함수
+const handleUnauthorized = () => {
+  // 토큰 제거
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+  // 로그인 페이지로 리다이렉트
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  }
+}
+
+// 인증 응답 처리 함수
+const handleAuthResponse = async (response) => {
+  if (response.status === 401) {
+    handleUnauthorized()
+    throw new Error('인증이 필요합니다. 다시 로그인해주세요.')
+  }
+  return response
+}
+
 // 인증이 필요한 요청을 위한 헬퍼 함수들
 export const authHttp = {
-  GET: async (url, options = {}) =>
-    http.GET(url, {
+  GET: async (url, options = {}) => {
+    const response = await http.GET(url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 
-  POST: async (url, options = {}) =>
-    http.POST(url, {
+  POST: async (url, options = {}) => {
+    const response = await http.POST(url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 
-  PUT: async (url, options = {}) =>
-    http.PUT(url, {
+  PUT: async (url, options = {}) => {
+    const response = await http.PUT(url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 
-  PATCH: async (url, options = {}) =>
-    http.PATCH(url, {
+  PATCH: async (url, options = {}) => {
+    const response = await http.PATCH(url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 
-  DELETE: async (url, options = {}) =>
-    http.DELETE(url, {
+  DELETE: async (url, options = {}) => {
+    const response = await http.DELETE(url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 
-  request: async (method, url, options = {}) =>
-    http.request(method, url, {
+  request: async (method, url, options = {}) => {
+    const response = await http.request(method, url, {
       ...options,
       headers: { ...getAuthHeaders(), ...options.headers },
-    }),
+    })
+    return handleAuthResponse(response)
+  },
 }
 
 // 응답 처리 헬퍼 함수
