@@ -54,6 +54,7 @@ export const LoginPage = () => {
               src="/logo.jpg"
               alt="Weather Flick Logo"
               className="h-10 w-10"
+              loading="lazy"
             />
             <h2 className="text-4xl font-extrabold text-gray-900">
               Weather Flick Admin

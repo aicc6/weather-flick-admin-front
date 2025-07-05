@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Database, Server, Globe, MapPin, CreditCard } from 'lucide-react'
+import { Database, Server, Globe, MapPin } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -21,12 +21,16 @@ export function SystemStatusCard() {
         setLoading(true)
         const response = await authHttp.GET('/api/system/status')
         const data = await response.json()
-        
+
         if (data.success) {
           // 새로운 표준 응답 형식: { success: true, data: {...}, message: "..." }
           setSystemStatus(data.data)
         } else {
-          setError(data.error?.message || data.message || '시스템 상태를 불러오지 못했습니다.')
+          setError(
+            data.error?.message ||
+              data.message ||
+              '시스템 상태를 불러오지 못했습니다.',
+          )
         }
       } catch (err) {
         setError(err.message || '시스템 상태를 불러오지 못했습니다.')
@@ -60,7 +64,8 @@ export function SystemStatusCard() {
                 <span className="font-medium">서비스</span>
                 <Badge
                   variant={
-                    systemStatus.service_status === '정상' || systemStatus.service_status === '운영중'
+                    systemStatus.service_status === '정상' ||
+                    systemStatus.service_status === '운영중'
                       ? 'success'
                       : 'destructive'
                   }
@@ -101,8 +106,12 @@ export function SystemStatusCard() {
                       <span className="text-xs">날씨</span>
                       <Badge
                         variant={
-                          systemStatus.external_apis.weather_api.status?.includes('정상') ||
-                          systemStatus.external_apis.weather_api.status?.includes('200')
+                          systemStatus.external_apis.weather_api.status?.includes(
+                            '정상',
+                          ) ||
+                          systemStatus.external_apis.weather_api.status?.includes(
+                            '200',
+                          )
                             ? 'success'
                             : 'destructive'
                         }
@@ -123,8 +132,12 @@ export function SystemStatusCard() {
                       <span className="text-xs">관광</span>
                       <Badge
                         variant={
-                          systemStatus.external_apis.tourism_api.status?.includes('정상') ||
-                          systemStatus.external_apis.tourism_api.status?.includes('200')
+                          systemStatus.external_apis.tourism_api.status?.includes(
+                            '정상',
+                          ) ||
+                          systemStatus.external_apis.tourism_api.status?.includes(
+                            '200',
+                          )
                             ? 'success'
                             : 'destructive'
                         }
@@ -145,8 +158,12 @@ export function SystemStatusCard() {
                       <span className="text-xs">지도</span>
                       <Badge
                         variant={
-                          systemStatus.external_apis.google_places.status?.includes('정상') ||
-                          systemStatus.external_apis.google_places.status?.includes('200')
+                          systemStatus.external_apis.google_places.status?.includes(
+                            '정상',
+                          ) ||
+                          systemStatus.external_apis.google_places.status?.includes(
+                            '200',
+                          )
                             ? 'success'
                             : 'destructive'
                         }
@@ -154,9 +171,13 @@ export function SystemStatusCard() {
                       >
                         {systemStatus.external_apis.google_places.status}
                       </Badge>
-                      {systemStatus.external_apis.google_places.response_time && (
+                      {systemStatus.external_apis.google_places
+                        .response_time && (
                         <span className="text-muted-foreground text-xs">
-                          {systemStatus.external_apis.google_places.response_time}
+                          {
+                            systemStatus.external_apis.google_places
+                              .response_time
+                          }
                         </span>
                       )}
                     </div>

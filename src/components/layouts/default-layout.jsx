@@ -69,6 +69,7 @@ export const DefaultLayout = ({ children }) => {
                 src="/logo.jpg"
                 alt="Weather Flick Logo"
                 className="mr-2 h-8 w-8 rounded"
+                loading="lazy"
               />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 Weather Flick Admin
