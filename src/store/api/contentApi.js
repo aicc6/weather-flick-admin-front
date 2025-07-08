@@ -86,3 +86,58 @@ export const {
   useGetRecommendationSettingsQuery,
   useUpdateRecommendationSettingsMutation,
 } = contentApi
+
+// Travel Courses API
+export const travelCoursesApi = createApi({
+  reducerPath: 'travelCoursesApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['TravelCourse'],
+  endpoints: (builder) => ({
+    getTravelCourses: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.offset) queryParams.append('offset', params.offset)
+        return `/api/travel-courses?${queryParams.toString()}`
+      },
+      providesTags: ['TravelCourse'],
+    }),
+    getTravelCourseById: builder.query({
+      query: (content_id) => `/api/travel-courses/${content_id}`,
+      providesTags: (result, error, id) => [{ type: 'TravelCourse', id }],
+    }),
+    createTravelCourse: builder.mutation({
+      query: (data) => ({
+        url: '/api/travel-courses',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['TravelCourse'],
+    }),
+    updateTravelCourse: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/travel-courses/${content_id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'TravelCourse', content_id },
+      ],
+    }),
+    deleteTravelCourse: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/travel-courses/${content_id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['TravelCourse'],
+    }),
+  }),
+})
+
+export const {
+  useGetTravelCoursesQuery,
+  useGetTravelCourseByIdQuery,
+  useCreateTravelCourseMutation,
+  useUpdateTravelCourseMutation,
+  useDeleteTravelCourseMutation,
+} = travelCoursesApi
