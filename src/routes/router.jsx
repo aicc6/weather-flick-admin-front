@@ -39,6 +39,9 @@ const WeatherPage = lazy(() =>
 const TouristAttractionAdminPage = lazy(
   () => import('../components/pages/TouristAttractionAdminPage'),
 )
+const TouristAttractionDetailWrapper = lazy(
+  () => import('../components/pages/TouristAttractionDetailWrapper'),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -143,6 +146,18 @@ export const router = createBrowserRouter([
     meta: {
       title: '관광지 관리',
       breadcrumb: ['대시보드', '관광지 관리'],
+    },
+  },
+  {
+    path: '/tourist-attractions/:contentId',
+    element: (
+      <ProtectedLayout>
+        <TouristAttractionDetailWrapper />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '관광지 상세',
+      breadcrumb: ['대시보드', '관광지 관리', '상세'],
     },
   },
   {

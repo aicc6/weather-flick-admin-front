@@ -10,6 +10,7 @@ import {
 } from '../ui/card'
 
 const emptyForm = {
+  content_id: '',
   attraction_name: '',
   description: '',
   address: '',
@@ -19,6 +20,19 @@ const emptyForm = {
   category_code: '',
   category_name: '',
   region_code: '',
+  homepage: '',
+  booktour: '',
+  createdtime: '',
+  modifiedtime: '',
+  telname: '',
+  faxno: '',
+  zipcode: '',
+  mlevel: '',
+  data_quality_score: '',
+  processing_status: '',
+  last_sync_at: '',
+  detail_intro_info: '',
+  detail_additional_info: '',
 }
 
 const fieldLabels = {
@@ -31,6 +45,19 @@ const fieldLabels = {
   category_code: '카테고리 코드',
   category_name: '카테고리명',
   region_code: '지역코드',
+  homepage: '홈페이지',
+  booktour: '북투어',
+  createdtime: '생성시간',
+  modifiedtime: '수정시간',
+  telname: '전화명',
+  faxno: '팩스번호',
+  zipcode: '우편번호',
+  mlevel: '레벨',
+  data_quality_score: '데이터 품질 점수',
+  processing_status: '처리상태',
+  last_sync_at: '최종 동기화',
+  detail_intro_info: '상세 소개 정보',
+  detail_additional_info: '상세 추가 정보',
 }
 
 export default function TouristAttractionForm({ contentId, onDone }) {

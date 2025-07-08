@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { authHttp } from '../../lib/http'
+import { Link } from 'react-router-dom'
 import {
   Card,
   CardHeader,
@@ -294,6 +295,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                 <th className="py-2 text-center">관광지명</th>
                 <th className="text-center">카테고리</th>
                 <th className="text-center">지역</th>
+                <th className="text-center">이미지</th>
                 <th className="text-center">등록일</th>
                 <th className="text-center">관리</th>
               </tr>
@@ -301,7 +303,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             <tbody>
               {loading && data.items.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center">
+                  <td colSpan={6} className="py-8 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
                       <span className="text-gray-500">
@@ -313,7 +315,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
               )}
               {!loading && data.items.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-4 text-center text-gray-400">
+                  <td colSpan={6} className="py-4 text-center text-gray-400">
                     {error
                       ? '데이터를 불러올 수 없습니다.'
                       : '데이터가 없습니다.'}
@@ -322,9 +324,27 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
               )}
               {data.items.map((a) => (
                 <tr key={a.content_id} className="border-t">
-                  <td className="py-2 text-center">{a.attraction_name}</td>
+                  <td className="py-2 text-center">
+                    <Link
+                      to={`/tourist-attractions/${a.content_id}`}
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      {a.attraction_name}
+                    </Link>
+                  </td>
                   <td className="text-center">{a.category_name}</td>
                   <td className="text-center">{a.region_code}</td>
+                  <td className="text-center">
+                    {a.image_url ? (
+                      <img
+                        src={a.image_url}
+                        alt={a.attraction_name}
+                        style={{ maxWidth: 80, maxHeight: 60 }}
+                      />
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
                   <td className="text-center">
                     {a.created_at ? a.created_at.split('T')[0] : ''}
                   </td>
