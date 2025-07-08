@@ -41,9 +41,11 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '../ui/alert-dialog'
+import { Link } from 'react-router-dom'
 
 export const ContentPage = () => {
-  const [search, setSearch] = useState('')
+  const [searchCourseName, setSearchCourseName] = useState('')
+  const [searchRegionCode, setSearchRegionCode] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
   const [form, setForm] = useState({ course_name: '', region_code: '' })
@@ -58,8 +60,8 @@ export const ContentPage = () => {
 
   const filtered = data?.items?.filter(
     (c) =>
-      c.course_name.toLowerCase().includes(search.toLowerCase()) ||
-      c.region_code.toLowerCase().includes(search.toLowerCase()),
+      c.course_name.toLowerCase().includes(searchCourseName.toLowerCase()) &&
+      c.region_code.toLowerCase().includes(searchRegionCode.toLowerCase()),
   )
 
   const handleAdd = async (e) => {
@@ -90,9 +92,15 @@ export const ContentPage = () => {
         <CardContent>
           <div className="mb-4 flex items-center gap-2">
             <Input
-              placeholder="코스명 또는 지역코드 검색"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="코스명 검색"
+              value={searchCourseName}
+              onChange={(e) => setSearchCourseName(e.target.value)}
+              className="max-w-xs"
+            />
+            <Input
+              placeholder="지역코드 검색"
+              value={searchRegionCode}
+              onChange={(e) => setSearchRegionCode(e.target.value)}
               className="max-w-xs"
             />
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -138,6 +146,7 @@ export const ContentPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>사진</TableHead>
                   <TableHead>코스명</TableHead>
                   <TableHead>지역코드</TableHead>
                   <TableHead>생성일</TableHead>
@@ -147,20 +156,43 @@ export const ContentPage = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={4}>로딩 중...</TableCell>
+                    <TableCell colSpan={5}>로딩 중...</TableCell>
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={4}>에러: {error.message}</TableCell>
+                    <TableCell colSpan={5}>에러: {error.message}</TableCell>
                   </TableRow>
                 ) : filtered?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4}>데이터 없음</TableCell>
+                    <TableCell colSpan={5}>데이터 없음</TableCell>
                   </TableRow>
                 ) : (
                   filtered?.map((course) => (
                     <TableRow key={course.content_id}>
-                      <TableCell>{course.course_name}</TableCell>
+                      <TableCell>
+                        {course.first_image ? (
+                          <img
+                            src={course.first_image}
+                            alt={course.course_name}
+                            style={{
+                              width: 80,
+                              height: 60,
+                              objectFit: 'cover',
+                              borderRadius: 4,
+                            }}
+                          />
+                        ) : (
+                          '없음'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          to={`/content/${course.content_id}`}
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          {course.course_name}
+                        </Link>
+                      </TableCell>
                       <TableCell>{course.region_code}</TableCell>
                       <TableCell>
                         {course.created_at?.slice(0, 10) || '-'}

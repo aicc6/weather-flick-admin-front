@@ -46,6 +46,26 @@ export default function TouristAttractionDetail({
     return <div className="py-16 text-center text-red-500">{error}</div>
   if (!data) return null
 
+  const REGION_MAP = {
+    11: '서울',
+    26: '부산',
+    27: '대구',
+    28: '인천',
+    29: '광주',
+    30: '대전',
+    31: '울산',
+    36: '세종',
+    41: '경기',
+    42: '강원',
+    43: '충북',
+    44: '충남',
+    45: '전북',
+    46: '전남',
+    47: '경북',
+    48: '경남',
+    50: '제주',
+  }
+
   return (
     <Card className="mx-auto mt-8 max-w-4xl p-6">
       <CardHeader>
@@ -55,7 +75,7 @@ export default function TouristAttractionDetail({
         <CardDescription className="mt-1 flex gap-2 text-sm text-gray-500">
           <span>{data.category_name}</span>
           <span>|</span>
-          <span>{data.region_code}</span>
+          <span>{REGION_MAP[data.region_code] || data.region_code}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>

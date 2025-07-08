@@ -42,6 +42,9 @@ const TouristAttractionAdminPage = lazy(
 const TouristAttractionDetailWrapper = lazy(
   () => import('../components/pages/TouristAttractionDetailWrapper'),
 )
+const ContentDetailPage = lazy(
+  () => import('../components/pages/ContentDetailPage'),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -158,6 +161,18 @@ export const router = createBrowserRouter([
     meta: {
       title: '관광지 상세',
       breadcrumb: ['대시보드', '관광지 관리', '상세'],
+    },
+  },
+  {
+    path: '/content/:contentId',
+    element: (
+      <ProtectedLayout>
+        <ContentDetailPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '코스 상세',
+      breadcrumb: ['대시보드', '콘텐츠 관리', '상세'],
     },
   },
   {

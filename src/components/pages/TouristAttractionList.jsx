@@ -21,9 +21,29 @@ import { Alert, AlertDescription } from '../ui/alert'
 import { Button } from '../ui/button'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 
+const REGION_MAP = {
+  1: '서울',
+  2: '인천',
+  3: '대전',
+  4: '대구',
+  5: '광주',
+  6: '부산',
+  7: '울산',
+  8: '세종',
+  31: '경기도',
+  32: '강원도',
+  33: '충청북도',
+  34: '충청남도',
+  35: '경상북도',
+  36: '경상남도',
+  37: '전라북도',
+  38: '전라남도',
+  39: '제주',
+}
+
 export default function TouristAttractionList({ onEdit, onCreate }) {
   const [data, setData] = useState({ items: [], total: 0 })
-  const [search, setSearch] = useState({ name: '', category: '', region: '' })
+  const [search, setSearch] = useState({ name: '', region: '' })
   const [page, setPage] = useState(1)
   const pageSize = 10
 
@@ -40,11 +60,23 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
         offset: (pageNum - 1) * pageSize,
       }
 
-      if (search.name || search.category || search.region) {
+      // 지역 이름을 코드로 변환
+      let regionCode = search.region
+      if (regionCode) {
+        // 입력값이 코드가 아니라면(숫자가 아니면) 이름으로 간주
+        if (isNaN(Number(regionCode))) {
+          // REGION_MAP에서 코드 찾기
+          const found = Object.entries(REGION_MAP).find(
+            ([, name]) => name === regionCode,
+          )
+          regionCode = found ? found[0] : ''
+        }
+      }
+
+      if (search.name || regionCode) {
         endpoint = '/api/tourist-attractions/search/'
         if (search.name) queryParams.name = search.name
-        if (search.category) queryParams.category = search.category
-        if (search.region) queryParams.region = search.region
+        if (regionCode) queryParams.region = regionCode
       }
 
       const res = await authHttp.GET(endpoint, {
@@ -241,20 +273,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             </div>
             <div className="flex flex-col gap-1">
               <input
-                id="search-category"
-                className="input rounded border px-2 py-1"
-                placeholder="카테고리"
-                value={search.category}
-                onChange={(e) =>
-                  setSearch({ ...search, category: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <input
                 id="search-region"
                 className="input rounded border px-2 py-1"
-                placeholder="지역코드"
+                placeholder="지역"
                 value={search.region}
                 onChange={(e) =>
                   setSearch({ ...search, region: e.target.value })
@@ -293,7 +314,6 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-2 text-center">관광지명</th>
-                <th className="text-center">카테고리</th>
                 <th className="text-center">지역</th>
                 <th className="text-center">이미지</th>
                 <th className="text-center">등록일</th>
@@ -303,7 +323,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             <tbody>
               {loading && data.items.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center">
+                  <td colSpan={5} className="py-8 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
                       <span className="text-gray-500">
@@ -315,7 +335,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
               )}
               {!loading && data.items.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-4 text-center text-gray-400">
+                  <td colSpan={5} className="py-4 text-center text-gray-400">
                     {error
                       ? '데이터를 불러올 수 없습니다.'
                       : '데이터가 없습니다.'}
@@ -332,8 +352,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                       {a.attraction_name}
                     </Link>
                   </td>
-                  <td className="text-center">{a.category_name}</td>
-                  <td className="text-center">{a.region_code}</td>
+                  <td className="text-center">
+                    {REGION_MAP[a.region_code] || ''}
+                  </td>
                   <td className="text-center">
                     {a.image_url ? (
                       <img

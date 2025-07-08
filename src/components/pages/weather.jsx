@@ -68,13 +68,8 @@ function WeatherRealtimePage() {
 
       {/* 날씨 알림 카드 */}
       {weatherList.length > 0 && (
-        <Card className="mx-auto max-w-xl">
-          <CardHeader>
-            <CardTitle>날씨 알림</CardTitle>
-            <CardDescription>
-              주요 도시의 체감온도, 강수, 강풍 등 알림
-            </CardDescription>
-          </CardHeader>
+        <Card className="mx-auto w-full">
+          <CardHeader></CardHeader>
           <CardContent>
             <WeatherAlert weather={weatherList[0]} />
           </CardContent>

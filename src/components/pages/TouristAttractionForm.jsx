@@ -60,6 +60,26 @@ const fieldLabels = {
   detail_additional_info: '상세 추가 정보',
 }
 
+const REGION_MAP = {
+  11: '서울',
+  26: '부산',
+  27: '대구',
+  28: '인천',
+  29: '광주',
+  30: '대전',
+  31: '울산',
+  36: '세종',
+  41: '경기',
+  42: '강원',
+  43: '충북',
+  44: '충남',
+  45: '전북',
+  46: '전남',
+  47: '경북',
+  48: '경남',
+  50: '제주',
+}
+
 export default function TouristAttractionForm({ contentId, onDone }) {
   const [form, setForm] = useState(emptyForm)
 
@@ -121,23 +141,48 @@ export default function TouristAttractionForm({ contentId, onDone }) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {Object.keys(emptyForm).map((key) => (
-                <div key={key} className="flex flex-col gap-2">
-                  <label
-                    htmlFor={key}
-                    className="text-sm font-medium text-gray-600"
-                  >
-                    {fieldLabels[key]}
-                  </label>
-                  <input
-                    id={key}
-                    name={key}
-                    value={form[key] || ''}
-                    onChange={handleChange}
-                    className="rounded border px-3 py-2 text-base focus:outline-blue-500"
-                  />
-                </div>
-              ))}
+              {Object.keys(emptyForm).map((key) =>
+                key === 'region_code' ? (
+                  <div key={key} className="flex flex-col gap-2">
+                    <label
+                      htmlFor={key}
+                      className="text-sm font-medium text-gray-600"
+                    >
+                      {fieldLabels[key]}
+                    </label>
+                    <select
+                      id={key}
+                      name={key}
+                      value={form[key] || ''}
+                      onChange={handleChange}
+                      className="rounded border px-3 py-2 text-base focus:outline-blue-500"
+                    >
+                      <option value="">지역 선택</option>
+                      {Object.entries(REGION_MAP).map(([code, name]) => (
+                        <option key={code} value={code}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div key={key} className="flex flex-col gap-2">
+                    <label
+                      htmlFor={key}
+                      className="text-sm font-medium text-gray-600"
+                    >
+                      {fieldLabels[key]}
+                    </label>
+                    <input
+                      id={key}
+                      name={key}
+                      value={form[key] || ''}
+                      onChange={handleChange}
+                      className="rounded border px-3 py-2 text-base focus:outline-blue-500"
+                    />
+                  </div>
+                ),
+              )}
             </div>
           </CardContent>
           <CardFooter className="mt-4 justify-end gap-2">
