@@ -6,21 +6,25 @@ export const weatherApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ['Weather', 'WeatherRegions'],
   endpoints: (builder) => ({
+    // v3 현재 날씨 정보 조회 (관리자 관점)
     getCurrentWeather: builder.query({
-      query: () => '/api/weather/current',
+      query: (params = {}) => {
+        const queryParams = new URLSearchParams()
+        if (params.nx) queryParams.append('nx', params.nx.toString())
+        if (params.ny) queryParams.append('ny', params.ny.toString())
+        if (params.location) queryParams.append('location', params.location)
+
+        return `/api/weather/current?${queryParams.toString()}`
+      },
       providesTags: ['Weather'],
-      // 5분마다 자동 새로고침
       keepUnusedDataFor: 300, // 5분
-      // 실패 시 재시도 설정
       retry: (failureCount, error) => {
-        // 401, 403 등 인증 관련 오류는 재시도하지 않음
         if (error.status === 401 || error.status === 403) {
           return false
         }
-        // 최대 2회 재시도
         return failureCount < 2
       },
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000), // 지수 백오프
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
     }),
 
     getWeatherForecast: builder.query({

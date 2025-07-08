@@ -6,11 +6,13 @@ export const systemApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ['SystemStatus', 'DashboardStats', 'Logs'],
   endpoints: (builder) => ({
+    // v3 대시보드 통계 정보 조회
     getDashboardStats: builder.query({
-      query: () => '/api/system/status',
+      query: () => '/api/dashboard/stats',
       providesTags: ['DashboardStats'],
     }),
 
+    // v3 시스템 상태 정보 조회
     getSystemStatus: builder.query({
       query: () => '/api/system/status',
       providesTags: ['SystemStatus'],
@@ -20,6 +22,7 @@ export const systemApi = createApi({
       query: (_serverId) => `/api/system/status`,
     }),
 
+    // v3 시스템 로그 조회 (백엔드 라우터 구조와 일치)
     getLogs: builder.query({
       query: (params = {}) => {
         const queryParams = new URLSearchParams()

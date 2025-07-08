@@ -23,5 +23,26 @@ export const baseQueryWithAuth = async (args, api, extraOptions) => {
     window.location.href = '/login'
   }
 
+  // v3 API 표준 응답 구조 처리
+  if (result.data && typeof result.data === 'object') {
+    // v3 표준 응답 구조: {success, data, error, pagination}
+    if (result.data.success !== undefined) {
+      if (result.data.success) {
+        result.data = result.data.data || result.data
+      } else {
+        // 에러 응답 처리
+        result.error = {
+          status: 'PARSING_ERROR',
+          data: result.data.error || 'Unknown error',
+        }
+        result.data = null
+      }
+    }
+    // 기존 호환성 유지 (data 필드 직접 추출)
+    else if (result.data.data !== undefined) {
+      result.data = result.data.data
+    }
+  }
+
   return result
 }
