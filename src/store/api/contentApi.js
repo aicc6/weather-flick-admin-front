@@ -98,6 +98,9 @@ export const travelCoursesApi = createApi({
         const queryParams = new URLSearchParams()
         if (params?.limit) queryParams.append('limit', params.limit)
         if (params?.offset) queryParams.append('offset', params.offset)
+        if (params?.course_name)
+          queryParams.append('course_name', params.course_name)
+        if (params?.region) queryParams.append('region', params.region)
         return `/api/travel-courses?${queryParams.toString()}`
       },
       providesTags: ['TravelCourse'],
@@ -141,3 +144,62 @@ export const {
   useUpdateTravelCourseMutation,
   useDeleteTravelCourseMutation,
 } = travelCoursesApi
+
+// Festivals Events API
+export const festivalsEventsApi = createApi({
+  reducerPath: 'festivalsEventsApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['FestivalEvent'],
+  endpoints: (builder) => ({
+    getFestivalEvents: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.skip) queryParams.append('skip', params.skip)
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.region_code)
+          queryParams.append('region_code', params.region_code)
+        if (params?.event_name)
+          queryParams.append('event_name', params.event_name)
+        return `/api/festivals-events/?${queryParams.toString()}`
+      },
+      providesTags: ['FestivalEvent'],
+    }),
+    getFestivalEventById: builder.query({
+      query: (content_id) => `/api/festivals-events/${content_id}/`,
+      providesTags: (result, error, id) => [{ type: 'FestivalEvent', id }],
+    }),
+    createFestivalEvent: builder.mutation({
+      query: (data) => ({
+        url: '/api/festivals-events/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['FestivalEvent'],
+    }),
+    updateFestivalEvent: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/festivals-events/${content_id}/`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'FestivalEvent', content_id },
+      ],
+    }),
+    deleteFestivalEvent: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/festivals-events/${content_id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['FestivalEvent'],
+    }),
+  }),
+})
+
+export const {
+  useGetFestivalEventsQuery,
+  useGetFestivalEventByIdQuery,
+  useCreateFestivalEventMutation,
+  useUpdateFestivalEventMutation,
+  useDeleteFestivalEventMutation,
+} = festivalsEventsApi
