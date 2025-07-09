@@ -21,7 +21,7 @@ export async function fetchLatestWeatherData(limit = 20) {
 }
 
 // 간단한 날씨 아이콘 함수
-function getWeatherEmoji(desc) {
+function _getWeatherEmoji(desc) {
   if (!desc) return '❓'
   if (desc.includes('맑')) return '☀️'
   if (desc.includes('구름')) return '⛅'

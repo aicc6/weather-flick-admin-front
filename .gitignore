@@ -235,3 +235,134 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,visualstudiocode,node,react,dotenv
+
+# ===== Weather Flick 관리자 프론트엔드 프로젝트 특화 규칙 =====
+
+# 테스트 결과 및 리포트
+test-results/
+coverage/
+htmlcov/
+junit.xml
+*.lcov
+
+# 로그 파일
+*.log
+admin.log
+admin_dev.log
+admin_server.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 빌드 결과물
+dist/
+build/
+.next/
+out/
+.vercel/
+.netlify/
+
+# 임시 파일 및 캐시
+temp/
+tmp/
+*.tmp
+*.temp
+*.pid
+
+# 환경별 설정 파일
+.env.*
+!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 프로젝트 워크스페이스
+*.code-workspace
+*.workspace
+
+# 업로드 파일
+uploads/
+public/uploads/
+
+# 개발 도구 파일
+.claude/
+.cursor/
+
+# 성능 프로파일링
+*.prof
+*.profile
+performance_*.json
+
+# 관리자 전용 파일
+admin_exports/
+user_reports/
+system_reports/
+
+# 스토리북 결과물
+storybook-static/
+.storybook/build/
+
+# 백업 파일
+*.backup
+*.bak
+*.orig
+
+# 웹팩 분석 결과
+webpack-bundle-analyzer-report.html
+bundle-analyzer-report.html
+
+# 타입스크립트 증분 빌드
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# 린트 캐시
+.eslintcache
+.stylelintcache
+
+# 패키지 관리자 캐시
+.pnpm-debug.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# 미디어 파일 (개발 중 임시)
+temp_images/
+temp_videos/
+temp_assets/
+
+# 문서 빌드
+docs/build/
+docs/dist/
+
+# 소스맵
+*.map
+!*.min.js.map
+
+# 에러 리포트
+error_*.log
+exception_*.log
+
+# 임시 컴포넌트 파일
+temp_*.jsx
+temp_*.tsx
+debug_*.jsx
+debug_*.tsx
+
+# 프로젝트 메타데이터
+.project
+.classpath
+.factorypath
+.buildpath
+.target
+
+# 관리자 대시보드 관련
+dashboard_cache/
+admin_settings.json
+user_activity_logs/
+
+# IDE 플러그인
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+!.vscode/extensions.json
