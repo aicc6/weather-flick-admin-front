@@ -193,6 +193,10 @@ export const festivalsEventsApi = createApi({
       }),
       invalidatesTags: ['FestivalEvent'],
     }),
+    getFestivalEventNames: builder.query({
+      query: (q) =>
+        `/api/festivals-events/autocomplete/?q=${encodeURIComponent(q)}`,
+    }),
   }),
 })
 
@@ -202,4 +206,69 @@ export const {
   useCreateFestivalEventMutation,
   useUpdateFestivalEventMutation,
   useDeleteFestivalEventMutation,
+  useGetFestivalEventNamesQuery,
 } = festivalsEventsApi
+
+// Leisure Sports API
+export const leisureSportsApi = createApi({
+  reducerPath: 'leisureSportsApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['LeisureSport'],
+  endpoints: (builder) => ({
+    getLeisureSports: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.skip) queryParams.append('skip', params.skip)
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.region_code)
+          queryParams.append('region_code', params.region_code)
+        if (params?.facility_name)
+          queryParams.append('facility_name', params.facility_name)
+        return `/api/leisure-sports/?${queryParams.toString()}`
+      },
+      providesTags: ['LeisureSport'],
+    }),
+    getLeisureSportById: builder.query({
+      query: (content_id) => `/api/leisure-sports/${content_id}/`,
+      providesTags: (result, error, id) => [{ type: 'LeisureSport', id }],
+    }),
+    createLeisureSport: builder.mutation({
+      query: (data) => ({
+        url: '/api/leisure-sports/',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['LeisureSport'],
+    }),
+    updateLeisureSport: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/leisure-sports/${content_id}/`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'LeisureSport', content_id },
+      ],
+    }),
+    deleteLeisureSport: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/leisure-sports/${content_id}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['LeisureSport'],
+    }),
+    getLeisureFacilityNames: builder.query({
+      query: (q) =>
+        `/api/leisure-sports/autocomplete/?q=${encodeURIComponent(q)}`,
+    }),
+  }),
+})
+
+export const {
+  useGetLeisureSportsQuery,
+  useGetLeisureSportByIdQuery,
+  useCreateLeisureSportMutation,
+  useUpdateLeisureSportMutation,
+  useDeleteLeisureSportMutation,
+  useGetLeisureFacilityNamesQuery,
+} = leisureSportsApi

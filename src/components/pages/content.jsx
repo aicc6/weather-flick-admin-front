@@ -7,6 +7,12 @@ import {
   useCreateFestivalEventMutation,
   useUpdateFestivalEventMutation,
   useDeleteFestivalEventMutation,
+  useGetLeisureSportsQuery,
+  useCreateLeisureSportMutation,
+  useUpdateLeisureSportMutation,
+  useDeleteLeisureSportMutation,
+  useGetFestivalEventNamesQuery,
+  useGetLeisureFacilityNamesQuery,
 } from '../../store/api/contentApi'
 import { Card, CardContent } from '../ui/card'
 
@@ -541,9 +547,7 @@ export const ContentPage = () => {
                 <FestivalEventSection />
               </TabsContent>
               <TabsContent value="leisure">
-                <div className="py-16 text-center text-lg text-gray-400">
-                  레저 스포츠 관리 기능은 준비중입니다.
-                </div>
+                <LeisureSportsSection />
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -580,6 +584,16 @@ function FestivalEventSection() {
     first_image: '',
   })
   const [errorMsg, setErrorMsg] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
+  const { data: autoNames, refetch: refetchAuto } =
+    useGetFestivalEventNamesQuery(searchName, { skip: !searchName })
+  useEffect(() => {
+    if (searchName && autoNames) {
+      setSuggestions(autoNames)
+    } else {
+      setSuggestions([])
+    }
+  }, [searchName, autoNames])
 
   // 페이지네이션
   const total = data?.total || 0
@@ -797,7 +811,24 @@ function FestivalEventSection() {
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
                 autoComplete="off"
+                onFocus={() => searchName && refetchAuto()}
               />
+              {suggestions.length > 0 && (
+                <ul className="absolute top-full right-0 left-0 z-10 mt-1 w-full rounded border bg-white shadow">
+                  {suggestions.map((name, idx) => (
+                    <li
+                      key={idx}
+                      className="cursor-pointer px-3 py-1 text-sm hover:bg-blue-100"
+                      onClick={() => {
+                        setSearchName(name)
+                        setSuggestions([])
+                      }}
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="flex flex-col gap-1 md:col-span-2">
               <label
@@ -953,6 +984,459 @@ function FestivalEventSection() {
                 value={form.event_place}
                 onChange={handleChange}
                 placeholder="장소"
+              />
+              <Input
+                name="tel"
+                value={form.tel}
+                onChange={handleChange}
+                placeholder="전화번호"
+              />
+              <Input
+                name="first_image"
+                value={form.first_image}
+                onChange={handleChange}
+                placeholder="대표이미지 URL"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">저장</Button>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseModal}
+                >
+                  취소
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function LeisureSportsSection() {
+  const [page, setPage] = useState(1)
+  const limit = 15
+  const offset = (page - 1) * limit
+  const [searchName, setSearchName] = useState('')
+  const [searchRegion, setSearchRegion] = useState('')
+  const { data, isLoading, error, refetch } = useGetLeisureSportsQuery({
+    skip: offset,
+    limit,
+    facility_name: searchName,
+    region_code: searchRegion,
+  })
+  const [createLeisureSport] = useCreateLeisureSportMutation()
+  const [updateLeisureSport] = useUpdateLeisureSportMutation()
+  const [deleteLeisureSport] = useDeleteLeisureSportMutation()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editData, setEditData] = useState(null)
+  const [form, setForm] = useState({
+    facility_name: '',
+    region_code: '',
+    sports_type: '',
+    admission_fee: '',
+    parking_info: '',
+    tel: '',
+    first_image: '',
+  })
+  const [errorMsg, setErrorMsg] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
+  const { data: autoNames, refetch: refetchAuto } =
+    useGetLeisureFacilityNamesQuery(searchName, { skip: !searchName })
+  useEffect(() => {
+    if (searchName && autoNames) {
+      setSuggestions(autoNames)
+    } else {
+      setSuggestions([])
+    }
+  }, [searchName, autoNames])
+
+  const total = data?.total || 0
+  const totalPages = total ? Math.ceil(total / limit) : 1
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    setPage(1)
+    refetch()
+  }
+
+  const handleOpenCreate = () => {
+    setEditData(null)
+    setForm({
+      facility_name: '',
+      region_code: '',
+      sports_type: '',
+      admission_fee: '',
+      parking_info: '',
+      tel: '',
+      first_image: '',
+    })
+    setModalOpen(true)
+  }
+  const handleOpenEdit = (row) => {
+    setEditData(row)
+    setForm({ ...row })
+    setModalOpen(true)
+  }
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setEditData(null)
+    setErrorMsg(null)
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editData) {
+        await updateLeisureSport({
+          content_id: editData.content_id,
+          data: form,
+        })
+      } else {
+        await createLeisureSport(form)
+      }
+      setModalOpen(false)
+      refetch()
+    } catch (err) {
+      setErrorMsg(err.message || '저장 실패')
+    }
+  }
+  const handleDelete = async (content_id) => {
+    if (!window.confirm('정말 삭제할까요?')) return
+    try {
+      await deleteLeisureSport(content_id)
+      refetch()
+    } catch (err) {
+      setErrorMsg(err.message || '삭제 실패')
+    }
+  }
+  const renderPagination = () => {
+    if (totalPages <= 1) return null
+    const pageItems = []
+    let start = Math.max(1, page - 2)
+    let end = Math.min(totalPages, page + 2)
+    if (page <= 3) {
+      end = Math.min(5, totalPages)
+    } else if (page >= totalPages - 2) {
+      start = Math.max(1, totalPages - 4)
+    }
+    pageItems.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious
+          onClick={() => setPage(page > 1 ? page - 1 : 1)}
+          aria-disabled={page === 1}
+          tabIndex={page === 1 ? -1 : 0}
+        />
+      </PaginationItem>,
+    )
+    if (start > 1) {
+      pageItems.push(
+        <PaginationItem key={1}>
+          <PaginationLink
+            isActive={page === 1}
+            onClick={() => setPage(1)}
+            size="default"
+          >
+            {1}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+      if (start > 2) {
+        pageItems.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+    }
+    for (let i = start; i <= end; i++) {
+      pageItems.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            isActive={i === page}
+            onClick={() => setPage(i)}
+            size="default"
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        pageItems.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+      pageItems.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            isActive={page === totalPages}
+            onClick={() => setPage(totalPages)}
+            size="default"
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+    pageItems.push(
+      <PaginationItem key="next">
+        <PaginationNext
+          onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
+          aria-disabled={page === totalPages}
+          tabIndex={page === totalPages ? -1 : 0}
+        />
+      </PaginationItem>,
+    )
+    return (
+      <Pagination className="mt-6 flex justify-center">
+        <PaginationContent>{pageItems}</PaginationContent>
+      </Pagination>
+    )
+  }
+  return (
+    <div className="mx-auto max-w-5xl space-y-8 py-8">
+      <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            레저 스포츠 관리
+          </h2>
+          <p className="mt-1 text-gray-500">
+            레저 스포츠 시설 정보를 등록, 수정, 삭제하고 검색할 수 있습니다.
+          </p>
+        </div>
+        {errorMsg && (
+          <Button
+            onClick={() => {
+              setErrorMsg(null)
+              refetch()
+            }}
+            variant="outline"
+            size="sm"
+            disabled={isLoading}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+            />
+            재시도
+          </Button>
+        )}
+      </div>
+      {errorMsg && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
+      )}
+      <Card className="border border-gray-200 shadow-md">
+        <CardContent>
+          <div className="mb-2">
+            <div className="text-lg font-bold">검색 및 등록</div>
+            <div className="text-sm text-gray-500">
+              레저 스포츠 시설을 검색하거나 새로 등록하세요.
+            </div>
+          </div>
+          <form
+            className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
+            onSubmit={handleSearch}
+          >
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="search-leisure-name"
+                className="mb-1 text-xs text-gray-500"
+              >
+                시설명
+              </label>
+              <input
+                id="search-leisure-name"
+                className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                placeholder="시설명"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                autoComplete="off"
+                onFocus={() => searchName && refetchAuto()}
+              />
+              {suggestions.length > 0 && (
+                <ul className="absolute top-full right-0 left-0 z-10 mt-1 w-full rounded border bg-white shadow">
+                  {suggestions.map((name, idx) => (
+                    <li
+                      key={idx}
+                      className="cursor-pointer px-3 py-1 text-sm hover:bg-blue-100"
+                      onClick={() => {
+                        setSearchName(name)
+                        setSuggestions([])
+                      }}
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="search-leisure-region"
+                className="mb-1 text-xs text-gray-500"
+              >
+                지역
+              </label>
+              <select
+                id="search-leisure-region"
+                className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                value={searchRegion}
+                onChange={(e) => setSearchRegion(e.target.value)}
+              >
+                <option value="">전체</option>
+                {REGION_OPTIONS.map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2 md:col-span-1 md:justify-end">
+              <Button type="submit">검색</Button>
+              <Button type="button" onClick={handleOpenCreate}>
+                등록
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+      <Card className="border border-gray-200 shadow-md">
+        <CardContent>
+          <div className="mb-2">
+            <div className="text-lg font-bold">레저 스포츠 시설 목록</div>
+            <div className="text-sm text-gray-500">
+              등록된 레저 스포츠 시설 정보를 확인하세요.
+            </div>
+          </div>
+          {isLoading && (!data?.items || data.items.length === 0) ? (
+            <div className="flex flex-col items-center gap-2 py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+              <span className="text-gray-500">데이터를 불러오는 중...</span>
+            </div>
+          ) : !isLoading && (!data?.items || data.items.length === 0) ? (
+            <div className="py-8 text-center text-gray-400">
+              {errorMsg ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {data.items.map((row) => (
+                <div
+                  key={row.content_id}
+                  className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
+                >
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
+                      {row.first_image ? (
+                        <img
+                          src={row.first_image}
+                          alt={row.facility_name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-gray-400">이미지 없음</span>
+                      )}
+                    </div>
+                    <div
+                      className="truncate text-lg font-bold text-gray-900"
+                      title={row.facility_name}
+                    >
+                      {row.facility_name}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span className="inline-block rounded border border-blue-300 bg-white px-2 py-0.5 text-xs text-blue-700">
+                        {REGION_MAP[row.region_code] || row.region_code}
+                      </span>
+                      <span className="ml-auto text-xs text-gray-400">
+                        {row.sports_type}
+                      </span>
+                    </div>
+                    <div className="truncate text-xs text-gray-500">
+                      {row.admission_fee}
+                    </div>
+                    <div className="truncate text-xs text-gray-500">
+                      {row.tel}
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenEdit(row)}
+                    >
+                      수정
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(row.content_id)}
+                      style={{ minWidth: 0, minHeight: 0 }}
+                    >
+                      삭제
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="mt-6 flex justify-center">{renderPagination()}</div>
+        </CardContent>
+      </Card>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editData ? '레저 스포츠 시설 수정' : '레저 스포츠 시설 등록'}
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={handleSubmit}
+            className="max-h-[60vh] space-y-2 overflow-y-auto pr-2"
+          >
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                name="facility_name"
+                value={form.facility_name}
+                onChange={handleChange}
+                placeholder="시설명"
+                required
+              />
+              <Input
+                name="region_code"
+                value={form.region_code}
+                onChange={handleChange}
+                placeholder="지역 코드"
+                required
+              />
+              <Input
+                name="sports_type"
+                value={form.sports_type}
+                onChange={handleChange}
+                placeholder="스포츠 종류"
+              />
+              <Input
+                name="admission_fee"
+                value={form.admission_fee}
+                onChange={handleChange}
+                placeholder="입장료"
+              />
+              <Input
+                name="parking_info"
+                value={form.parking_info}
+                onChange={handleChange}
+                placeholder="주차 정보"
               />
               <Input
                 name="tel"
