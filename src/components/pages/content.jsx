@@ -14,6 +14,12 @@ import {
   useGetFestivalEventNamesQuery,
   useGetLeisureFacilityNamesQuery,
 } from '../../store/api/contentApi'
+import {
+  useGetTravelPlansQuery,
+  useCreateTravelPlanMutation,
+  useUpdateTravelPlanMutation,
+  useDeleteTravelPlanMutation,
+} from '../../store/api/travelPlansApi'
 import { Card, CardContent } from '../ui/card'
 
 import { Button } from '../ui/button'
@@ -526,15 +532,7 @@ export const ContentPage = () => {
           </AlertDialog>
         </>
       )}
-      {activeTab === 'plan' && (
-        <Card className="border border-gray-200 shadow-md">
-          <CardContent>
-            <div className="py-16 text-center text-lg text-gray-400">
-              여행 계획 관리 기능은 준비중입니다.
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {activeTab === 'plan' && <TravelPlansSection />}
       {activeTab === 'festival' && (
         <Card className="border border-gray-200 shadow-md">
           <CardContent>
@@ -1459,6 +1457,276 @@ function LeisureSportsSection() {
                   variant="outline"
                   onClick={handleCloseModal}
                 >
+                  취소
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function TravelPlansSection() {
+  const [page, setPage] = useState(1)
+  const limit = 12
+  const skip = (page - 1) * limit
+  const {
+    data: plans = [],
+    isLoading,
+    refetch,
+  } = useGetTravelPlansQuery({ skip, limit })
+  const [createTravelPlan] = useCreateTravelPlanMutation()
+  const [updateTravelPlan] = useUpdateTravelPlanMutation()
+  const [deleteTravelPlan] = useDeleteTravelPlanMutation()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editData, setEditData] = useState(null)
+  const [errorMsg, setErrorMsg] = useState(null)
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    start_date: '',
+    end_date: '',
+    budget: '',
+    status: 'PLANNING',
+    participants: '',
+    transportation: '',
+    start_location: '',
+  })
+
+  const totalPages = 1 // TODO: 백엔드에서 total count 반환 시 계산
+
+  const handleOpenCreate = () => {
+    setEditData(null)
+    setForm({
+      title: '',
+      description: '',
+      start_date: '',
+      end_date: '',
+      budget: '',
+      status: 'PLANNING',
+      participants: '',
+      transportation: '',
+      start_location: '',
+    })
+    setModalOpen(true)
+  }
+  const handleOpenEdit = (plan) => {
+    setEditData(plan)
+    setForm({
+      ...plan,
+      start_date: plan.start_date?.slice(0, 10) || '',
+      end_date: plan.end_date?.slice(0, 10) || '',
+      budget: plan.budget ?? '',
+      participants: plan.participants ?? '',
+    })
+    setModalOpen(true)
+  }
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setEditData(null)
+    setErrorMsg(null)
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (editData) {
+        await updateTravelPlan({ plan_id: editData.plan_id, data: form })
+      } else {
+        // user_id는 데모용으로 고정값 사용 (실제론 로그인 유저)
+        await createTravelPlan({
+          ...form,
+          user_id: 'd6809797-2fe2-4ed1-a87a-3eea5db278d2',
+        })
+      }
+      setModalOpen(false)
+      refetch()
+    } catch (err) {
+      setErrorMsg(err.message || '저장 실패')
+    }
+  }
+  const handleDelete = async (plan_id) => {
+    if (!window.confirm('정말 삭제할까요?')) return
+    try {
+      await deleteTravelPlan(plan_id)
+      refetch()
+    } catch (err) {
+      setErrorMsg(err.message || '삭제 실패')
+    }
+  }
+  return (
+    <div className="mx-auto max-w-5xl space-y-8 py-8">
+      <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            여행 계획 관리
+          </h2>
+          <p className="mt-1 text-gray-500">
+            여행 계획을 등록, 수정, 삭제하고 관리할 수 있습니다.
+          </p>
+        </div>
+        <Button onClick={handleOpenCreate}>여행 계획 추가</Button>
+      </div>
+      {errorMsg && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
+      )}
+      <Card className="border border-gray-200 shadow-md">
+        <CardContent>
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-2 py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+              <span className="text-gray-500">데이터를 불러오는 중...</span>
+            </div>
+          ) : !plans.length ? (
+            <div className="py-8 text-center text-gray-400">
+              데이터가 없습니다.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <div
+                  key={plan.plan_id}
+                  className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
+                >
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="mb-2 flex h-24 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
+                      <span className="text-2xl font-bold text-blue-600">
+                        {plan.title}
+                      </span>
+                    </div>
+                    <div
+                      className="truncate text-base font-bold text-gray-900"
+                      title={plan.title}
+                    >
+                      {plan.title}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {plan.description}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span className="inline-block rounded border border-blue-300 bg-white px-2 py-0.5 text-xs text-blue-700">
+                        {plan.status}
+                      </span>
+                      <span className="ml-auto text-xs text-gray-400">
+                        {plan.start_date} ~ {plan.end_date}
+                      </span>
+                    </div>
+                    <div className="truncate text-xs text-gray-500">
+                      예산: {plan.budget ?? '-'}
+                    </div>
+                    <div className="truncate text-xs text-gray-500">
+                      참여인원: {plan.participants ?? '-'}
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenEdit(plan)}
+                    >
+                      상세/수정
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(plan.plan_id)}
+                      style={{ minWidth: 0, minHeight: 0 }}
+                    >
+                      삭제
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editData ? '여행 계획 수정' : '여행 계획 등록'}
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={handleSubmit}
+            className="max-h-[60vh] space-y-2 overflow-y-auto pr-2"
+          >
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                placeholder="제목"
+                required
+              />
+              <Input
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                placeholder="상태"
+                required
+              />
+              <Input
+                name="start_date"
+                value={form.start_date}
+                onChange={handleChange}
+                placeholder="시작일 (YYYY-MM-DD)"
+                required
+              />
+              <Input
+                name="end_date"
+                value={form.end_date}
+                onChange={handleChange}
+                placeholder="종료일 (YYYY-MM-DD)"
+                required
+              />
+              <Input
+                name="budget"
+                value={form.budget}
+                onChange={handleChange}
+                placeholder="예산"
+              />
+              <Input
+                name="participants"
+                value={form.participants}
+                onChange={handleChange}
+                placeholder="참여 인원"
+              />
+              <Input
+                name="transportation"
+                value={form.transportation}
+                onChange={handleChange}
+                placeholder="교통수단"
+              />
+              <Input
+                name="start_location"
+                value={form.start_location}
+                onChange={handleChange}
+                placeholder="출발지"
+              />
+            </div>
+            <div>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="설명"
+                className="w-full rounded border px-3 py-2"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">{editData ? '수정' : '등록'}</Button>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
                   취소
                 </Button>
               </DialogClose>

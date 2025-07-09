@@ -101,7 +101,7 @@ export const travelCoursesApi = createApi({
         if (params?.course_name)
           queryParams.append('course_name', params.course_name)
         if (params?.region) queryParams.append('region', params.region)
-        return `/api/travel-courses?${queryParams.toString()}`
+        return `/api/travel-courses/?${queryParams.toString()}`
       },
       providesTags: ['TravelCourse'],
     }),
