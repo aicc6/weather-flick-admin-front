@@ -29,6 +29,9 @@ export function useDashboardData() {
   const [weatherError, setWeatherError] = useState('')
   const [weatherLastUpdated, setWeatherLastUpdated] = useState(null)
 
+  // 관광지 고유 지역 수
+  const [regionCount, setRegionCount] = useState(0)
+
   // 시스템 상태 요약 데이터
   const [systemStatus, setSystemStatus] = useState(null)
 
@@ -89,7 +92,7 @@ export function useDashboardData() {
   const fetchTourData = useCallback(async () => {
     try {
       const tourRes = await authHttp.GET('/api/tourist-attractions/', {
-        params: { query: { limit: 3, offset: 0 } },
+        params: { query: { limit: 100, offset: 0 } },
       })
 
       if (!tourRes.ok) {
@@ -152,6 +155,19 @@ export function useDashboardData() {
     }
   }, [])
 
+  // 관광지 고유 지역 수 조회 함수
+  const fetchRegionCount = useCallback(async () => {
+    try {
+      const res = await authHttp.GET('/api/travel-courses/region-count')
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      const data = await res.json()
+      setRegionCount(data.region_count || 0)
+    } catch (error) {
+      console.error('관광지 지역 수 로딩 실패:', error)
+      setRegionCount(0)
+    }
+  }, [])
+
   // 시스템 상태 조회 함수 (메모이제이션)
   const fetchSystemStatus = useCallback(async () => {
     try {
@@ -184,6 +200,7 @@ export function useDashboardData() {
       fetchAdminStats(),
       fetchSystemStatus(),
       fetchWeatherData(),
+      fetchRegionCount(),
     ])
   }, [
     fetchTourData,
@@ -191,6 +208,7 @@ export function useDashboardData() {
     fetchAdminStats,
     fetchSystemStatus,
     fetchWeatherData,
+    fetchRegionCount,
   ])
 
   // 초기 데이터 로딩
@@ -219,6 +237,7 @@ export function useDashboardData() {
     weatherError,
     weatherLastUpdated,
     systemStatus,
+    regionCount,
 
     // 계산된 통계
     summaryStats,

@@ -11,7 +11,7 @@ import { StatsGrid } from '../layouts/StatsGrid'
 
 export const MainPage = () => {
   const { user } = useAuth()
-  const { tourSummary, userSummary, adminSummary, weatherData } =
+  const { tourSummary, userSummary, adminSummary, weatherData, regionCount } =
     useDashboardData()
 
   return (
@@ -45,7 +45,7 @@ export const MainPage = () => {
       <div className="section-layout">
         <WeatherStatsCard weatherData={weatherData} />
         <SystemStatusCard />
-        <TourismStatsCard tourSummary={tourSummary} />
+        <TourismStatsCard tourSummary={tourSummary} regionCount={regionCount} />
       </div>
     </div>
   )

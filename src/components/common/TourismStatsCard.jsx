@@ -7,14 +7,14 @@ import {
   CardTitle,
 } from '../ui/card'
 
-export function TourismStatsCard({ tourSummary }) {
+export function TourismStatsCard({ tourSummary, regionCount }) {
   // 최근 관광지 3개에서 유니크 카테고리/지역 개수 계산
   const uniqueCategories = new Set(
     tourSummary.items.map((a) => a.category_name || a.category_code),
   ).size
 
-  const uniqueRegions = new Set(tourSummary.items.map((a) => a.region_code))
-    .size
+  const uniqueRegions =
+    regionCount ?? new Set(tourSummary.items.map((a) => a.region_code)).size
 
   return (
     <Card>

@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react'
 import { authHttp } from '../../lib/http'
 import { Link } from 'react-router-dom'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '../ui/card'
+import { Card, CardContent } from '../ui/card'
+import { REGION_MAP } from '../../constants/region'
 import {
   Pagination,
   PaginationContent,
@@ -19,38 +14,26 @@ import {
 } from '../ui/pagination'
 import { Alert, AlertDescription } from '../ui/alert'
 import { Button } from '../ui/button'
-import { AlertCircle, RefreshCw } from 'lucide-react'
-
-const REGION_MAP = {
-  1: '서울',
-  2: '인천',
-  3: '대전',
-  4: '대구',
-  5: '광주',
-  6: '부산',
-  7: '울산',
-  8: '세종',
-  31: '경기도',
-  32: '강원도',
-  33: '충청북도',
-  34: '충청남도',
-  35: '경상북도',
-  36: '경상남도',
-  37: '전라북도',
-  38: '전라남도',
-  39: '제주',
-}
+import { AlertCircle, RefreshCw, Edit2, Trash2 } from 'lucide-react'
 
 export default function TouristAttractionList({ onEdit, onCreate }) {
   const [data, setData] = useState({ items: [], total: 0 })
-  const [search, setSearch] = useState({ name: '', region: '' })
+  // 입력값과 실제 검색값을 분리
+  const [searchNameInput, setSearchNameInput] = useState('')
+  const [searchRegionInput, setSearchRegionInput] = useState('')
+  const [searchName, setSearchName] = useState('')
+  const [searchRegion, setSearchRegion] = useState('')
   const [page, setPage] = useState(1)
-  const pageSize = 10
+  const pageSize = 12
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const fetchList = async (pageNum = page) => {
+  const fetchList = async (
+    pageNum = page,
+    name = searchName,
+    region = searchRegion,
+  ) => {
     setLoading(true)
     setError(null)
     try {
@@ -61,7 +44,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
       }
 
       // 지역 이름을 코드로 변환
-      let regionCode = search.region
+      let regionCode = region
       if (regionCode) {
         // 입력값이 코드가 아니라면(숫자가 아니면) 이름으로 간주
         if (isNaN(Number(regionCode))) {
@@ -73,9 +56,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
         }
       }
 
-      if (search.name || regionCode) {
+      if (name || regionCode) {
         endpoint = '/api/tourist-attractions/search/'
-        if (search.name) queryParams.name = search.name
+        if (name) queryParams.name = name
         if (regionCode) queryParams.region = regionCode
       }
 
@@ -99,7 +82,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   }
 
   useEffect(() => {
-    fetchList()
+    fetchList(page)
     // eslint-disable-next-line
   }, [page])
 
@@ -213,12 +196,14 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-8 py-8">
       {/* 상단 제목/설명 */}
-      <div className="flex items-center justify-between">
+      <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">관광지 관리</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            관광지 관리
+          </h2>
+          <p className="mt-1 text-gray-500">
             관광지 정보를 등록, 수정, 삭제하고 검색할 수 있습니다.
           </p>
         </div>
@@ -246,54 +231,76 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
       )}
 
       {/* 검색/등록 카드 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>검색 및 등록</CardTitle>
-          <CardDescription>
-            관광지 정보를 검색하거나 새로 등록하세요.
-          </CardDescription>
-        </CardHeader>
+      <Card className="border border-gray-200 shadow-md">
         <CardContent>
+          <div className="mb-2">
+            <div className="text-lg font-bold">검색 및 등록</div>
+            <div className="text-sm text-gray-500">
+              관광지 정보를 검색하거나 새로 등록하세요.
+            </div>
+          </div>
           <form
             className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
             onSubmit={(e) => {
               e.preventDefault()
               setPage(1)
-              fetchList(1)
+              fetchList(1, searchNameInput, searchRegionInput)
             }}
           >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="search-name"
+                className="mb-1 text-xs text-gray-500"
+              >
+                관광지명
+              </label>
               <input
                 id="search-name"
-                className="input rounded border px-2 py-1"
+                className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 placeholder="관광지명"
-                value={search.name}
-                onChange={(e) => setSearch({ ...search, name: e.target.value })}
+                value={searchNameInput}
+                onChange={(e) => setSearchNameInput(e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <input
-                id="search-region"
-                className="input rounded border px-2 py-1"
-                placeholder="지역"
-                value={search.region}
-                onChange={(e) =>
-                  setSearch({ ...search, region: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex justify-end gap-2 md:col-span-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn btn-primary rounded bg-blue-600 px-4 py-1 text-white disabled:opacity-50"
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label
+                htmlFor="search-region"
+                className="mb-1 text-xs text-gray-500"
               >
-                {loading ? '검색 중...' : '검색'}
+                지역
+              </label>
+              <select
+                id="search-region"
+                className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                value={searchRegionInput}
+                onChange={(e) => setSearchRegionInput(e.target.value)}
+              >
+                <option value="">전체</option>
+                {Object.values(REGION_MAP).map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2 md:col-span-1 md:justify-end">
+              <button
+                type="button"
+                disabled={loading}
+                className="rounded bg-blue-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-blue-700 disabled:opacity-50"
+                onClick={() => {
+                  setSearchName(searchNameInput)
+                  setSearchRegion(searchRegionInput)
+                  setPage(1)
+                  fetchList(1, searchNameInput, searchRegionInput)
+                }}
+              >
+                검색
               </button>
               <button
                 type="button"
                 disabled={loading}
-                className="btn btn-secondary rounded border border-blue-600 px-4 py-1 text-blue-600 disabled:opacity-50"
+                className="rounded border border-blue-600 px-4 py-2 font-semibold text-blue-600 shadow transition hover:bg-blue-50 disabled:opacity-50"
                 onClick={onCreate}
               >
                 관광지 등록
@@ -304,93 +311,98 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
       </Card>
 
       {/* 관광지 목록 카드 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>관광지 목록</CardTitle>
-          <CardDescription>등록된 관광지 정보를 확인하세요.</CardDescription>
-        </CardHeader>
+      <Card className="border border-gray-200 shadow-md">
         <CardContent>
-          <table className="w-full border text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="py-2 text-center">관광지명</th>
-                <th className="text-center">지역</th>
-                <th className="text-center">이미지</th>
-                <th className="text-center">등록일</th>
-                <th className="text-center">관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && data.items.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-                      <span className="text-gray-500">
-                        데이터를 불러오는 중...
-                      </span>
+          <div className="mb-2">
+            <div className="text-lg font-bold">관광지 목록</div>
+            <div className="text-sm text-gray-500">
+              등록된 관광지 정보를 확인하세요.
+            </div>
+          </div>
+          {/* 카드형 그리드 */}
+          {loading && data.items.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+              <span className="text-gray-500">데이터를 불러오는 중...</span>
+            </div>
+          ) : !loading && data.items.length === 0 ? (
+            <div className="py-8 text-center text-gray-400">
+              {error ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {data.items
+                .filter((a) => {
+                  const nameMatch = a.attraction_name
+                    .toLowerCase()
+                    .includes(searchName.toLowerCase())
+                  const regionName = REGION_MAP[a.region_code] || ''
+                  const regionMatch = searchRegion
+                    ? regionName === searchRegion
+                    : true
+                  return nameMatch && regionMatch
+                })
+                .map((a) => (
+                  <div
+                    key={a.content_id}
+                    className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
+                  >
+                    <div className="flex flex-1 flex-col gap-2">
+                      <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
+                        {a.image_url ? (
+                          <img
+                            src={a.image_url}
+                            alt={a.attraction_name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400">이미지 없음</span>
+                        )}
+                      </div>
+                      <div
+                        className="truncate text-lg font-bold text-gray-900"
+                        title={a.attraction_name}
+                      >
+                        <Link
+                          to={`/tourist-attractions/${a.content_id}`}
+                          className="text-blue-700 hover:underline"
+                        >
+                          {a.attraction_name}
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                          {REGION_MAP[a.region_code] || ''}
+                        </span>
+                        <span className="ml-auto text-xs text-gray-400">
+                          {a.created_at ? a.created_at.split('T')[0] : ''}
+                        </span>
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              )}
-              {!loading && data.items.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-4 text-center text-gray-400">
-                    {error
-                      ? '데이터를 불러올 수 없습니다.'
-                      : '데이터가 없습니다.'}
-                  </td>
-                </tr>
-              )}
-              {data.items.map((a) => (
-                <tr key={a.content_id} className="border-t">
-                  <td className="py-2 text-center">
-                    <Link
-                      to={`/tourist-attractions/${a.content_id}`}
-                      className="text-blue-600 underline hover:text-blue-800"
-                    >
-                      {a.attraction_name}
-                    </Link>
-                  </td>
-                  <td className="text-center">
-                    {REGION_MAP[a.region_code] || ''}
-                  </td>
-                  <td className="text-center">
-                    {a.image_url ? (
-                      <img
-                        src={a.image_url}
-                        alt={a.attraction_name}
-                        style={{ maxWidth: 80, maxHeight: 60 }}
-                      />
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                  <td className="text-center">
-                    {a.created_at ? a.created_at.split('T')[0] : ''}
-                  </td>
-                  <td className="text-center">
-                    <button
-                      disabled={loading}
-                      className="btn btn-sm btn-outline mr-2 rounded border px-2 py-1 disabled:opacity-50"
-                      onClick={() => onEdit(a.content_id)}
-                    >
-                      수정
-                    </button>
-                    <button
-                      disabled={loading}
-                      className="btn btn-sm btn-destructive rounded border border-red-400 px-4 py-1 text-red-600 disabled:opacity-50"
-                      onClick={() => handleDelete(a.content_id)}
-                    >
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        disabled={loading}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-full border border-blue-400 bg-gradient-to-r from-blue-50 to-white px-4 py-2 font-semibold text-blue-700 shadow transition hover:from-blue-100 hover:to-blue-200 disabled:opacity-50"
+                        onClick={() => onEdit(a.content_id)}
+                      >
+                        <Edit2 size={18} className="text-blue-600" />
+                        <span>수정</span>
+                      </button>
+                      <button
+                        disabled={loading}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-full border border-red-400 bg-gradient-to-r from-red-50 to-white px-4 py-2 font-semibold text-red-700 shadow transition hover:from-red-100 hover:to-red-200 disabled:opacity-50"
+                        onClick={() => handleDelete(a.content_id)}
+                      >
+                        <Trash2 size={18} className="text-red-500" />
+                        <span>삭제</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
           {/* 페이지네이션 */}
-          <div className="mt-4 flex justify-center">{renderPagination()}</div>
+          <div className="mt-6 flex justify-center">{renderPagination()}</div>
         </CardContent>
       </Card>
     </div>
