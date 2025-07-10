@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
 import { PermissionGuard } from '../common/PermissionGuard'
 import { PERMISSIONS } from '../../constants/permissions'
 import {
@@ -207,7 +206,7 @@ export const AdminsPage = () => {
           <div className="relative">
             <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
             <Input
-              placeholder="관리자 검색..."
+              placeholder={t('admins.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-8"

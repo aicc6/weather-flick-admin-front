@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Database, Server, Globe, MapPin } from 'lucide-react'
+import { Database, Server, Globe, MapPin, Clock, Activity } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -9,6 +9,16 @@ import {
 } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { authHttp } from '../../lib/http'
+import {
+  getStatusText,
+  getStatusColor,
+  getStatusIcon,
+  getStatusBadgeProps,
+  formatResponseTime,
+  formatUptime,
+  formatLastCheck,
+  normalizeStatusData,
+} from '../../utils/systemUtils'
 
 export function SystemStatusCard() {
   const [systemStatus, setSystemStatus] = useState(null)
@@ -24,7 +34,8 @@ export function SystemStatusCard() {
 
         if (data.success) {
           // 새로운 표준 응답 형식: { success: true, data: {...}, message: "..." }
-          setSystemStatus(data.data)
+          const normalizedData = normalizeStatusData(data.data)
+          setSystemStatus(normalizedData)
         } else {
           setError(
             data.error?.message ||
@@ -55,136 +66,205 @@ export function SystemStatusCard() {
         ) : error ? (
           <div className="text-destructive text-sm">오류: {error}</div>
         ) : systemStatus ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {/* 서버/DB 상태 */}
-            <div className="space-y-2">
-              {/* 전체 서비스 상태 */}
+          <div className="space-y-4">
+            {/* 전체 시스템 상태 헤더 */}
+            <div className="bg-muted/20 flex items-center justify-between rounded-lg border p-3">
               <div className="flex items-center gap-2">
-                <Server className="h-5 w-5 text-blue-600" />
-                <span className="font-medium">서비스</span>
+                <Activity className="h-5 w-5" />
+                <span className="font-medium">전체 시스템</span>
                 <Badge
                   variant={
-                    systemStatus.service_status === '정상' ||
-                    systemStatus.service_status === '운영중'
-                      ? 'success'
-                      : 'destructive'
+                    getStatusBadgeProps(systemStatus.overall_status).variant
                   }
+                  className={getStatusColor(systemStatus.overall_status, 'bg')}
                 >
-                  {systemStatus.service_status}
+                  {getStatusIcon(systemStatus.overall_status)}{' '}
+                  {getStatusText(systemStatus.overall_status)}
                 </Badge>
               </div>
-              {/* 데이터베이스 상태 */}
-              {systemStatus.database && (
-                <div className="flex items-center gap-2">
-                  <Database className="h-5 w-5 text-green-600" />
-                  <span className="font-medium">DB</span>
-                  <Badge
-                    variant={
-                      systemStatus.database.status === '연결됨'
-                        ? 'success'
-                        : 'destructive'
-                    }
-                  >
-                    {systemStatus.database.status}
-                  </Badge>
-                  {systemStatus.database.response_time && (
-                    <span className="text-muted-foreground ml-2 text-xs">
-                      응답: {systemStatus.database.response_time}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-            {/* 외부 API */}
-            <div className="space-y-2">
-              <div className="mb-3">
-                <span className="font-medium">외부 API 상태</span>
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {systemStatus.external_apis?.weather_api && (
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-blue-400" />
-                      <span className="text-xs">날씨</span>
-                      <Badge
-                        variant={
-                          systemStatus.external_apis.weather_api.status?.includes(
-                            '정상',
-                          ) ||
-                          systemStatus.external_apis.weather_api.status?.includes(
-                            '200',
-                          )
-                            ? 'success'
-                            : 'destructive'
-                        }
-                        className="text-xs"
-                      >
-                        {systemStatus.external_apis.weather_api.status}
-                      </Badge>
-                      {systemStatus.external_apis.weather_api.response_time && (
-                        <span className="text-muted-foreground text-xs">
-                          {systemStatus.external_apis.weather_api.response_time}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {systemStatus.external_apis?.tourism_api && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-green-400" />
-                      <span className="text-xs">관광</span>
-                      <Badge
-                        variant={
-                          systemStatus.external_apis.tourism_api.status?.includes(
-                            '정상',
-                          ) ||
-                          systemStatus.external_apis.tourism_api.status?.includes(
-                            '200',
-                          )
-                            ? 'success'
-                            : 'destructive'
-                        }
-                        className="text-xs"
-                      >
-                        {systemStatus.external_apis.tourism_api.status}
-                      </Badge>
-                      {systemStatus.external_apis.tourism_api.response_time && (
-                        <span className="text-muted-foreground text-xs">
-                          {systemStatus.external_apis.tourism_api.response_time}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {systemStatus.external_apis?.google_places && (
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-yellow-400" />
-                      <span className="text-xs">지도</span>
-                      <Badge
-                        variant={
-                          systemStatus.external_apis.google_places.status?.includes(
-                            '정상',
-                          ) ||
-                          systemStatus.external_apis.google_places.status?.includes(
-                            '200',
-                          )
-                            ? 'success'
-                            : 'destructive'
-                        }
-                        className="text-xs"
-                      >
-                        {systemStatus.external_apis.google_places.status}
-                      </Badge>
-                      {systemStatus.external_apis.google_places
-                        .response_time && (
-                        <span className="text-muted-foreground text-xs">
-                          {
-                            systemStatus.external_apis.google_places
-                              .response_time
-                          }
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+              <div className="text-muted-foreground text-sm">
+                {systemStatus.message}
               </div>
             </div>
+
+            {/* 가동 시간 및 마지막 체크 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-blue-500" />
+                <span>가동 시간:</span>
+                <span className="font-medium">
+                  {formatUptime(systemStatus.uptime_seconds)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <span>마지막 체크:</span>
+                <span className="font-medium">
+                  {formatLastCheck(systemStatus.last_check)}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* 서버/DB 상태 */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium">서비스 & 데이터베이스</h4>
+
+                {/* 서비스 상태 */}
+                <div className="flex items-center gap-2">
+                  <Server className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm">서비스</span>
+                  <Badge
+                    variant={
+                      getStatusBadgeProps(systemStatus.service_status).variant
+                    }
+                  >
+                    {getStatusIcon(systemStatus.service_status)}{' '}
+                    {getStatusText(systemStatus.service_status)}
+                  </Badge>
+                </div>
+
+                {/* 데이터베이스 상태 */}
+                {systemStatus.database && (
+                  <div className="flex items-center gap-2">
+                    <Database className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">데이터베이스</span>
+                    <Badge
+                      variant={
+                        getStatusBadgeProps(systemStatus.database.status)
+                          .variant
+                      }
+                    >
+                      {getStatusIcon(systemStatus.database.status)}{' '}
+                      {getStatusText(systemStatus.database.status)}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs">
+                      {formatResponseTime(systemStatus.database.response_time)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* 외부 API */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium">외부 API</h4>
+
+                {systemStatus.external_apis?.weather_api && (
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-blue-400" />
+                    <span className="text-sm">날씨 API</span>
+                    <Badge
+                      variant={
+                        getStatusBadgeProps(
+                          systemStatus.external_apis.weather_api.status,
+                        ).variant
+                      }
+                      className="text-xs"
+                    >
+                      {getStatusIcon(
+                        systemStatus.external_apis.weather_api.status,
+                      )}{' '}
+                      {getStatusText(
+                        systemStatus.external_apis.weather_api.status,
+                      )}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs">
+                      {formatResponseTime(
+                        systemStatus.external_apis.weather_api.response_time,
+                      )}
+                    </span>
+                  </div>
+                )}
+
+                {systemStatus.external_apis?.tourism_api && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-green-400" />
+                    <span className="text-sm">관광 API</span>
+                    <Badge
+                      variant={
+                        getStatusBadgeProps(
+                          systemStatus.external_apis.tourism_api.status,
+                        ).variant
+                      }
+                      className="text-xs"
+                    >
+                      {getStatusIcon(
+                        systemStatus.external_apis.tourism_api.status,
+                      )}{' '}
+                      {getStatusText(
+                        systemStatus.external_apis.tourism_api.status,
+                      )}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs">
+                      {formatResponseTime(
+                        systemStatus.external_apis.tourism_api.response_time,
+                      )}
+                    </span>
+                  </div>
+                )}
+
+                {systemStatus.external_apis?.google_places && (
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-yellow-400" />
+                    <span className="text-sm">지도 API</span>
+                    <Badge
+                      variant={
+                        getStatusBadgeProps(
+                          systemStatus.external_apis.google_places.status,
+                        ).variant
+                      }
+                      className="text-xs"
+                    >
+                      {getStatusIcon(
+                        systemStatus.external_apis.google_places.status,
+                      )}{' '}
+                      {getStatusText(
+                        systemStatus.external_apis.google_places.status,
+                      )}
+                    </Badge>
+                    <span className="text-muted-foreground text-xs">
+                      {formatResponseTime(
+                        systemStatus.external_apis.google_places.response_time,
+                      )}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 시스템 리소스 정보 (있는 경우) */}
+            {systemStatus.details &&
+              Object.keys(systemStatus.details).length > 0 && (
+                <div className="bg-muted/10 mt-4 rounded-lg border p-3">
+                  <h4 className="mb-2 text-sm font-medium">시스템 리소스</h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    {systemStatus.details.cpu_percent !== undefined && (
+                      <div>
+                        <span className="text-muted-foreground">CPU:</span>
+                        <span className="ml-1 font-medium">
+                          {systemStatus.details.cpu_percent.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                    {systemStatus.details.memory_percent !== undefined && (
+                      <div>
+                        <span className="text-muted-foreground">메모리:</span>
+                        <span className="ml-1 font-medium">
+                          {systemStatus.details.memory_percent.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                    {systemStatus.details.disk_percent !== undefined && (
+                      <div>
+                        <span className="text-muted-foreground">디스크:</span>
+                        <span className="ml-1 font-medium">
+                          {systemStatus.details.disk_percent.toFixed(1)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
           </div>
         ) : (
           <div className="text-muted-foreground text-sm">

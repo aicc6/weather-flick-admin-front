@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard,
   Users,
@@ -23,6 +24,7 @@ const ICON_MAP = {
 }
 
 export function Navigation({ className = '' }) {
+  const { t } = useTranslation()
   const { canAccess } = usePermissions()
 
   return (
@@ -48,7 +50,9 @@ export function Navigation({ className = '' }) {
             }
           >
             <Icon className="h-4 w-4" />
-            <span className="text-sm font-medium">{item.title}</span>
+            <span className="text-sm font-medium">
+              {t(`navigation.${item.translationKey}`) || item.title}
+            </span>
           </NavLink>
         )
       })}

@@ -240,7 +240,7 @@ export const UsersPage = () => {
         )}
         <div className="mb-4 flex items-center justify-between">
           <Input
-            placeholder="이메일/닉네임 검색..."
+            placeholder={t('users.search_placeholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-64 rounded-lg shadow-sm"

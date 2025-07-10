@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { PermissionGuard } from '../common/PermissionGuard'
 import { PERMISSIONS } from '../../constants/permissions'
@@ -69,6 +70,7 @@ const TABS = [
 ]
 
 export const ContentPage = () => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('course')
   const [searchCourseName, setSearchCourseName] = useState('')
   const [searchRegion, setSearchRegion] = useState('')
@@ -331,7 +333,7 @@ export const ContentPage = () => {
                   <input
                     id="search-course-name"
                     className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                    placeholder="코스명"
+                    placeholder={t('content.course_name_placeholder')}
                     value={searchCourseName}
                     onChange={handleCourseNameChange}
                     autoComplete="off"
@@ -403,7 +405,7 @@ export const ContentPage = () => {
                       <form onSubmit={handleAdd} className="space-y-4">
                         <Input
                           required
-                          placeholder="코스명"
+                          placeholder={t('content.course_name_placeholder')}
                           value={form.course_name}
                           onChange={(e) =>
                             setForm((f) => ({

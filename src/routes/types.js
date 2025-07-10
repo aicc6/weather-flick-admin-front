@@ -3,12 +3,14 @@ export const ROUTE_META = {
   DASHBOARD: {
     path: '/',
     title: '대시보드',
+    translationKey: 'dashboard',
     breadcrumb: ['대시보드'],
     icon: 'LayoutDashboard',
   },
   ADMINS: {
     path: '/admins',
     title: '관리자 관리',
+    translationKey: 'users',
     breadcrumb: ['대시보드', '관리자 관리'],
     icon: 'Shield',
     requiredRole: 'super_admin',
@@ -16,24 +18,28 @@ export const ROUTE_META = {
   USERS: {
     path: '/users',
     title: '사용자 관리',
+    translationKey: 'users',
     breadcrumb: ['대시보드', '사용자 관리'],
     icon: 'Users',
   },
   CONTENT: {
     path: '/content',
     title: '콘텐츠 관리',
+    translationKey: 'travels',
     breadcrumb: ['대시보드', '콘텐츠 관리'],
     icon: 'FileText',
   },
   WEATHER: {
     path: '/weather',
     title: '날씨 관리',
+    translationKey: 'system',
     breadcrumb: ['대시보드', '날씨 관리'],
     icon: 'Cloud',
   },
   TOURIST_ATTRACTIONS: {
     path: '/tourist-attractions',
     title: '관광지 관리',
+    translationKey: 'travels',
     breadcrumb: ['대시보드', '관광지 관리'],
     icon: 'MapPin',
   },

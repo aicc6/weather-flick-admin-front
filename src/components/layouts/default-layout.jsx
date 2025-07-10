@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePermission } from '../../hooks/usePermission'
 import { PERMISSIONS } from '../../constants/permissions'
@@ -22,8 +23,10 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { useEffect, useState } from 'react'
+import { LanguageSwitcher } from '../common/LanguageSwitcher'
 
 export const DefaultLayout = ({ children }) => {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const { hasPermission } = usePermission()
   const location = useLocation()
@@ -52,37 +55,37 @@ export const DefaultLayout = ({ children }) => {
 
   const navigation = [
     {
-      name: '대시보드',
+      name: t('navigation.dashboard'),
       href: '/',
       icon: Home,
       permission: PERMISSIONS.DASHBOARD_READ,
     },
     {
-      name: '사용자 관리',
+      name: t('navigation.users'),
       href: '/users',
       icon: Users,
       permission: PERMISSIONS.USER_READ,
     },
     {
-      name: '관리자 관리',
+      name: t('navigation.users'),
       href: '/admins',
       icon: User,
       permission: PERMISSIONS.ADMIN_READ,
     },
     {
-      name: '컨텐츠 관리',
+      name: t('navigation.travels'),
       href: '/content',
       icon: FileText,
       permission: PERMISSIONS.CONTENT_READ,
     },
     {
-      name: '날씨 정보',
+      name: t('navigation.system'),
       href: '/weather',
       icon: Cloud,
       permission: PERMISSIONS.SYSTEM_READ,
     },
     {
-      name: '관광지 관리',
+      name: t('navigation.travels'),
       href: '/tourist-attractions',
       icon: FileText,
       permission: PERMISSIONS.CONTENT_READ,
@@ -108,11 +111,12 @@ export const DefaultLayout = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <Button
                 variant="ghost"
                 className="relative h-8 w-8 rounded-full"
                 onClick={toggleDarkMode}
-                aria-label="다크/라이트 모드 토글"
+                aria-label={t('settings.theme')}
               >
                 {darkMode ? (
                   <SunIcon className="h-5 w-5 text-yellow-400" />
@@ -143,7 +147,7 @@ export const DefaultLayout = ({ children }) => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>로그아웃</span>
+                    <span>{t('common.logout')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
