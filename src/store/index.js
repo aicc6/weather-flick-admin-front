@@ -9,6 +9,8 @@ import { leisureSportsApi } from './api/contentApi'
 import { systemApi } from './api/systemApi'
 import { weatherApi } from './api/weatherApi'
 import { travelPlansApi } from './api/travelPlansApi'
+import { regionsApi } from './api/regionsApi'
+import { rolesApi } from './api/rolesApi'
 import authReducer from './slices/authSlice'
 import uiReducer from './slices/uiSlice'
 
@@ -25,6 +27,8 @@ export const store = configureStore({
     [festivalsEventsApi.reducerPath]: festivalsEventsApi.reducer,
     [leisureSportsApi.reducerPath]: leisureSportsApi.reducer,
     [travelPlansApi.reducerPath]: travelPlansApi.reducer,
+    [regionsApi.reducerPath]: regionsApi.reducer,
+    [rolesApi.reducerPath]: rolesApi.reducer,
     // Regular slices
     auth: authReducer,
     ui: uiReducer,
@@ -50,6 +54,8 @@ export const store = configureStore({
       .concat(travelCoursesApi.middleware)
       .concat(festivalsEventsApi.middleware)
       .concat(leisureSportsApi.middleware)
-      .concat(travelPlansApi.middleware),
+      .concat(travelPlansApi.middleware)
+      .concat(regionsApi.middleware)
+      .concat(rolesApi.middleware),
   devTools: import.meta.env.MODE !== 'production',
 })

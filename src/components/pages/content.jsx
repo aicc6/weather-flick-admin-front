@@ -1564,10 +1564,12 @@ function TravelPlansSection() {
         await updateTravelPlan({ plan_id: editData.plan_id, data: form })
       } else {
         // 현재 로그인한 사용자 ID 사용
+        if (!user?.id && !user?.user_id) {
+          throw new Error('로그인이 필요합니다.')
+        }
         await createTravelPlan({
           ...form,
-          user_id:
-            user?.id || user?.user_id || 'd6809797-2fe2-4ed1-a87a-3eea5db278d2',
+          user_id: user?.id || user?.user_id,
         })
       }
       setModalOpen(false)

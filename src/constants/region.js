@@ -1,3 +1,8 @@
+// 이 파일은 더 이상 사용되지 않습니다.
+// 대신 useRegions() 훅을 사용하여 API에서 지역 정보를 동적으로 가져오세요.
+// import { useRegions } from '../hooks/useRegions'
+
+// 레거시 호환성을 위한 기본값 (실제로는 API를 사용하는 것을 권장)
 export const REGION_MAP = {
   1: '서울',
   2: '인천',
