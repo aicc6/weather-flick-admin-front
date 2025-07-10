@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { PermissionGuard } from '../common/PermissionGuard'
+import { PERMISSIONS } from '../../constants/permissions'
 import {
   useGetTravelCoursesQuery,
   useCreateTravelCourseMutation,
@@ -238,8 +240,21 @@ export const ContentPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 py-8">
-      {/* 탭 UI */}
+    <PermissionGuard 
+      permission={PERMISSIONS.CONTENT_READ}
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="text-center">
+            <div className="mb-2 text-lg text-red-600">접근 권한이 없습니다</div>
+            <p className="text-muted-foreground">
+              이 페이지는 콘텐츠 관리 권한이 필요합니다.
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <div className="mx-auto max-w-5xl space-y-8 py-8">
+        {/* 탭 UI */}
       <div className="mb-6 flex gap-2 border-b">
         {TABS.map((tab) => (
           <button
@@ -1738,6 +1753,7 @@ function TravelPlansSection() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PermissionGuard>
   )
 }

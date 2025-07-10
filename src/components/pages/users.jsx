@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { PermissionGuard } from '../common/PermissionGuard'
+import { PERMISSIONS } from '../../constants/permissions'
 import {
   useGetUserStatsQuery,
   useGetUsersQuery,
@@ -188,211 +190,227 @@ export const UsersPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold tracking-tight">사용자 관리</h2>
-        <p className="text-muted-foreground">
-          전체 사용자를 효율적으로 관리할 수 있습니다.
-        </p>
-      </div>
-      {/* 상단 요약 카드 */}
-      {stats && (
-        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Card className="flex flex-col items-center justify-center p-4">
-            <Users className="mb-1 h-7 w-7 text-blue-500" />
-            <span className="font-semibold">총 사용자</span>
-            <span className="text-lg font-bold text-blue-700">
-              {stats.total}
-            </span>
-          </Card>
-          <Card className="flex flex-col items-center justify-center p-4">
-            <UserCheck className="mb-1 h-7 w-7 text-green-500" />
-            <span className="font-semibold">활성 사용자</span>
-            <span className="text-lg font-bold text-green-700">
-              {stats.active}
-            </span>
-          </Card>
-          <Card className="flex flex-col items-center justify-center p-4">
-            <UserX className="mb-1 h-7 w-7 text-gray-400" />
-            <span className="font-semibold">비활성 사용자</span>
-            <span className="text-lg font-bold text-gray-500">
-              {stats.inactive}
-            </span>
-          </Card>
+    <PermissionGuard
+      permission={PERMISSIONS.USER_READ}
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="text-center">
+            <div className="mb-2 text-lg text-red-600">
+              접근 권한이 없습니다
+            </div>
+            <p className="text-muted-foreground">
+              이 페이지는 사용자 관리 권한이 필요합니다.
+            </p>
+          </div>
         </div>
-      )}
-      <div className="mb-4 flex items-center justify-between">
-        <Input
-          placeholder="이메일/닉네임 검색..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-64 rounded-lg shadow-sm"
-        />
-      </div>
-      {/* 테이블 modern 스타일 */}
-      <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-        <Table>
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead>이메일</TableHead>
-              <TableHead>닉네임/이름</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>권한</TableHead>
-              <TableHead className="text-right">액션</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.map((item) => (
-              <TableRow
-                key={item.user_id}
-                className="transition hover:bg-gray-50"
-              >
-                <TableCell>{item.email}</TableCell>
-                <TableCell>{item.nickname || item.name}</TableCell>
-                <TableCell>
-                  <Badge variant={item.is_active ? 'success' : 'destructive'}>
-                    {item.is_active ? '활성' : '비활성'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={item.is_superuser ? 'success' : 'outline'}>
-                    {item.is_superuser ? '슈퍼유저' : '일반'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                          console.log('드롭다운 버튼 클릭됨', item)
-                          e.stopPropagation()
-                        }}
-                      >
-                        <span className="sr-only">메뉴 열기</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('상세보기 클릭됨', item)
-                          e.stopPropagation()
-                          _setSelectedUser(item)
-                        }}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        상세보기
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 비밀번호 초기화 클릭됨', item)
-                          e.stopPropagation()
-                          setActionUser(item)
-                          setTimeout(
-                            () => setIsResetPasswordDialogOpen(true),
-                            0,
-                          )
-                        }}
-                      >
-                        <KeyRound className="mr-2 h-4 w-4" />
-                        비밀번호 초기화
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 상태 변경 클릭됨', item)
-                          e.stopPropagation()
-                          handleToggleUserStatus(item.user_id, item.is_active)
-                        }}
-                      >
-                        {item.is_active ? (
-                          <>
-                            <Lock className="mr-2 h-4 w-4" />
-                            비활성화
-                          </>
-                        ) : (
-                          <>
-                            <Unlock className="mr-2 h-4 w-4" />
-                            활성화
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 삭제 클릭됨', item)
-                          e.stopPropagation()
-                          setActionUser(item)
-                          setTimeout(() => setIsDeleteDialogOpen(true), 0)
-                        }}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        삭제
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+      }
+    >
+      <div className="space-y-6">
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold tracking-tight">사용자 관리</h2>
+          <p className="text-muted-foreground">
+            전체 사용자를 효율적으로 관리할 수 있습니다.
+          </p>
+        </div>
+        {/* 상단 요약 카드 */}
+        {stats && (
+          <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Card className="flex flex-col items-center justify-center p-4">
+              <Users className="mb-1 h-7 w-7 text-blue-500" />
+              <span className="font-semibold">총 사용자</span>
+              <span className="text-lg font-bold text-blue-700">
+                {stats.total}
+              </span>
+            </Card>
+            <Card className="flex flex-col items-center justify-center p-4">
+              <UserCheck className="mb-1 h-7 w-7 text-green-500" />
+              <span className="font-semibold">활성 사용자</span>
+              <span className="text-lg font-bold text-green-700">
+                {stats.active}
+              </span>
+            </Card>
+            <Card className="flex flex-col items-center justify-center p-4">
+              <UserX className="mb-1 h-7 w-7 text-gray-400" />
+              <span className="font-semibold">비활성 사용자</span>
+              <span className="text-lg font-bold text-gray-500">
+                {stats.inactive}
+              </span>
+            </Card>
+          </div>
+        )}
+        <div className="mb-4 flex items-center justify-between">
+          <Input
+            placeholder="이메일/닉네임 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64 rounded-lg shadow-sm"
+          />
+        </div>
+        {/* 테이블 modern 스타일 */}
+        <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+          <Table>
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead>이메일</TableHead>
+                <TableHead>닉네임/이름</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>권한</TableHead>
+                <TableHead className="text-right">액션</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((item) => (
+                <TableRow
+                  key={item.user_id}
+                  className="transition hover:bg-gray-50"
+                >
+                  <TableCell>{item.email}</TableCell>
+                  <TableCell>{item.nickname || item.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={item.is_active ? 'success' : 'destructive'}>
+                      {item.is_active ? '활성' : '비활성'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={item.is_superuser ? 'success' : 'outline'}>
+                      {item.is_superuser ? '슈퍼유저' : '일반'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            console.log('드롭다운 버튼 클릭됨', item)
+                            e.stopPropagation()
+                          }}
+                        >
+                          <span className="sr-only">메뉴 열기</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            console.log('상세보기 클릭됨', item)
+                            e.stopPropagation()
+                            _setSelectedUser(item)
+                          }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          상세보기
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            console.log('사용자 비밀번호 초기화 클릭됨', item)
+                            e.stopPropagation()
+                            setActionUser(item)
+                            setTimeout(
+                              () => setIsResetPasswordDialogOpen(true),
+                              0,
+                            )
+                          }}
+                        >
+                          <KeyRound className="mr-2 h-4 w-4" />
+                          비밀번호 초기화
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            console.log('사용자 상태 변경 클릭됨', item)
+                            e.stopPropagation()
+                            handleToggleUserStatus(item.user_id, item.is_active)
+                          }}
+                        >
+                          {item.is_active ? (
+                            <>
+                              <Lock className="mr-2 h-4 w-4" />
+                              비활성화
+                            </>
+                          ) : (
+                            <>
+                              <Unlock className="mr-2 h-4 w-4" />
+                              활성화
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            console.log('사용자 삭제 클릭됨', item)
+                            e.stopPropagation()
+                            setActionUser(item)
+                            setTimeout(() => setIsDeleteDialogOpen(true), 0)
+                          }}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          삭제
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* 비밀번호 초기화 확인 다이얼로그 */}
+        <AlertDialog
+          open={isResetPasswordDialogOpen}
+          onOpenChange={setIsResetPasswordDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>사용자 비밀번호 초기화</AlertDialogTitle>
+              <AlertDialogDescription>
+                사용자 &apos;${actionUser?.nickname || actionUser?.email}
+                &apos;의 비밀번호를 초기화하시겠습니까?\n\n임시 비밀번호가
+                사용자의 이메일 주소로 전송됩니다.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setActionUser(null)}>
+                취소
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleResetUserPassword}>
+                초기화
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* 삭제 확인 다이얼로그 */}
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>사용자 삭제</AlertDialogTitle>
+              <AlertDialogDescription>
+                사용자 &apos;${actionUser?.nickname || actionUser?.email}
+                &apos;를 정말 삭제하시겠습니까?
+                <br />
+                <br />이 작업은 되돌릴 수 없습니다.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setActionUser(null)}>
+                취소
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteItem}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                삭제
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-
-      {/* 비밀번호 초기화 확인 다이얼로그 */}
-      <AlertDialog
-        open={isResetPasswordDialogOpen}
-        onOpenChange={setIsResetPasswordDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>사용자 비밀번호 초기화</AlertDialogTitle>
-            <AlertDialogDescription>
-              사용자 &apos;${actionUser?.nickname || actionUser?.email}&apos;의
-              비밀번호를 초기화하시겠습니까?\n\n임시 비밀번호가 사용자의 이메일
-              주소로 전송됩니다.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setActionUser(null)}>
-              취소
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleResetUserPassword}>
-              초기화
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>사용자 삭제</AlertDialogTitle>
-            <AlertDialogDescription>
-              사용자 &apos;${actionUser?.nickname || actionUser?.email}&apos;를
-              정말 삭제하시겠습니까?
-              <br />
-              <br />이 작업은 되돌릴 수 없습니다.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setActionUser(null)}>
-              취소
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteItem}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              삭제
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    </PermissionGuard>
   )
 }

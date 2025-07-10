@@ -1,4 +1,6 @@
 import { useAuth } from '../../contexts/AuthContext'
+import { usePermission } from '../../hooks/usePermission'
+import { PERMISSIONS } from '../../constants/permissions'
 import { Button } from '../ui/button'
 import {
   LogOut,
@@ -23,6 +25,7 @@ import { useEffect, useState } from 'react'
 
 export const DefaultLayout = ({ children }) => {
   const { user, logout } = useAuth()
+  const { hasPermission } = usePermission()
   const location = useLocation()
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -48,15 +51,43 @@ export const DefaultLayout = ({ children }) => {
   }
 
   const navigation = [
-    { name: '대시보드', href: '/', icon: Home },
-    { name: '사용자 관리', href: '/users', icon: Users },
-    ...(user?.is_superuser
-      ? [{ name: '관리자 관리', href: '/admins', icon: User }]
-      : []),
-    { name: '컨텐츠 관리', href: '/content', icon: FileText },
-    { name: '날씨 정보', href: '/weather', icon: Cloud },
-    { name: '관광지 관리', href: '/tourist-attractions', icon: FileText },
-  ]
+    {
+      name: '대시보드',
+      href: '/',
+      icon: Home,
+      permission: PERMISSIONS.DASHBOARD_READ,
+    },
+    {
+      name: '사용자 관리',
+      href: '/users',
+      icon: Users,
+      permission: PERMISSIONS.USER_READ,
+    },
+    {
+      name: '관리자 관리',
+      href: '/admins',
+      icon: User,
+      permission: PERMISSIONS.ADMIN_READ,
+    },
+    {
+      name: '컨텐츠 관리',
+      href: '/content',
+      icon: FileText,
+      permission: PERMISSIONS.CONTENT_READ,
+    },
+    {
+      name: '날씨 정보',
+      href: '/weather',
+      icon: Cloud,
+      permission: PERMISSIONS.SYSTEM_READ,
+    },
+    {
+      name: '관광지 관리',
+      href: '/tourist-attractions',
+      icon: FileText,
+      permission: PERMISSIONS.CONTENT_READ,
+    },
+  ].filter((item) => !item.permission || hasPermission(item.permission))
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">

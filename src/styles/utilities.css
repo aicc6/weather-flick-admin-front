@@ -134,7 +134,7 @@
 }
 
 .responsive-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  @apply grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3;
 }
 
 /* 플렉스 헬퍼 */
