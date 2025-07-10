@@ -74,6 +74,8 @@
     "logs": "Logs",
     "admins": "Admin Management",
     "content": "Content Management",
+    "weather": "Weather Management",
+    "tourist_attractions": "Tourist Attractions",
     "open_menu": "Open menu",
     "close_menu": "Close menu",
     "admin_panel": "Admin Panel",

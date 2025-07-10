@@ -570,6 +570,7 @@ export const ContentPage = () => {
         </Card>
       )}
     </div>
+    </PermissionGuard>
   )
 }
 
@@ -1755,7 +1756,6 @@ function TravelPlansSection() {
           </form>
         </DialogContent>
       </Dialog>
-      </div>
-    </PermissionGuard>
+    </div>
   )
 }

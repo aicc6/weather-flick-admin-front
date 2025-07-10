@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
-import { DefaultLayout } from '../components/layouts/default-layout'
+import { DefaultLayout } from '../components/layouts/default-layout.jsx'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { ErrorBoundary } from '../components/common'
 

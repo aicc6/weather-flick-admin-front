@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PermissionGuard } from '../common/PermissionGuard'
 import { PERMISSIONS } from '../../constants/permissions'
 import {
@@ -42,6 +43,8 @@ import {
 } from '../ui/alert-dialog'
 
 export const AdminsPage = () => {
+  const { t } = useTranslation()
+  
   // RTK Query 훅들
   const {
     data: adminsData,

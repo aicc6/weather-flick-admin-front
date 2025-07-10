@@ -10,7 +10,7 @@ export const ROUTE_META = {
   ADMINS: {
     path: '/admins',
     title: '관리자 관리',
-    translationKey: 'users',
+    translationKey: 'admins',
     breadcrumb: ['대시보드', '관리자 관리'],
     icon: 'Shield',
     requiredRole: 'super_admin',
@@ -25,21 +25,21 @@ export const ROUTE_META = {
   CONTENT: {
     path: '/content',
     title: '콘텐츠 관리',
-    translationKey: 'travels',
+    translationKey: 'content',
     breadcrumb: ['대시보드', '콘텐츠 관리'],
     icon: 'FileText',
   },
   WEATHER: {
     path: '/weather',
     title: '날씨 관리',
-    translationKey: 'system',
+    translationKey: 'weather',
     breadcrumb: ['대시보드', '날씨 관리'],
     icon: 'Cloud',
   },
   TOURIST_ATTRACTIONS: {
     path: '/tourist-attractions',
     title: '관광지 관리',
-    translationKey: 'travels',
+    translationKey: 'tourist_attractions',
     breadcrumb: ['대시보드', '관광지 관리'],
     icon: 'MapPin',
   },

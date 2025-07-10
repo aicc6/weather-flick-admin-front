@@ -74,6 +74,8 @@
     "logs": "로그",
     "admins": "관리자 관리",
     "content": "콘텐츠 관리",
+    "weather": "날씨 관리",
+    "tourist_attractions": "관광지 관리",
     "open_menu": "메뉴 열기",
     "close_menu": "메뉴 닫기",
     "admin_panel": "관리자 패널",

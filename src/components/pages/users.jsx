@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { PermissionGuard } from '../common/PermissionGuard'
 import { PERMISSIONS } from '../../constants/permissions'
@@ -49,9 +50,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '../ui/pagination'
 
 export const UsersPage = () => {
+  const { t } = useTranslation()
   const { user: _user } = useAuth()
+
+  // 로컬 상태 (UI 전용) - 먼저 선언
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // RTK Query 훅들
   const {
@@ -65,7 +81,7 @@ export const UsersPage = () => {
     isLoading: usersLoading,
     error: usersError,
     refetch: refetchUsers,
-  } = useGetUsersQuery({ page: 1, size: 50 })
+  } = useGetUsersQuery({ page: currentPage, size: pageSize })
 
   // Mutation 훅들
   const [deleteUser] = useDeleteUserMutation()
@@ -73,8 +89,7 @@ export const UsersPage = () => {
   const [activateUser] = useActivateUserMutation()
   const [deactivateUser] = useDeactivateUserMutation()
 
-  // 로컬 상태 (UI 전용)
-  const [searchTerm, setSearchTerm] = useState('')
+  // 추가 UI 상태
   const [_selectedUser, _setSelectedUser] = useState(null)
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false)
@@ -105,6 +120,23 @@ export const UsersPage = () => {
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.nickname?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  // 페이지네이션 계산
+  const totalUsers = usersData?.total || 0
+  const totalPages = Math.ceil(totalUsers / pageSize)
+  const hasNextPage = currentPage < totalPages
+  const hasPreviousPage = currentPage > 1
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
+
+  // 페이지 크기 변경 핸들러
+  const handlePageSizeChange = (size) => {
+    setPageSize(size)
+    setCurrentPage(1) // 페이지 크기 변경시 첫 페이지로
+  }
 
   // 사용자 삭제
   const handleDeleteItem = async () => {
@@ -410,6 +442,133 @@ export const UsersPage = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <div className="flex items-center justify-between">
+              {/* 왼쪽: 페이지 정보 */}
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-muted-foreground">
+                  {t('pagination.showing', {
+                    start: (currentPage - 1) * pageSize + 1,
+                    end: Math.min(currentPage * pageSize, totalUsers),
+                    total: totalUsers,
+                  })}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">페이지당:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                    className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value={5}>5개</option>
+                    <option value={10}>10개</option>
+                    <option value={20}>20개</option>
+                    <option value={50}>50개</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* 중앙: 페이지네이션 버튼 */}
+              <div className="flex items-center space-x-1">
+                {/* 이전 버튼 */}
+                <button
+                  onClick={() => hasPreviousPage && handlePageChange(currentPage - 1)}
+                  disabled={!hasPreviousPage}
+                  className={`flex items-center justify-center min-w-[80px] h-9 px-3 text-sm font-medium rounded-md border ${
+                    !hasPreviousPage 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  이전
+                </button>
+                
+                {/* 첫 페이지 */}
+                {currentPage > 3 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400"
+                    >
+                      1
+                    </button>
+                    {currentPage > 4 && (
+                      <div className="flex items-center justify-center w-9 h-9 text-gray-500">
+                        <span>...</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                {/* 현재 페이지 주변 페이지들 */}
+                {(() => {
+                  const pages = []
+                  const start = Math.max(1, currentPage - 2)
+                  const end = Math.min(totalPages, currentPage + 2)
+                  
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => handlePageChange(i)}
+                        className={`flex items-center justify-center w-9 h-9 text-sm font-medium rounded-md border ${
+                          currentPage === i
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                        }`}
+                      >
+                        {i}
+                      </button>
+                    )
+                  }
+                  return pages
+                })()}
+                
+                {/* 마지막 페이지 */}
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && (
+                      <div className="flex items-center justify-center w-9 h-9 text-gray-500">
+                        <span>...</span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+                
+                {/* 다음 버튼 */}
+                <button
+                  onClick={() => hasNextPage && handlePageChange(currentPage + 1)}
+                  disabled={!hasNextPage}
+                  className={`flex items-center justify-center min-w-[80px] h-9 px-3 text-sm font-medium rounded-md border ${
+                    !hasNextPage 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  }`}
+                >
+                  다음
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* 오른쪽: 빈 공간 (균형을 위해) */}
+              <div className="w-0"></div>
+            </div>
+          </div>
+        )}
       </div>
     </PermissionGuard>
   )
