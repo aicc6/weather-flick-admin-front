@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card'
-import { Badge } from '../ui/badge'
 import { cn } from '@/lib/utils'
 
 /**
@@ -65,44 +64,48 @@ export const StatsCard = memo(
 
     return (
       <Card
-        className={cn('transition-all duration-200 hover:shadow-md', className)}
+        className={cn('admin-card transition-all duration-200', className)}
         {...props}
       >
-        <CardHeader className="card-header-standard">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle>{title}</CardTitle>
-            {description && <CardDescription>{description}</CardDescription>}
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            {description && (
+              <CardDescription className="text-xs">
+                {description}
+              </CardDescription>
+            )}
           </div>
-          <Icon className={iconClasses} aria-hidden="true" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
+            <Icon className={iconClasses} aria-hidden="true" />
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex-between gap-standard">
+          <div className="grid grid-cols-3 gap-4 text-center">
             {/* 총 개수 */}
-            <div className="flex flex-col items-center">
+            <div className="space-y-1">
               <span className="text-muted-foreground text-xs">총</span>
-              <span className={totalClasses}>
-                {total?.toLocaleString() || 0}
-              </span>
+              <div className={totalClasses}>{total?.toLocaleString() || 0}</div>
             </div>
 
             {/* 활성 개수 */}
-            <div className="flex flex-col items-center">
-              <Badge variant="success" className="mb-1">
+            <div className="space-y-1">
+              <span className="status-success rounded-full px-2 py-1 text-xs">
                 활성 ({activePercentage}%)
-              </Badge>
-              <span className="font-bold text-green-600">
-                {active?.toLocaleString() || 0}
               </span>
+              <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                {active?.toLocaleString() || 0}
+              </div>
             </div>
 
             {/* 비활성 개수 */}
-            <div className="flex flex-col items-center">
-              <Badge variant="destructive" className="mb-1">
+            <div className="space-y-1">
+              <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                 비활성
-              </Badge>
-              <span className="font-bold text-gray-500">
-                {inactive?.toLocaleString() || 0}
               </span>
+              <div className="text-lg font-bold text-gray-500 dark:text-gray-400">
+                {inactive?.toLocaleString() || 0}
+              </div>
             </div>
           </div>
         </CardContent>

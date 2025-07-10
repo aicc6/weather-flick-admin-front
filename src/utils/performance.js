@@ -17,27 +17,27 @@ export function deepMemo(Component) {
  */
 export function deepEqual(a, b) {
   if (a === b) return true
-  
+
   if (a instanceof Date && b instanceof Date) {
     return a.getTime() === b.getTime()
   }
-  
+
   if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) {
     return a === b
   }
-  
+
   if (a === null || a === undefined || b === null || b === undefined) {
     return false
   }
-  
+
   if (a.prototype !== b.prototype) return false
-  
+
   const keys = Object.keys(a)
   if (keys.length !== Object.keys(b).length) {
     return false
   }
-  
-  return keys.every(k => deepEqual(a[k], b[k]))
+
+  return keys.every((k) => deepEqual(a[k], b[k]))
 }
 
 /**
@@ -49,9 +49,9 @@ export function selectiveMemo(Component, propsToCompare = []) {
     if (propsToCompare.length === 0) {
       return shallowEqual(prevProps, nextProps)
     }
-    
-    return propsToCompare.every(prop => 
-      deepEqual(prevProps[prop], nextProps[prop])
+
+    return propsToCompare.every((prop) =>
+      deepEqual(prevProps[prop], nextProps[prop]),
     )
   })
 }
@@ -61,15 +61,15 @@ export function selectiveMemo(Component, propsToCompare = []) {
  */
 export function shallowEqual(a, b) {
   if (a === b) return true
-  
+
   if (!a || !b) return false
-  
+
   const aKeys = Object.keys(a)
   const bKeys = Object.keys(b)
-  
+
   if (aKeys.length !== bKeys.length) return false
-  
-  return aKeys.every(key => a[key] === b[key])
+
+  return aKeys.every((key) => a[key] === b[key])
 }
 
 /**
@@ -79,7 +79,7 @@ export function shallowEqual(a, b) {
 export function memoizeFunction(fn, deps = []) {
   let lastDeps = []
   let lastResult = null
-  
+
   return (...args) => {
     if (
       lastDeps.length === deps.length &&
@@ -87,7 +87,7 @@ export function memoizeFunction(fn, deps = []) {
     ) {
       return lastResult
     }
-    
+
     lastDeps = deps
     lastResult = fn(...args)
     return lastResult
@@ -113,7 +113,7 @@ export function batchUpdates(updates) {
 export function lazyInitialize(initializer) {
   let initialized = false
   let value = null
-  
+
   return () => {
     if (!initialized) {
       value = initializer()
@@ -129,27 +129,30 @@ export function lazyInitialize(initializer) {
  */
 export function withProfiler(Component, id) {
   return function ProfiledComponent(props) {
-    const onRender = useCallback((
-      id,
-      phase,
-      actualDuration,
-      baseDuration,
-      startTime,
-      commitTime,
-      interactions
-    ) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[Profiler] ${id}:`, {
-          phase,
-          actualDuration,
-          baseDuration,
-          startTime,
-          commitTime,
-          interactions: Array.from(interactions),
-        })
-      }
-    }, [])
-    
+    const onRender = useCallback(
+      (
+        id,
+        phase,
+        actualDuration,
+        baseDuration,
+        startTime,
+        commitTime,
+        interactions,
+      ) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Profiler] ${id}:`, {
+            phase,
+            actualDuration,
+            baseDuration,
+            startTime,
+            commitTime,
+            interactions: Array.from(interactions),
+          })
+        }
+      },
+      [],
+    )
+
     return (
       <Profiler id={id} onRender={onRender}>
         <Component {...props} />
@@ -164,11 +167,11 @@ export function withProfiler(Component, id) {
  */
 export function useEventHandler(handler) {
   const handlerRef = useRef(handler)
-  
+
   useEffect(() => {
     handlerRef.current = handler
   })
-  
+
   return useCallback((...args) => {
     const fn = handlerRef.current
     return fn(...args)
@@ -191,17 +194,17 @@ export function ConditionalRender({ condition, children, fallback = null }) {
  */
 export function DelayedRender({ delay = 0, children }) {
   const [shouldRender, setShouldRender] = useState(delay === 0)
-  
+
   useEffect(() => {
     if (delay === 0) return
-    
+
     const timer = setTimeout(() => {
       setShouldRender(true)
     }, delay)
-    
+
     return () => clearTimeout(timer)
   }, [delay])
-  
+
   return shouldRender ? children : null
 }
 
@@ -214,12 +217,12 @@ export class RAFScheduler {
     this.callbacks = new Set()
     this.rafId = null
   }
-  
+
   add(callback) {
     this.callbacks.add(callback)
     this.schedule()
   }
-  
+
   remove(callback) {
     this.callbacks.delete(callback)
     if (this.callbacks.size === 0 && this.rafId) {
@@ -227,15 +230,15 @@ export class RAFScheduler {
       this.rafId = null
     }
   }
-  
+
   schedule() {
     if (this.rafId || this.callbacks.size === 0) return
-    
+
     this.rafId = requestAnimationFrame(() => {
       this.rafId = null
       const callbacks = Array.from(this.callbacks)
-      callbacks.forEach(cb => cb())
-      
+      callbacks.forEach((cb) => cb())
+
       if (this.callbacks.size > 0) {
         this.schedule()
       }
@@ -251,7 +254,7 @@ export function scheduleIdleTask(task, options = {}) {
   if ('requestIdleCallback' in window) {
     return window.requestIdleCallback(task, options)
   }
-  
+
   // 폴백: setTimeout 사용
   const timeout = options.timeout || 1
   return setTimeout(() => {
@@ -267,19 +270,18 @@ export function scheduleIdleTask(task, options = {}) {
  * CPU 집약적 작업을 백그라운드에서 실행
  */
 export function createWorker(workerFunction) {
-  const blob = new Blob(
-    [`(${workerFunction.toString()})()`],
-    { type: 'application/javascript' }
-  )
+  const blob = new Blob([`(${workerFunction.toString()})()`], {
+    type: 'application/javascript',
+  })
   const url = URL.createObjectURL(blob)
   const worker = new Worker(url)
-  
+
   // 클린업 함수
   worker.terminate = () => {
     URL.revokeObjectURL(url)
     Worker.prototype.terminate.call(worker)
   }
-  
+
   return worker
 }
 
@@ -289,23 +291,26 @@ export function createWorker(workerFunction) {
  */
 export function monitorMemory(componentName) {
   if (process.env.NODE_ENV !== 'development') return
-  
+
   if ('memory' in performance) {
     const initialMemory = performance.memory.usedJSHeapSize
-    
+
     return () => {
       const currentMemory = performance.memory.usedJSHeapSize
       const diff = currentMemory - initialMemory
-      
-      if (diff > 10 * 1024 * 1024) { // 10MB 이상 증가
+
+      if (diff > 10 * 1024 * 1024) {
+        // 10MB 이상 증가
         console.warn(
-          `[Memory Warning] ${componentName}: Memory increased by ${
-            (diff / 1024 / 1024).toFixed(2)
-          }MB`
+          `[Memory Warning] ${componentName}: Memory increased by ${(
+            diff /
+            1024 /
+            1024
+          ).toFixed(2)}MB`,
         )
       }
     }
   }
-  
+
   return () => {}
 }

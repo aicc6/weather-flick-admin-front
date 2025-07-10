@@ -33,7 +33,7 @@ class ApiCache {
         acc[key] = options[key]
         return acc
       }, {})
-    
+
     return `${url}::${JSON.stringify(sortedOptions)}`
   }
 
@@ -42,13 +42,13 @@ class ApiCache {
    */
   get(key) {
     const cached = this.cache.get(key)
-    
+
     if (!cached) {
       return null
     }
 
     const isExpired = Date.now() > cached.expireAt
-    
+
     if (isExpired && !this.options.staleWhileRevalidate) {
       this.cache.delete(key)
       return null
@@ -127,7 +127,7 @@ class ApiCache {
       })),
       totalSize: entries.reduce(
         (sum, [_, value]) => sum + JSON.stringify(value.data).length,
-        0
+        0,
       ),
     }
   }
@@ -149,7 +149,7 @@ export async function cachedFetch(url, options = {}) {
 
   // 캐시 사용 안 함
   if (!cache) {
-    return fetch(url, fetchOptions).then(res => res.json())
+    return fetch(url, fetchOptions).then((res) => res.json())
   }
 
   const key = cacheKey || apiCache.generateKey(url, fetchOptions)
@@ -157,7 +157,7 @@ export async function cachedFetch(url, options = {}) {
   // 강제 새로고침이 아니면 캐시 확인
   if (!forceRefresh) {
     const cached = apiCache.get(key)
-    
+
     if (cached && !cached.isStale) {
       return Promise.resolve(cached.data)
     }
@@ -166,9 +166,9 @@ export async function cachedFetch(url, options = {}) {
     if (cached && cached.isStale && apiCache.options.staleWhileRevalidate) {
       // 백그라운드에서 새로고침
       fetchWithRetry(url, fetchOptions)
-        .then(data => apiCache.set(key, data))
-        .catch(error => console.error('Background refresh failed:', error))
-      
+        .then((data) => apiCache.set(key, data))
+        .catch((error) => console.error('Background refresh failed:', error))
+
       // 기존 데이터 즉시 반환
       return Promise.resolve(cached.data)
     }
@@ -181,12 +181,12 @@ export async function cachedFetch(url, options = {}) {
 
   // 새 요청 생성
   const request = fetchWithRetry(url, fetchOptions)
-    .then(data => {
+    .then((data) => {
       apiCache.set(key, data)
       apiCache.pendingRequests.delete(key)
       return data
     })
-    .catch(error => {
+    .catch((error) => {
       apiCache.pendingRequests.delete(key)
       throw error
     })
@@ -201,27 +201,27 @@ export async function cachedFetch(url, options = {}) {
 async function fetchWithRetry(url, options = {}) {
   const { retry = apiCache.options.retry } = options
   let lastError
-  
+
   for (let i = 0; i <= retry.count; i++) {
     try {
       const response = await fetch(url, options)
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       return await response.json()
     } catch (error) {
       lastError = error
-      
+
       if (i < retry.count) {
         // 지수 백오프로 재시도 지연
         const delay = retry.delay * Math.pow(retry.backoff, i)
-        await new Promise(resolve => setTimeout(resolve, delay))
+        await new Promise((resolve) => setTimeout(resolve, delay))
       }
     }
   }
-  
+
   throw lastError
 }
 
@@ -230,14 +230,14 @@ async function fetchWithRetry(url, options = {}) {
  * 미리 데이터를 로드하여 사용자 경험 개선
  */
 export function prefetch(urls) {
-  const promises = urls.map(url => {
+  const promises = urls.map((url) => {
     if (typeof url === 'string') {
       return cachedFetch(url)
     } else {
       return cachedFetch(url.url, url.options)
     }
   })
-  
+
   return Promise.allSettled(promises)
 }
 
@@ -264,18 +264,18 @@ export function createCachedApiHook(fetcher, options = {}) {
     const [data, setData] = useState(null)
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(true)
-    
+
     useEffect(() => {
       let cancelled = false
-      
+
       const fetchData = async () => {
         try {
           setLoading(true)
-          const result = await cachedFetch(
-            fetcher(key, fetcherOptions),
-            { ...options, ...fetcherOptions }
-          )
-          
+          const result = await cachedFetch(fetcher(key, fetcherOptions), {
+            ...options,
+            ...fetcherOptions,
+          })
+
           if (!cancelled) {
             setData(result)
             setError(null)
@@ -291,14 +291,14 @@ export function createCachedApiHook(fetcher, options = {}) {
           }
         }
       }
-      
+
       fetchData()
-      
+
       return () => {
         cancelled = true
       }
     }, [key])
-    
+
     return { data, error, loading }
   }
 }

@@ -46,37 +46,50 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-900 sm:px-6 lg:px-8">
       <div className="w-full max-w-lg space-y-8">
         <div>
-          <div className="mt-6 flex items-center justify-center gap-2">
+          <div className="mt-6 flex items-center justify-center gap-3">
             <img
-              src={import.meta.env.VITE_LOGO_PATH || '/logo.jpg'}
+              src={import.meta.env.VITE_LOGO_PATH || '/newicon.jpg'}
               alt="Weather Flick Logo"
-              className="h-10 w-10"
+              className="h-8 w-8 rounded-lg object-cover"
               loading="lazy"
             />
-            <h2 className="text-4xl font-extrabold text-gray-900">
-              {import.meta.env.VITE_BRAND_NAME || 'Weather Flick Admin'}
-            </h2>
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Weather Flick
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Admin Dashboard
+              </p>
+            </div>
           </div>
         </div>
         <Card className="p-8">
           <CardHeader className="pb-6 text-center">
-            <CardTitle className="text-2xl">관리자 로그인</CardTitle>
-            <CardDescription className="flex items-center justify-center gap-2 text-base">
-              Weather Flick에 오신 것을 환영합니다
+            <CardTitle className="text-2xl text-gray-900 dark:text-white">
+              관리자 로그인
+            </CardTitle>
+            <CardDescription className="text-base text-gray-600 dark:text-gray-400">
+              Weather Flick 관리자 시스템에 오신 것을 환영합니다
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <Alert variant="destructive">
+                <Alert
+                  variant="destructive"
+                  className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+                >
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-base font-medium">
+                <Label
+                  htmlFor="email"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300"
+                >
                   이메일
                 </Label>
                 <Input
@@ -90,7 +103,10 @@ export const LoginPage = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-base font-medium">
+                <Label
+                  htmlFor="password"
+                  className="text-base font-medium text-gray-700 dark:text-gray-300"
+                >
                   비밀번호
                 </Label>
                 <div className="relative">
@@ -105,13 +121,13 @@ export const LoginPage = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
+                      <EyeOff className="h-5 w-5" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
+                      <Eye className="h-5 w-5" />
                     )}
                   </button>
                 </div>

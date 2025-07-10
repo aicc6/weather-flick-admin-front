@@ -44,7 +44,7 @@ export function OptimizedImage({
       },
       {
         rootMargin: '50px', // 50px 전에 미리 로드 시작
-      }
+      },
     )
 
     observer.observe(imgRef.current)
@@ -71,28 +71,26 @@ export function OptimizedImage({
     if (!isInView) return null
 
     const sources = []
-    
+
     // WebP 포맷 지원
     if (srcSet || src) {
       sources.push(
         <source
           key="webp"
           type="image/webp"
-          srcSet={srcSet ? srcSet.replace(/\.(jpg|jpeg|png)/g, '.webp') : `${src.replace(/\.(jpg|jpeg|png)$/, '.webp')}`}
+          srcSet={
+            srcSet
+              ? srcSet.replace(/\.(jpg|jpeg|png)/g, '.webp')
+              : `${src.replace(/\.(jpg|jpeg|png)$/, '.webp')}`
+          }
           sizes={sizes}
-        />
+        />,
       )
     }
 
     // 원본 포맷
     if (srcSet) {
-      sources.push(
-        <source
-          key="original"
-          srcSet={srcSet}
-          sizes={sizes}
-        />
-      )
+      sources.push(<source key="original" srcSet={srcSet} sizes={sizes} />)
     }
 
     return sources
@@ -101,10 +99,7 @@ export function OptimizedImage({
   return (
     <div
       ref={imgRef}
-      className={cn(
-        'relative overflow-hidden',
-        className
-      )}
+      className={cn('relative overflow-hidden', className)}
       style={{
         width: width || 'auto',
         height: height || 'auto',
@@ -126,7 +121,7 @@ export function OptimizedImage({
 
       {/* 스켈레톤 플레이스홀더 */}
       {placeholder === 'skeleton' && !isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 animate-pulse bg-gray-200" />
       )}
 
       {/* 에러 상태 */}
@@ -165,7 +160,7 @@ export function OptimizedImage({
             className={cn(
               'transition-opacity duration-300',
               isLoaded ? 'opacity-100' : 'opacity-0',
-              'w-full h-full object-cover'
+              'h-full w-full object-cover',
             )}
             loading={priority ? 'eager' : 'lazy'}
             {...props}
@@ -193,7 +188,7 @@ export function preloadImages(urls) {
 export function generateSrcSet(src, sizes = [640, 768, 1024, 1280, 1536]) {
   const extension = src.match(/\.[^.]+$/)?.[0] || ''
   const baseName = src.replace(extension, '')
-  
+
   return sizes
     .map((size) => `${baseName}-${size}w${extension} ${size}w`)
     .join(', ')
@@ -202,11 +197,13 @@ export function generateSrcSet(src, sizes = [640, 768, 1024, 1280, 1536]) {
 /**
  * 반응형 sizes 속성 생성기
  */
-export function generateSizes(breakpoints = {
-  640: '100vw',
-  768: '50vw',
-  1024: '33vw',
-}) {
+export function generateSizes(
+  breakpoints = {
+    640: '100vw',
+    768: '50vw',
+    1024: '33vw',
+  },
+) {
   return Object.entries(breakpoints)
     .map(([breakpoint, size]) => `(max-width: ${breakpoint}px) ${size}`)
     .join(', ')
@@ -219,23 +216,23 @@ export async function generateBlurDataURL(src, width = 10, height = 10) {
   return new Promise((resolve) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
-    
-    img.onload = function() {
+
+    img.onload = function () {
       const canvas = document.createElement('canvas')
       canvas.width = width
       canvas.height = height
-      
+
       const ctx = canvas.getContext('2d')
       ctx.filter = 'blur(4px)'
       ctx.drawImage(img, 0, 0, width, height)
-      
+
       resolve(canvas.toDataURL())
     }
-    
-    img.onerror = function() {
+
+    img.onerror = function () {
       resolve(null)
     }
-    
+
     img.src = src
   })
 }

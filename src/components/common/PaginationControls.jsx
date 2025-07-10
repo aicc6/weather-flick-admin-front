@@ -14,7 +14,7 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from '../ui/pagination'
-import { PaginationInfo, PaginationInfoSimple, PageSizeSelector } from './PaginationInfo'
+import { PaginationInfoSimple, PageSizeSelector } from './PaginationInfo'
 
 /**
  * 완전한 페이지네이션 컨트롤

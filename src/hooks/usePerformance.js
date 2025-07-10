@@ -38,7 +38,7 @@ export function useThrottle(callback, delay = 300) {
         lastRun.current = Date.now()
       }
     },
-    [callback, delay]
+    [callback, delay],
   )
 }
 
@@ -58,7 +58,7 @@ export function useVirtualScroll({
     const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - buffer)
     const endIndex = Math.min(
       items.length - 1,
-      Math.ceil((scrollTop + containerHeight) / itemHeight) + buffer
+      Math.ceil((scrollTop + containerHeight) / itemHeight) + buffer,
     )
 
     return {
@@ -102,7 +102,7 @@ export function useLazyLoad(options = {}) {
       {
         rootMargin: options.rootMargin || '50px',
         threshold: options.threshold || 0,
-      }
+      },
     )
 
     observer.observe(element)
@@ -142,7 +142,7 @@ export function useInfiniteScroll({
           callback()
         }
       },
-      { rootMargin }
+      { rootMargin },
     )
 
     observerRef.current.observe(element)
@@ -242,7 +242,7 @@ export function useLocalStorage(key, initialValue) {
         console.error(`Error saving localStorage key "${key}":`, error)
       }
     },
-    [key, storedValue]
+    [key, storedValue],
   )
 
   return [storedValue, setValue]
@@ -265,7 +265,7 @@ export function useAnimationFrame(callback) {
       previousTimeRef.current = time
       requestRef.current = requestAnimationFrame(animate)
     },
-    [callback]
+    [callback],
   )
 
   useEffect(() => {

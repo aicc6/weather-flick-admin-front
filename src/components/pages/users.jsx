@@ -50,15 +50,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from '../ui/pagination'
 
 export const UsersPage = () => {
   const { t } = useTranslation()
@@ -449,7 +440,7 @@ export const UsersPage = () => {
             <div className="flex items-center justify-between">
               {/* 왼쪽: 페이지 정보 */}
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t('pagination.showing', {
                     start: (currentPage - 1) * pageSize + 1,
                     end: Math.min(currentPage * pageSize, totalUsers),
@@ -457,11 +448,15 @@ export const UsersPage = () => {
                   })}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-muted-foreground">페이지당:</span>
+                  <span className="text-muted-foreground text-sm">
+                    페이지당:
+                  </span>
                   <select
                     value={pageSize}
-                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onChange={(e) =>
+                      handlePageSizeChange(Number(e.target.value))
+                    }
+                    className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value={5}>5개</option>
                     <option value={10}>10개</option>
@@ -470,100 +465,124 @@ export const UsersPage = () => {
                   </select>
                 </div>
               </div>
-              
+
               {/* 중앙: 페이지네이션 버튼 */}
               <div className="flex items-center space-x-1">
                 {/* 이전 버튼 */}
                 <button
-                  onClick={() => hasPreviousPage && handlePageChange(currentPage - 1)}
+                  onClick={() =>
+                    hasPreviousPage && handlePageChange(currentPage - 1)
+                  }
                   disabled={!hasPreviousPage}
-                  className={`flex items-center justify-center min-w-[80px] h-9 px-3 text-sm font-medium rounded-md border ${
-                    !hasPreviousPage 
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  className={`flex h-9 min-w-[80px] items-center justify-center rounded-md border px-3 text-sm font-medium ${
+                    !hasPreviousPage
+                      ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="mr-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                   이전
                 </button>
-                
+
                 {/* 첫 페이지 */}
                 {currentPage > 3 && (
                   <>
                     <button
                       onClick={() => handlePageChange(1)}
-                      className="flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400"
+                      className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50"
                     >
                       1
                     </button>
                     {currentPage > 4 && (
-                      <div className="flex items-center justify-center w-9 h-9 text-gray-500">
+                      <div className="flex h-9 w-9 items-center justify-center text-gray-500">
                         <span>...</span>
                       </div>
                     )}
                   </>
                 )}
-                
+
                 {/* 현재 페이지 주변 페이지들 */}
                 {(() => {
                   const pages = []
                   const start = Math.max(1, currentPage - 2)
                   const end = Math.min(totalPages, currentPage + 2)
-                  
+
                   for (let i = start; i <= end; i++) {
                     pages.push(
                       <button
                         key={i}
                         onClick={() => handlePageChange(i)}
-                        className={`flex items-center justify-center w-9 h-9 text-sm font-medium rounded-md border ${
+                        className={`flex h-9 w-9 items-center justify-center rounded-md border text-sm font-medium ${
                           currentPage === i
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                            ? 'border-blue-600 bg-blue-600 text-white'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
                         }`}
                       >
                         {i}
-                      </button>
+                      </button>,
                     )
                   }
                   return pages
                 })()}
-                
+
                 {/* 마지막 페이지 */}
                 {currentPage < totalPages - 2 && (
                   <>
                     {currentPage < totalPages - 3 && (
-                      <div className="flex items-center justify-center w-9 h-9 text-gray-500">
+                      <div className="flex h-9 w-9 items-center justify-center text-gray-500">
                         <span>...</span>
                       </div>
                     )}
                     <button
                       onClick={() => handlePageChange(totalPages)}
-                      className="flex items-center justify-center w-9 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400"
+                      className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50"
                     >
                       {totalPages}
                     </button>
                   </>
                 )}
-                
+
                 {/* 다음 버튼 */}
                 <button
-                  onClick={() => hasNextPage && handlePageChange(currentPage + 1)}
+                  onClick={() =>
+                    hasNextPage && handlePageChange(currentPage + 1)
+                  }
                   disabled={!hasNextPage}
-                  className={`flex items-center justify-center min-w-[80px] h-9 px-3 text-sm font-medium rounded-md border ${
-                    !hasNextPage 
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  className={`flex h-9 min-w-[80px] items-center justify-center rounded-md border px-3 text-sm font-medium ${
+                    !hasNextPage
+                      ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
                   다음
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
-              
+
               {/* 오른쪽: 빈 공간 (균형을 위해) */}
               <div className="w-0"></div>
             </div>

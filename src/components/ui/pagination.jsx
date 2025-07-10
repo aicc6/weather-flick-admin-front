@@ -54,7 +54,7 @@ function PaginationLink({ className, isActive, size = 'icon', ...props }) {
 
 function PaginationPrevious({ className, ...props }) {
   const { t } = useTranslation()
-  
+
   return (
     <PaginationLink
       aria-label={t('common.previous_page')}
@@ -70,7 +70,7 @@ function PaginationPrevious({ className, ...props }) {
 
 function PaginationNext({ className, ...props }) {
   const { t } = useTranslation()
-  
+
   return (
     <PaginationLink
       aria-label={t('common.next_page')}
@@ -86,7 +86,7 @@ function PaginationNext({ className, ...props }) {
 
 function PaginationEllipsis({ className, ...props }) {
   const { t } = useTranslation()
-  
+
   return (
     <span
       aria-hidden

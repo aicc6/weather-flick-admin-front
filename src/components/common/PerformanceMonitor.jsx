@@ -7,9 +7,9 @@ import { useState, useEffect, useRef } from 'react'
 import { usePageVisibility } from '@/hooks/usePerformance'
 import { cn } from '@/lib/utils'
 
-export function PerformanceMonitor({ 
+export function PerformanceMonitor({
   position = 'bottom-right',
-  showInProduction = false 
+  showInProduction = false,
 }) {
   const [metrics, setMetrics] = useState({
     fps: 0,
@@ -32,7 +32,7 @@ export function PerformanceMonitor({
     if (!isVisible) return
 
     let animationId
-    
+
     const measureFPS = () => {
       frameCountRef.current++
       const currentTime = performance.now()
@@ -40,8 +40,8 @@ export function PerformanceMonitor({
 
       if (elapsed >= 1000) {
         const fps = Math.round((frameCountRef.current * 1000) / elapsed)
-        
-        setMetrics(prev => ({
+
+        setMetrics((prev) => ({
           ...prev,
           fps,
         }))
@@ -71,7 +71,7 @@ export function PerformanceMonitor({
       const totalMemory = performance.memory.jsHeapSizeLimit
       const memoryPercentage = (usedMemory / totalMemory) * 100
 
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
         memory: memoryPercentage,
       }))
@@ -85,7 +85,7 @@ export function PerformanceMonitor({
     if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) return
 
     const hook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__
-    
+
     // 컴포넌트 수 추적
     const countComponents = () => {
       const fiberRoot = hook.getFiberRoots(1)?.values().next().value
@@ -94,7 +94,7 @@ export function PerformanceMonitor({
       let count = 0
       const countFiber = (fiber) => {
         if (!fiber) return
-        
+
         if (fiber.elementType && typeof fiber.elementType !== 'string') {
           count++
         }
@@ -108,7 +108,7 @@ export function PerformanceMonitor({
     }
 
     const interval = setInterval(() => {
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
         componentCount: countComponents(),
       }))
@@ -141,21 +141,21 @@ export function PerformanceMonitor({
   return (
     <div
       className={cn(
-        'fixed z-50 bg-black/90 text-white rounded-lg shadow-lg transition-all duration-200',
+        'fixed z-50 rounded-lg bg-black/90 text-white shadow-lg transition-all duration-200',
         positionClasses[position],
-        isMinimized ? 'w-12 h-12' : 'p-3 min-w-[200px]'
+        isMinimized ? 'h-12 w-12' : 'min-w-[200px] p-3',
       )}
     >
       <button
         onClick={() => setIsMinimized(!isMinimized)}
-        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center hover:bg-white/20 rounded"
+        className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded hover:bg-white/20"
       >
         {isMinimized ? '📊' : '−'}
       </button>
 
       {!isMinimized && (
-        <div className="space-y-2 text-xs font-mono">
-          <div className="flex justify-between items-center">
+        <div className="space-y-2 font-mono text-xs">
+          <div className="flex items-center justify-between">
             <span>FPS:</span>
             <span className={cn('font-bold', getFPSColor(metrics.fps))}>
               {metrics.fps}
@@ -163,7 +163,7 @@ export function PerformanceMonitor({
           </div>
 
           {performance.memory && (
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span>Memory:</span>
               <span className={cn('font-bold', getMemoryColor(metrics.memory))}>
                 {metrics.memory.toFixed(1)}%
@@ -171,12 +171,12 @@ export function PerformanceMonitor({
             </div>
           )}
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span>Components:</span>
             <span className="font-bold">{metrics.componentCount}</span>
           </div>
 
-          <div className="pt-2 border-t border-white/20">
+          <div className="border-t border-white/20 pt-2">
             <div className="text-[10px] opacity-70">
               Press Shift+Ctrl+P to toggle
             </div>
@@ -200,7 +200,7 @@ export function RenderCounter({ name, showInProduction = false }) {
   }
 
   return (
-    <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-bl z-50">
+    <div className="absolute top-0 right-0 z-50 rounded-bl bg-red-500 px-2 py-1 text-xs text-white">
       {name}: {renderCount.current}
     </div>
   )
@@ -217,14 +217,14 @@ export function PerformanceWarning({ threshold = 16.67, children }) {
   useEffect(() => {
     const currentTime = performance.now()
     const renderTime = currentTime - lastRenderTime.current
-    
+
     if (renderTime > threshold) {
       setWarning(`Slow render detected: ${renderTime.toFixed(2)}ms`)
-      
+
       // 3초 후 경고 제거
       setTimeout(() => setWarning(null), 3000)
     }
-    
+
     lastRenderTime.current = currentTime
   })
 
@@ -232,7 +232,7 @@ export function PerformanceWarning({ threshold = 16.67, children }) {
     <>
       {children}
       {warning && import.meta.env.MODE === 'development' && (
-        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-4 py-2 rounded-b shadow-lg z-50 animate-pulse">
+        <div className="fixed top-0 left-1/2 z-50 -translate-x-1/2 transform animate-pulse rounded-b bg-yellow-500 px-4 py-2 text-black shadow-lg">
           ⚠️ {warning}
         </div>
       )}

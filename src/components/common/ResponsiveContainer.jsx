@@ -145,9 +145,7 @@ export function ResponsiveGrid({
     xl: columns.xl ? `xl:grid-cols-${columns.xl}` : '',
   }
 
-  const gridClasses = Object.values(columnClasses)
-    .filter(Boolean)
-    .join(' ')
+  const gridClasses = Object.values(columnClasses).filter(Boolean).join(' ')
 
   return (
     <div className={`grid ${gridClasses} ${gapClasses[gap]} ${className}`}>
@@ -183,9 +181,7 @@ export function ResponsiveFlex({
     xl: direction.xl ? `xl:flex-${direction.xl}` : '',
   }
 
-  const flexClasses = Object.values(directionClasses)
-    .filter(Boolean)
-    .join(' ')
+  const flexClasses = Object.values(directionClasses).filter(Boolean).join(' ')
 
   return (
     <div

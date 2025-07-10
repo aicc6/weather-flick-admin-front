@@ -49,12 +49,12 @@ export const VirtualList = memo(function VirtualList({
       handleVirtualScroll(e)
       onScroll?.(e)
     },
-    [handleVirtualScroll, onScroll]
+    [handleVirtualScroll, onScroll],
   )
 
   if (items.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex h-64 items-center justify-center text-gray-500">
         {emptyMessage}
       </div>
     )
@@ -154,7 +154,7 @@ export const DynamicVirtualList = memo(function DynamicVirtualList({
       setScrollTop(e.target.scrollTop)
       onScroll?.(e)
     },
-    [onScroll]
+    [onScroll],
   )
 
   // 전체 높이 계산
@@ -163,15 +163,13 @@ export const DynamicVirtualList = memo(function DynamicVirtualList({
   }, 0)
 
   // 오프셋 계산
-  const offsetY = items
-    .slice(0, visibleRange.start)
-    .reduce((sum, _, index) => {
-      return sum + (itemHeights.current.get(index) || estimatedItemHeight)
-    }, 0)
+  const offsetY = items.slice(0, visibleRange.start).reduce((sum, _, index) => {
+    return sum + (itemHeights.current.get(index) || estimatedItemHeight)
+  }, 0)
 
   if (items.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex h-64 items-center justify-center text-gray-500">
         {emptyMessage}
       </div>
     )
@@ -195,17 +193,19 @@ export const DynamicVirtualList = memo(function DynamicVirtualList({
             transform: `translateY(${offsetY}px)`,
           }}
         >
-          {items.slice(visibleRange.start, visibleRange.end + 1).map((item, relativeIndex) => {
-            const absoluteIndex = visibleRange.start + relativeIndex
-            return (
-              <div
-                key={item.id || absoluteIndex}
-                ref={(el) => measureItem(absoluteIndex, el)}
-              >
-                {renderItem(item, absoluteIndex)}
-              </div>
-            )
-          })}
+          {items
+            .slice(visibleRange.start, visibleRange.end + 1)
+            .map((item, relativeIndex) => {
+              const absoluteIndex = visibleRange.start + relativeIndex
+              return (
+                <div
+                  key={item.id || absoluteIndex}
+                  ref={(el) => measureItem(absoluteIndex, el)}
+                >
+                  {renderItem(item, absoluteIndex)}
+                </div>
+              )
+            })}
         </div>
       </div>
     </div>
@@ -234,7 +234,7 @@ export const InfiniteList = memo(function InfiniteList({
   const handleScroll = useCallback(
     (e) => {
       const { scrollTop, scrollHeight, clientHeight } = e.target
-      
+
       if (
         scrollHeight - scrollTop - clientHeight < threshold &&
         hasMore &&
@@ -243,12 +243,12 @@ export const InfiniteList = memo(function InfiniteList({
         loadMore()
       }
     },
-    [hasMore, loading, loadMore, threshold]
+    [hasMore, loading, loadMore, threshold],
   )
 
   if (items.length === 0 && !loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex h-64 items-center justify-center text-gray-500">
         {emptyMessage}
       </div>
     )
@@ -264,16 +264,16 @@ export const InfiniteList = memo(function InfiniteList({
       {items.map((item, index) => (
         <div key={item.id || index}>{renderItem(item, index)}</div>
       ))}
-      
+
       {loading && (
         <div className="flex items-center justify-center p-4">
           <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
             <span className="text-sm text-gray-500">{loadingMessage}</span>
           </div>
         </div>
       )}
-      
+
       {!hasMore && items.length > 0 && (
         <div className="flex items-center justify-center p-4">
           <span className="text-sm text-gray-500">{endMessage}</span>

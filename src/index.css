@@ -40,82 +40,402 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Weather Theme Colors */
+  --color-sky-blue-light: var(--sky-blue-light);
+  --color-sky-blue: var(--sky-blue);
+  --color-sky-blue-dark: var(--sky-blue-dark);
+  --color-sunshine-yellow-light: var(--sunshine-yellow-light);
+  --color-sunshine-yellow: var(--sunshine-yellow);
+  --color-sunshine-yellow-dark: var(--sunshine-yellow-dark);
+  --color-cloud-white: var(--cloud-white);
+  --color-cloud-gray-light: var(--cloud-gray-light);
+  --color-cloud-gray: var(--cloud-gray);
+  --color-storm-gray: var(--storm-gray);
+  --color-storm-gray-dark: var(--storm-gray-dark);
+  --color-sunset-orange-light: var(--sunset-orange-light);
+  --color-sunset-orange: var(--sunset-orange);
+  --color-sunset-orange-dark: var(--sunset-orange-dark);
 }
 
+/* ===================== */
+/* 🎨 새로운 색상 시스템 */
+/* ===================== */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+
+  /* 🌈 새로운 메인 색상 팔레트 */
+  /* Primary Blues - 주요 파란색 계열 */
+  --primary-blue-dark: #3674b5; /* rgb(54, 116, 181) */
+  --primary-blue: #578fca; /* rgb(87, 143, 202) */
+  --primary-blue-light: #a1e3f9; /* rgb(161, 227, 249) */
+
+  /* Accent Cyans - 강조 청록색 계열 */
+  --accent-cyan-bright: #4ed7f1; /* rgb(78, 215, 241) */
+  --accent-cyan: #6fe6fc; /* rgb(111, 230, 252) */
+  --accent-cyan-light: #a8f1ff; /* rgb(168, 241, 255) */
+
+  /* Supporting Colors - 보조 색상 */
+  --accent-yellow: #fffa8d; /* rgb(255, 250, 141) */
+  --soft-mint: #d1f8ef; /* rgb(209, 248, 239) */
+
+  /* Neutral Colors - 중성 색상 */
+  --neutral-white: #ffffff;
+  --neutral-gray-50: #f8fafc;
+  --neutral-gray-100: #f1f5f9;
+  --neutral-gray-200: #e2e8f0;
+  --neutral-gray-600: #475569;
+  --neutral-gray-700: #334155;
+  --neutral-gray-800: #1e293b;
+  --neutral-gray-900: #0f172a;
+
+  /* 🌤️ 라이트 모드 - 새로운 색상 시스템 */
+  --background: var(--neutral-white);
+  --foreground: var(--neutral-gray-800);
+  --card: var(--neutral-white);
+  --card-foreground: var(--neutral-gray-800);
+  --popover: var(--neutral-white);
+  --popover-foreground: var(--neutral-gray-800);
+  --primary: var(--primary-blue);
+  --primary-foreground: var(--neutral-white);
+  --secondary: var(--accent-cyan-light);
+  --secondary-foreground: var(--neutral-gray-800);
+  --muted: var(--neutral-gray-100);
+  --muted-foreground: var(--neutral-gray-600);
+  --accent: var(--soft-mint);
+  --accent-foreground: var(--neutral-gray-800);
+  --destructive: #ef4444;
+  --border: var(--neutral-gray-200);
+  --input: var(--neutral-white);
+  --ring: var(--primary-blue);
+  --chart-1: var(--primary-blue);
+  --chart-2: var(--accent-cyan);
+  --chart-3: var(--accent-yellow);
+  --chart-4: var(--primary-blue-light);
+  --chart-5: var(--soft-mint);
+  --sidebar: var(--neutral-white);
+  --sidebar-foreground: var(--neutral-gray-800);
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: var(--neutral-white);
+  --sidebar-accent: var(--soft-mint);
+  --sidebar-accent-foreground: var(--neutral-gray-800);
+  --sidebar-border: var(--neutral-gray-200);
+  --sidebar-ring: var(--primary-blue);
 }
 
 .dark {
-  --background: #18181b;
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* 🌙 다크 모드 - 새로운 색상 시스템 */
+  --background: var(--neutral-gray-900);
+  --foreground: var(--neutral-white);
+  --card: var(--neutral-gray-800);
+  --card-foreground: var(--neutral-white);
+  --popover: var(--neutral-gray-800);
+  --popover-foreground: var(--neutral-white);
+  --primary: var(--accent-cyan);
+  --primary-foreground: var(--neutral-gray-900);
+  --secondary: var(--primary-blue-dark);
+  --secondary-foreground: var(--neutral-white);
+  --muted: var(--neutral-gray-700);
+  --muted-foreground: var(--neutral-gray-200);
+  --accent: var(--neutral-gray-700);
+  --accent-foreground: var(--accent-cyan);
+  --destructive: #ef4444;
+  --border: var(--neutral-gray-700);
+  --input: var(--neutral-gray-700);
+  --ring: var(--accent-cyan);
+  --chart-1: var(--accent-cyan);
+  --chart-2: var(--primary-blue);
+  --chart-3: var(--accent-yellow);
+  --chart-4: var(--primary-blue-light);
+  --chart-5: var(--soft-mint);
+  --sidebar: var(--neutral-gray-800);
+  --sidebar-foreground: var(--neutral-white);
+  --sidebar-primary: var(--accent-cyan);
+  --sidebar-primary-foreground: var(--neutral-gray-900);
+  --sidebar-accent: var(--neutral-gray-700);
+  --sidebar-accent-foreground: var(--accent-cyan);
+  --sidebar-border: var(--neutral-gray-700);
+  --sidebar-ring: var(--accent-cyan);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent 50%);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif;
+    /* 새로운 그라데이션 배경 */
+    background-image: linear-gradient(
+      135deg,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 95%, var(--accent-cyan-light) 5%)
+        100%
+    );
+    min-height: 100vh;
+  }
+
+  /* 헤딩 폰트 최적화 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Inter', 'Noto Sans KR', system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+}
+
+/* ===================== */
+/* 🎨 새로운 컴포넌트 스타일 */
+/* ===================== */
+@layer components {
+  /* Admin Card - 관리자 카드 */
+  .admin-card {
+    background-color: var(--card);
+    border-color: var(--border);
+    border-radius: 0.75rem;
+    border-width: 1px;
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    background: linear-gradient(
+      135deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 98%, var(--soft-mint) 2%) 100%
+    );
+    transition: none;
+  }
+
+  .admin-card:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: var(--primary-blue-light);
+    box-shadow:
+      0 4px 6px -1px rgba(54, 116, 181, 0.1),
+      0 2px 4px -1px rgba(54, 116, 181, 0.06);
+  }
+
+  /* Primary Button - 주요 버튼 */
+  .primary-button {
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue-dark) 0%,
+      var(--primary-blue) 100%
+    );
+    color: white;
+    transition:
+      color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .primary-button:hover {
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue) 0%,
+      var(--primary-blue-light) 100%
+    );
+    box-shadow:
+      0 4px 6px -1px rgba(54, 116, 181, 0.15),
+      0 2px 4px -1px rgba(54, 116, 181, 0.1);
+  }
+
+  /* Accent Button - 강조 버튼 */
+  .accent-button {
+    background: linear-gradient(
+      135deg,
+      var(--accent-cyan-bright) 0%,
+      var(--accent-cyan) 100%
+    );
+    color: white;
+    transition:
+      color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .accent-button:hover {
+    background: linear-gradient(
+      135deg,
+      var(--accent-cyan) 0%,
+      var(--accent-cyan-light) 100%
+    );
+    box-shadow:
+      0 4px 6px -1px rgba(78, 215, 241, 0.15),
+      0 2px 4px -1px rgba(78, 215, 241, 0.1);
+  }
+
+  /* Admin Header - 관리자 헤더 */
+  .admin-header {
+    background: linear-gradient(
+      90deg,
+      var(--primary-blue-dark) 0%,
+      var(--primary-blue) 50%,
+      var(--accent-cyan-bright) 100%
+    );
+    border-bottom: 1px solid var(--border);
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* Admin Sidebar - 관리자 사이드바 */
+  .admin-sidebar {
+    background: linear-gradient(
+      180deg,
+      var(--sidebar) 0%,
+      color-mix(in srgb, var(--sidebar) 95%, var(--soft-mint) 5%) 100%
+    );
+    border-right: 1px solid var(--border);
+    box-shadow:
+      2px 0 4px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  /* Status Badges - 상태 배지 */
+  .status-primary {
+    background-color: var(--primary-blue-light);
+    color: var(--primary-blue-dark);
+    border: 1px solid var(--primary-blue);
+  }
+
+  .status-accent {
+    background-color: var(--accent-cyan-light);
+    color: var(--primary-blue-dark);
+    border: 1px solid var(--accent-cyan);
+  }
+
+  .status-success {
+    background-color: var(--soft-mint);
+    color: var(--neutral-gray-700);
+    border: 1px solid var(--soft-mint);
+  }
+
+  .status-warning {
+    background-color: var(--accent-yellow);
+    color: var(--neutral-gray-800);
+    border: 1px solid var(--accent-yellow);
+  }
+
+  /* Dark mode status */
+  .dark .status-primary {
+    background-color: color-mix(
+      in srgb,
+      var(--primary-blue) 20%,
+      transparent 80%
+    );
+    color: var(--primary-blue-light);
+    border: 1px solid
+      color-mix(in srgb, var(--primary-blue) 50%, transparent 50%);
+  }
+
+  .dark .status-accent {
+    background-color: color-mix(
+      in srgb,
+      var(--accent-cyan) 20%,
+      transparent 80%
+    );
+    color: var(--accent-cyan);
+    border: 1px solid
+      color-mix(in srgb, var(--accent-cyan) 50%, transparent 50%);
+  }
+
+  .dark .status-success {
+    background-color: color-mix(in srgb, var(--soft-mint) 20%, transparent 80%);
+    color: var(--soft-mint);
+    border: 1px solid color-mix(in srgb, var(--soft-mint) 50%, transparent 50%);
+  }
+
+  .dark .status-warning {
+    background-color: color-mix(
+      in srgb,
+      var(--accent-yellow) 20%,
+      transparent 80%
+    );
+    color: var(--accent-yellow);
+    border: 1px solid
+      color-mix(in srgb, var(--accent-yellow) 50%, transparent 50%);
+  }
+
+  /* Form Controls - 폼 요소 */
+  .form-input {
+    background-color: white;
+    border: 1px solid var(--neutral-gray-200);
+    color: var(--neutral-gray-800);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--primary-blue) 20%, transparent 80%);
+  }
+
+  .form-input::placeholder {
+    color: var(--neutral-gray-600);
+  }
+
+  .dark .form-input {
+    background-color: var(--card);
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+
+  .dark .form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--primary) 20%, transparent 80%);
+  }
+
+  .dark .form-input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  /* Admin Dashboard - 관리자 대시보드 */
+  .admin-dashboard {
+    background: linear-gradient(
+      180deg,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 95%, var(--accent-cyan-light) 5%) 50%,
+      color-mix(in srgb, var(--background) 98%, var(--soft-mint) 2%) 100%
+    );
+  }
+
+  /* Stats Cards - 통계 카드 */
+  .stats-card {
+    background: linear-gradient(
+      135deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 95%, var(--primary-blue-light) 5%) 100%
+    );
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all 0.2s;
+  }
+
+  .stats-card:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: var(--primary-blue-light);
+  }
+
+  .dark .stats-card {
+    background: linear-gradient(
+      135deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 95%, var(--accent-cyan) 5%) 100%
+    );
   }
 }

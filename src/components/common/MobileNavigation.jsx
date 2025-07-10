@@ -65,7 +65,9 @@ export function MobileNavigation() {
   ]
 
   const isCurrentPath = (path) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/')
+    return (
+      location.pathname === path || location.pathname.startsWith(path + '/')
+    )
   }
 
   const handleLinkClick = () => {
@@ -93,7 +95,7 @@ export function MobileNavigation() {
       {/* 백드롭 */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity"
+          className="bg-opacity-50 fixed inset-0 z-40 bg-black transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -108,14 +110,16 @@ export function MobileNavigation() {
           {/* 헤더 */}
           <div className="flex items-center justify-between border-b border-gray-200 p-4">
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded bg-blue-600 flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-600">
                 <Globe className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Weather Flick
                 </h2>
-                <p className="text-sm text-gray-500">{t('navigation.admin_panel')}</p>
+                <p className="text-sm text-gray-500">
+                  {t('navigation.admin_panel')}
+                </p>
               </div>
             </div>
             <Button
@@ -132,7 +136,7 @@ export function MobileNavigation() {
           {user && (
             <div className="border-b border-gray-200 p-4">
               <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
                   <span className="text-sm font-medium text-gray-700">
                     {user.email?.charAt(0).toUpperCase()}
                   </span>
@@ -166,7 +170,9 @@ export function MobileNavigation() {
                 >
                   <Icon
                     className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                      current ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                      current
+                        ? 'text-blue-500'
+                        : 'text-gray-400 group-hover:text-gray-500'
                     }`}
                   />
                   {item.name}
@@ -176,7 +182,7 @@ export function MobileNavigation() {
           </nav>
 
           {/* 하단 액션 */}
-          <div className="border-t border-gray-200 p-4 space-y-3">
+          <div className="space-y-3 border-t border-gray-200 p-4">
             {/* 언어 전환 */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
@@ -223,12 +229,12 @@ export function MobileTopBar({ title, actions = [] }) {
   if (!isMobile) return null
 
   return (
-    <div className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 lg:hidden">
+    <div className="sticky top-0 z-30 border-b border-gray-200 bg-white px-4 py-3 lg:hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           {/* 햄버거 메뉴가 있는 공간 확보 */}
           <div className="w-10" />
-          <h1 className="text-lg font-semibold text-gray-900 truncate">
+          <h1 className="truncate text-lg font-semibold text-gray-900">
             {title}
           </h1>
         </div>
@@ -254,7 +260,7 @@ export function MobileBottomTabs({ tabs = [] }) {
   if (!isMobile || tabs.length === 0) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 lg:hidden">
+    <div className="fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200 bg-white lg:hidden">
       <div className="flex">
         {tabs.map((tab) => {
           const Icon = tab.icon
@@ -264,13 +270,15 @@ export function MobileBottomTabs({ tabs = [] }) {
             <Link
               key={tab.href}
               to={tab.href}
-              className={`flex-1 flex flex-col items-center justify-center py-2 px-1 text-xs transition-colors ${
+              className={`flex flex-1 flex-col items-center justify-center px-1 py-2 text-xs transition-colors ${
                 isActive
-                  ? 'text-blue-600 bg-blue-50'
+                  ? 'bg-blue-50 text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Icon className={`h-5 w-5 mb-1 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
+              <Icon
+                className={`mb-1 h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-400'}`}
+              />
               <span className="truncate">{tab.name}</span>
             </Link>
           )

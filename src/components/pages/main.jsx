@@ -30,7 +30,7 @@ export const MainPage = () => {
   const { data: leisureData } = useGetLeisureSportsQuery({ limit: 1, skip: 0 })
 
   return (
-    <div className="page-layout">
+    <div className="space-y-6">
       <DashboardHeader />
 
       <StatsGrid>
@@ -39,74 +39,122 @@ export const MainPage = () => {
           title="사용자 관리"
           description="총/활성/비활성 사용자"
           icon={Users}
-          iconColor="text-blue-500"
+          iconColor="text-blue-600"
           total={userSummary.total}
           active={userSummary.active}
           inactive={userSummary.inactive}
-          totalColor="text-blue-600"
+          totalColor="text-blue-700"
         />
         <StatsCard
           title="관리자 요약"
           description="총/활성/비활성 관리자"
           icon={Shield}
-          iconColor="text-purple-500"
+          iconColor="text-purple-600"
           total={adminSummary.total}
           active={adminSummary.active}
           inactive={adminSummary.inactive}
-          totalColor="text-purple-600"
+          totalColor="text-purple-700"
         />
       </StatsGrid>
+
       {/* 컨텐츠 관리 요약 섹션 */}
-      <div className="section-layout mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatsCard
-          title="여행 코스"
-          description="전체 등록된 여행 코스 수"
-          icon={BookOpen}
-          iconColor="text-blue-500"
-          total={travelCourseData?.total ?? 0}
-          totalColor="text-blue-600"
-          className="h-full"
-        >
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  여행 코스
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  전체 등록된 여행 코스 수
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <span className="text-3xl font-bold text-blue-700 dark:text-blue-400">
+              {travelCourseData?.total ?? 0}
+            </span>
+          </div>
           <Link to="/content">
-            <button className="btn btn-primary mt-2 w-full">
+            <button className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
               관리 바로가기
             </button>
           </Link>
-        </StatsCard>
-        <StatsCard
-          title="축제 이벤트"
-          description="전체 등록된 축제/이벤트 수"
-          icon={Calendar}
-          iconColor="text-pink-500"
-          total={festivalData?.total ?? 0}
-          totalColor="text-pink-600"
-          className="h-full"
-        >
+        </div>
+
+        <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 dark:bg-pink-900/20">
+                <Calendar className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  축제 이벤트
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  전체 등록된 축제/이벤트 수
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <span className="text-3xl font-bold text-pink-700 dark:text-pink-400">
+              {festivalData?.total ?? 0}
+            </span>
+          </div>
           <Link to="/content">
-            <button className="btn btn-primary mt-2 w-full">
+            <button className="w-full rounded-lg bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
               관리 바로가기
             </button>
           </Link>
-        </StatsCard>
-        <StatsCard
-          title="레저 스포츠"
-          description="전체 등록된 레저 스포츠 수"
-          icon={Dumbbell}
-          iconColor="text-green-500"
-          total={leisureData?.total ?? 0}
-          totalColor="text-green-600"
-          className="h-full"
-        >
+        </div>
+
+        <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/20">
+                <Dumbbell className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  레저 스포츠
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  전체 등록된 레저 스포츠 수
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <span className="text-3xl font-bold text-green-700 dark:text-green-400">
+              {leisureData?.total ?? 0}
+            </span>
+          </div>
           <Link to="/content">
-            <button className="btn btn-primary mt-2 w-full">
+            <button className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
               관리 바로가기
             </button>
           </Link>
-        </StatsCard>
+        </div>
       </div>
-      <WeatherStatsCard weatherData={weatherData} />
-      <SystemStatusCard />
-      <TourismStatsCard tourSummary={tourSummary} regionCount={regionCount} />
+
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <WeatherStatsCard weatherData={weatherData} />
+      </div>
+
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <SystemStatusCard />
+      </div>
+
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <TourismStatsCard tourSummary={tourSummary} regionCount={regionCount} />
+      </div>
     </div>
   )
 }

@@ -44,7 +44,7 @@ import {
 
 export const AdminsPage = () => {
   const { t } = useTranslation()
-  
+
   // RTK Query 훅들
   const {
     data: adminsData,

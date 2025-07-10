@@ -93,35 +93,35 @@ export const DefaultLayout = ({ children }) => {
   ].filter((item) => !item.permission || hasPermission(item.permission))
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="border-b bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md dark:bg-gray-900/80">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <img
-                src="/logo.jpg"
+                src="/newicon.jpg"
                 alt="Weather Flick Logo"
-                className="mr-2 h-8 w-8 rounded"
+                className="h-8 w-8 rounded-lg object-cover"
                 loading="lazy"
               />
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
                 Weather Flick Admin
-              </h1>
+              </span>
             </div>
 
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <Button
                 variant="ghost"
-                className="relative h-8 w-8 rounded-full"
+                size="icon"
                 onClick={toggleDarkMode}
                 aria-label={t('settings.theme')}
               >
                 {darkMode ? (
                   <SunIcon className="h-5 w-5 text-yellow-400" />
                 ) : (
-                  <Moon className="h-5 w-5 text-gray-700" />
+                  <Moon className="h-5 w-5 text-gray-700 dark:text-gray-200" />
                 )}
               </Button>
               <DropdownMenu>
@@ -158,7 +158,7 @@ export const DefaultLayout = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className="h-screen w-64 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="h-screen w-64 bg-white shadow-sm dark:bg-gray-800 sticky top-16">
           <nav className="mt-5 px-2">
             <div className="space-y-1">
               {navigation.map((item) => {
@@ -169,8 +169,8 @@ export const DefaultLayout = ({ children }) => {
                     to={item.href}
                     className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
                       isActive
-                        ? 'border-r-2 border-blue-700 bg-blue-100 text-blue-700 dark:bg-gray-900 dark:text-blue-400'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white'
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
                     }`}
                   >
                     <item.icon
@@ -189,8 +189,8 @@ export const DefaultLayout = ({ children }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <main className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+        <div className="flex-1 overflow-auto">
+          <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {children}
           </main>
         </div>

@@ -26,7 +26,7 @@ export function PaginationInfo({
 
   if (!totalItems || totalItems === 0) {
     return (
-      <div className={`text-sm text-muted-foreground ${className}`}>
+      <div className={`text-muted-foreground text-sm ${className}`}>
         {t('common.no_items')}
       </div>
     )
@@ -36,8 +36,14 @@ export function PaginationInfo({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 
   return (
-    <div className={`text-sm text-muted-foreground ${className}`}>
-      {formatPaginationInfo(currentPage, totalPages, totalItems, itemsPerPage, t)}
+    <div className={`text-muted-foreground text-sm ${className}`}>
+      {formatPaginationInfo(
+        currentPage,
+        totalPages,
+        totalItems,
+        itemsPerPage,
+        t,
+      )}
       <div className="mt-1">
         {t('pagination.showing_items', {
           start: startItem,
@@ -62,18 +68,19 @@ export function PaginationInfoSimple({
 
   if (!totalItems || totalItems === 0) {
     return (
-      <span className={`text-sm text-muted-foreground ${className}`}>
+      <span className={`text-muted-foreground text-sm ${className}`}>
         {t('common.no_items')}
       </span>
     )
   }
 
   return (
-    <span className={`text-sm text-muted-foreground ${className}`}>
+    <span className={`text-muted-foreground text-sm ${className}`}>
       {t('pagination.page_of_total', {
         current: currentPage,
         total: totalPages,
-      })} • {t('pagination.total_items', { count: totalItems })}
+      })}{' '}
+      • {t('pagination.total_items', { count: totalItems })}
     </span>
   )
 }
@@ -81,23 +88,23 @@ export function PaginationInfoSimple({
 /**
  * 페이지 크기 선택 컴포넌트
  */
-export function PageSizeSelector({ 
-  pageSize, 
-  onPageSizeChange, 
+export function PageSizeSelector({
+  pageSize,
+  onPageSizeChange,
   options = [10, 20, 50, 100],
-  className = '' 
+  className = '',
 }) {
   const { t } = useTranslation()
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="text-sm text-muted-foreground">
+      <span className="text-muted-foreground text-sm">
         {t('pagination.items_per_page')}:
       </span>
       <select
         value={pageSize}
         onChange={(e) => onPageSizeChange(Number(e.target.value))}
-        className="rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="rounded border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         {options.map((size) => (
           <option key={size} value={size}>
