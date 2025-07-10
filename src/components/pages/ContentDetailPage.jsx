@@ -9,7 +9,6 @@ import {
 } from '../ui/card'
 import { Button } from '../ui/button'
 import { REGION_MAP } from '../../constants/region'
-import { SIGUNGU_MAP } from '../../constants/sigungu'
 
 export default function ContentDetailPage() {
   const { contentId } = useParams()

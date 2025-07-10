@@ -123,7 +123,7 @@ export const DefaultLayout = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 h-screen bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="h-screen w-64 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <nav className="mt-5 px-2">
             <div className="space-y-1">
               {navigation.map((item) => {

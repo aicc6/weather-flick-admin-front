@@ -12,9 +12,8 @@ import { getWeatherIcon } from '../../utils/weatherUtils'
 
 // 최신 도시별 날씨 데이터를 가져오는 함수 (재사용 가능)
 export async function fetchLatestWeatherData(limit = 20) {
-  const res = await fetch(
-    `http://localhost:9000/api/weather/database/data?limit=${limit}`,
-  )
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'
+  const res = await fetch(`${baseUrl}/api/weather/database/data?limit=${limit}`)
   if (!res.ok) throw new Error('서버 응답 오류')
   const data = await res.json()
   return data.data || []

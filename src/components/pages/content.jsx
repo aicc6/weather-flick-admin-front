@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
 import {
   useGetTravelCoursesQuery,
   useCreateTravelCourseMutation,
@@ -1469,14 +1470,18 @@ function LeisureSportsSection() {
 }
 
 function TravelPlansSection() {
+  const { user } = useAuth()
   const [page, setPage] = useState(1)
   const limit = 12
   const skip = (page - 1) * limit
   const {
-    data: plans = [],
+    data: plansResponse = { data: [], meta: { total: 0, total_pages: 1 } },
     isLoading,
     refetch,
   } = useGetTravelPlansQuery({ skip, limit })
+
+  const plans = plansResponse.data || []
+  const totalPages = plansResponse.meta?.total_pages || 1
   const [createTravelPlan] = useCreateTravelPlanMutation()
   const [updateTravelPlan] = useUpdateTravelPlanMutation()
   const [deleteTravelPlan] = useDeleteTravelPlanMutation()
@@ -1494,8 +1499,6 @@ function TravelPlansSection() {
     transportation: '',
     start_location: '',
   })
-
-  const totalPages = 1 // TODO: 백엔드에서 total count 반환 시 계산
 
   const handleOpenCreate = () => {
     setEditData(null)
@@ -1538,10 +1541,11 @@ function TravelPlansSection() {
       if (editData) {
         await updateTravelPlan({ plan_id: editData.plan_id, data: form })
       } else {
-        // user_id는 데모용으로 고정값 사용 (실제론 로그인 유저)
+        // 현재 로그인한 사용자 ID 사용
         await createTravelPlan({
           ...form,
-          user_id: 'd6809797-2fe2-4ed1-a87a-3eea5db278d2',
+          user_id:
+            user?.id || user?.user_id || 'd6809797-2fe2-4ed1-a87a-3eea5db278d2',
         })
       }
       setModalOpen(false)

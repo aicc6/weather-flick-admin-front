@@ -51,13 +51,13 @@ export const LoginPage = () => {
         <div>
           <div className="mt-6 flex items-center justify-center gap-2">
             <img
-              src="/logo.jpg"
+              src={import.meta.env.VITE_LOGO_PATH || '/logo.jpg'}
               alt="Weather Flick Logo"
               className="h-10 w-10"
               loading="lazy"
             />
             <h2 className="text-4xl font-extrabold text-gray-900">
-              Weather Flick Admin
+              {import.meta.env.VITE_BRAND_NAME || 'Weather Flick Admin'}
             </h2>
           </div>
         </div>
