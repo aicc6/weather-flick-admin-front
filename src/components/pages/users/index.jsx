@@ -68,9 +68,8 @@ export function UsersPage() {
 
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false)
   const [userFormData, setUserFormData] = useState({
-    full_name: '',
+    nickname: '',
     email: '',
-    username: '',
     password: '',
     is_active: true,
   })
@@ -82,10 +81,10 @@ export function UsersPage() {
   const handleCreateUser = async () => {
     if (
       !userFormData.email ||
-      !userFormData.username ||
+      !userFormData.nickname ||
       !userFormData.password
     ) {
-      alert('이메일, 사용자명, 비밀번호는 필수 입력 항목입니다.')
+      alert('이메일, 닉네임, 비밀번호는 필수 입력 항목입니다.')
       return
     }
 
@@ -94,9 +93,8 @@ export function UsersPage() {
       await createUserMutation(userFormData).unwrap()
       setIsCreateUserDialogOpen(false)
       setUserFormData({
-        full_name: '',
+        nickname: '',
         email: '',
-        username: '',
         password: '',
         is_active: true,
       })
@@ -120,9 +118,8 @@ export function UsersPage() {
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+      user.nickname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus =
       statusFilter === 'all' ||
       (statusFilter === 'active' && user.is_active) ||
@@ -206,8 +203,7 @@ export function UsersPage() {
                 </p>
                 {user && (
                   <p className="mt-1 text-sm text-gray-500">
-                    현재 로그인: {user.email} (
-                    {user.is_superuser ? '슈퍼유저' : '관리자'})
+                    현재 로그인: {user.name || user.email} (관리자)
                   </p>
                 )}
               </div>
@@ -298,16 +294,16 @@ export function UsersPage() {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">이름</label>
+                    <label className="text-sm font-medium">닉네임</label>
                     <Input
-                      value={userFormData.full_name}
+                      value={userFormData.nickname}
                       onChange={(e) =>
                         setUserFormData({
                           ...userFormData,
-                          full_name: e.target.value,
+                          nickname: e.target.value,
                         })
                       }
-                      placeholder="전체 이름"
+                      placeholder="닉네임"
                     />
                   </div>
                   <div>
@@ -322,19 +318,6 @@ export function UsersPage() {
                         })
                       }
                       placeholder="이메일 주소"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">사용자명</label>
-                    <Input
-                      value={userFormData.username}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          username: e.target.value,
-                        })
-                      }
-                      placeholder="사용자명"
                     />
                   </div>
                   <div>
@@ -391,7 +374,7 @@ export function UsersPage() {
                   <TableRow>
                     <TableHead>사용자</TableHead>
                     <TableHead>이메일</TableHead>
-                    <TableHead>사용자명</TableHead>
+                    <TableHead>닉네임</TableHead>
                     <TableHead>상태</TableHead>
                     <TableHead>가입일</TableHead>
                     <TableHead>액션</TableHead>
@@ -404,17 +387,15 @@ export function UsersPage() {
                         <div className="flex items-center space-x-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
                             <span className="text-sm font-semibold text-blue-600">
-                              {user.full_name?.charAt(0) ||
-                                user.username?.charAt(0) ||
-                                'U'}
+                              {user.nickname?.charAt(0) || 'U'}
                             </span>
                           </div>
                           <div>
                             <p className="font-medium">
-                              {user.full_name || '이름 없음'}
+                              {user.nickname || '닉네임 없음'}
                             </p>
                             <p className="text-sm text-gray-500">
-                              ID: {user.id}
+                              ID: {user.user_id}
                             </p>
                           </div>
                         </div>
@@ -426,7 +407,7 @@ export function UsersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium">{user.username}</span>
+                        <span className="font-medium">{user.nickname}</span>
                       </TableCell>
                       <TableCell>
                         <span
