@@ -366,3 +366,14 @@ user_activity_logs/
 .vscode/launch.json
 .vscode/tasks.json
 !.vscode/extensions.json
+playwright-report/index.html
+playwright-report/data/1a9d5e9226c57cfe42d8dc151f68a3a0bba8bfe7.png
+playwright-report/data/05c4c19f938af38a660121a3d697fc7263bf04e9.webm
+playwright-report/data/8e9e7e408fb8b25076700ed25674b8a91cc3814e.webm
+playwright-report/data/532c19869fbef97cb531b20b81daa684aa35e20a.png
+playwright-report/data/2235e6f1c87301044d2cd8fe5e7da87076504765.webm
+playwright-report/data/a1868fb25c5ae30fb84d04cb744a801ad8726174.md
+playwright-report/data/c6cf5abc87ed4026a4524e1357b2efc65b0bcccb.webm
+playwright-report/data/e6dbe213b0825463dff5e469f3531e55b9243c88.webm
+playwright-report/data/eba311a50e36afc80cb179f2b6c0514d75ebeafe.png
+playwright-report/data/f6396405a6afef7711df87d7e2418f7bae75aaa1.png

@@ -1,7 +1,7 @@
 /**
  * 권한 시스템 상수 정의 (API 기반)
  * RBAC (Role-Based Access Control) 시스템을 위한 권한 및 역할 정의
- * 
+ *
  * 주의: 이 파일은 레거시 호환성을 위해 유지됩니다.
  * 새로운 개발에서는 usePermissions() 훅을 사용하여 API에서 동적으로 권한 정보를 가져오세요.
  * import { usePermissions } from '../hooks/usePermissions'
@@ -11,7 +11,7 @@
 export const PERMISSIONS = {
   // 사용자 관리 권한
   USER_READ: 'USER_READ',
-  USER_WRITE: 'USER_WRITE', 
+  USER_WRITE: 'USER_WRITE',
   USER_DELETE: 'USER_DELETE',
 
   // 관리자 관리 권한
@@ -115,10 +115,7 @@ export const PERMISSION_GROUPS = {
     PERMISSIONS.ADMIN_WRITE,
     PERMISSIONS.ADMIN_DELETE,
   ],
-  '시스템 관리': [
-    PERMISSIONS.SYSTEM_CONFIG,
-    PERMISSIONS.SYSTEM_MONITOR,
-  ],
+  '시스템 관리': [PERMISSIONS.SYSTEM_CONFIG, PERMISSIONS.SYSTEM_MONITOR],
   '데이터 관리': [
     PERMISSIONS.DATA_EXPORT,
     PERMISSIONS.ANALYTICS_READ,

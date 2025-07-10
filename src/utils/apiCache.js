@@ -6,6 +6,8 @@
  * - 백그라운드 새로고침
  */
 
+import { useState, useEffect } from 'react'
+
 class ApiCache {
   constructor(options = {}) {
     this.cache = new Map()

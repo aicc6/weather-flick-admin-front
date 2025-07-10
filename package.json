@@ -9,7 +9,11 @@
     "format": "prettier --write --ignore-unknown .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -71,6 +75,7 @@
     "prettier-plugin-packagejson": "^2.5.15",
     "prettier-plugin-tailwindcss": "^0.6.13",
     "rollup-plugin-visualizer": "^6.0.3",
+    "terser": "^5.43.1",
     "tw-animate-css": "^1.3.4",
     "vite": "^6.3.5",
     "vite-plugin-compression": "^0.5.1",

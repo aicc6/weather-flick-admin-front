@@ -72,34 +72,54 @@ export function LanguageSwitcher({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant={variant}
+          variant="ghost"
           size={size}
-          className="h-auto gap-2"
+          className="language-switcher h-auto min-w-[120px] justify-between gap-2"
           disabled={isLoading}
         >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Globe className="h-4 w-4" />
-          )}
-          <span>{getButtonText()}</span>
+          <div className="flex items-center gap-2">
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Globe className="h-4 w-4 opacity-70" />
+            )}
+            <div className="flex items-center gap-1.5">
+              {showFlag && (
+                <span className="flag-emoji">{currentLanguage.flag}</span>
+              )}
+              {showText && (
+                <span className="lang-text text-sm">
+                  {currentLanguage.name}
+                </span>
+              )}
+            </div>
+          </div>
           <ChevronDown
-            className={`h-3 w-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            className={`h-3 w-3 opacity-60 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
           />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align={align} side={side} className="w-40">
+      <DropdownMenuContent
+        align={align}
+        side={side}
+        className="language-dropdown w-48 p-0"
+      >
         {Object.values(SUPPORTED_LANGUAGES).map((language) => (
           <DropdownMenuItem
             key={language.code}
             onClick={() => handleLanguageChange(language.code)}
-            className="flex cursor-pointer items-center justify-between"
+            className={`language-dropdown-item m-0 flex cursor-pointer items-center justify-between rounded-none focus:bg-transparent ${currentLang === language.code ? 'selected' : ''}`}
             disabled={isLoading}
           >
-            <div className="flex items-center gap-2">
-              <span>{language.flag}</span>
-              <span className="text-sm">{language.name}</span>
+            <div className="flex items-center gap-3">
+              <span className="flag-emoji text-lg">{language.flag}</span>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{language.name}</span>
+                <span className="text-muted-foreground text-xs">
+                  {language.code.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             {currentLang === language.code && (
@@ -108,7 +128,11 @@ export function LanguageSwitcher({
           </DropdownMenuItem>
         ))}
 
-        {error && <div className="px-2 py-1 text-xs text-red-500">{error}</div>}
+        {error && (
+          <div className="border-border bg-destructive/5 border-t px-4 py-2 text-xs text-red-500">
+            {error}
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

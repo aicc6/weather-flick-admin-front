@@ -4,7 +4,6 @@
  */
 
 import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import {
   Pagination,
   PaginationContent,
@@ -44,7 +43,6 @@ export function PaginationControls({
   maxVisiblePages = 7,
   className = '',
 }) {
-  const { t } = useTranslation()
 
   // 페이지 번호 범위 계산
   const pageNumbers = useMemo(() => {

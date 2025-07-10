@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { PermissionGuard } from '../common/PermissionGuard'
 import { PERMISSIONS } from '../../constants/permissions'
@@ -52,7 +51,6 @@ import {
 } from '../ui/dropdown-menu'
 
 export const UsersPage = () => {
-  const { t } = useTranslation()
   const { user: _user } = useAuth()
 
   // 로컬 상태 (UI 전용) - 먼저 선언
@@ -263,7 +261,7 @@ export const UsersPage = () => {
         )}
         <div className="mb-4 flex items-center justify-between">
           <Input
-            placeholder={t('users.search_placeholder')}
+            placeholder="이메일 또는 닉네임으로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-64 rounded-lg shadow-sm"
@@ -340,37 +338,44 @@ export const UsersPage = () => {
                           <KeyRound className="mr-2 h-4 w-4" />
                           비밀번호 초기화
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            console.log('사용자 상태 변경 클릭됨', item)
-                            e.stopPropagation()
-                            handleToggleUserStatus(item.user_id, item.is_active)
-                          }}
-                        >
-                          {item.is_active ? (
-                            <>
-                              <Lock className="mr-2 h-4 w-4" />
-                              비활성화
-                            </>
-                          ) : (
-                            <>
-                              <Unlock className="mr-2 h-4 w-4" />
-                              활성화
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            console.log('사용자 삭제 클릭됨', item)
-                            e.stopPropagation()
-                            setActionUser(item)
-                            setTimeout(() => setIsDeleteDialogOpen(true), 0)
-                          }}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          삭제
-                        </DropdownMenuItem>
+                        {!item.is_superuser && (
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('사용자 상태 변경 클릭됨', item)
+                              e.stopPropagation()
+                              handleToggleUserStatus(
+                                item.user_id,
+                                item.is_active,
+                              )
+                            }}
+                          >
+                            {item.is_active ? (
+                              <>
+                                <Lock className="mr-2 h-4 w-4" />
+                                비활성화
+                              </>
+                            ) : (
+                              <>
+                                <Unlock className="mr-2 h-4 w-4" />
+                                활성화
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                        )}
+                        {!item.is_superuser && (
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('사용자 삭제 클릭됨', item)
+                              e.stopPropagation()
+                              setActionUser(item)
+                              setTimeout(() => setIsDeleteDialogOpen(true), 0)
+                            }}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            삭제
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -441,11 +446,9 @@ export const UsersPage = () => {
               {/* 왼쪽: 페이지 정보 */}
               <div className="flex items-center space-x-4">
                 <div className="text-muted-foreground text-sm">
-                  {t('pagination.showing', {
-                    start: (currentPage - 1) * pageSize + 1,
-                    end: Math.min(currentPage * pageSize, totalUsers),
-                    total: totalUsers,
-                  })}
+                  {totalUsers > 0
+                    ? `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, totalUsers)} / 총 ${totalUsers}개`
+                    : '표시할 데이터가 없습니다'}
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-muted-foreground text-sm">

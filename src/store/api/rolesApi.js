@@ -8,7 +8,7 @@ export const rolesApi = createApi({
   endpoints: (builder) => ({
     // 역할 목록 조회
     getRoles: builder.query({
-      query: ({ active_only = true } = {}) => 
+      query: ({ active_only = true } = {}) =>
         `/roles?active_only=${active_only}`,
       providesTags: ['Role'],
     }),

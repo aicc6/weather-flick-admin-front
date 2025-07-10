@@ -1,13 +1,18 @@
 import { useMemo } from 'react'
-import { useGetRegionMapQuery, useGetProvincesQuery } from '../store/api/regionsApi'
+import {
+  useGetRegionMapQuery,
+  useGetProvincesQuery,
+} from '../store/api/regionsApi'
 
 /**
  * 지역 정보를 관리하는 커스텀 훅
  * 기존 하드코딩된 REGION_MAP과 SIGUNGU_MAP을 API로 대체
  */
 export function useRegions() {
-  const { data: regionMapData, isLoading: isMapLoading } = useGetRegionMapQuery()
-  const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery()
+  const { data: regionMapData, isLoading: isMapLoading } =
+    useGetRegionMapQuery()
+  const { data: provincesData, isLoading: isProvincesLoading } =
+    useGetProvincesQuery()
 
   // 기존 형태와 호환되는 REGION_MAP 생성
   const regionMap = useMemo(() => {
@@ -48,7 +53,7 @@ export function useRegions() {
   // Select 옵션용 provinces 데이터
   const provinceOptions = useMemo(() => {
     if (!provincesData) return []
-    return provincesData.map(province => ({
+    return provincesData.map((province) => ({
       value: province.region_code,
       label: province.region_name,
     }))

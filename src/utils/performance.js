@@ -2,7 +2,7 @@
  * 성능 최적화 유틸리티 함수들
  */
 
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useRef, useEffect, useState, Profiler } from 'react'
 
 /**
  * 깊은 비교 메모이제이션
