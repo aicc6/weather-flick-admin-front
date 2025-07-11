@@ -6,6 +6,9 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), tsconfigPaths()],
+  esbuild: {
+    target: 'es2020',
+  },
   server: {
     allowedHosts: true,
     proxy: {
@@ -17,6 +20,9 @@ export default defineConfig({
     },
   },
   build: {
+    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    minify: 'esbuild',
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -73,5 +79,17 @@ export default defineConfig({
         },
       },
     },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@reduxjs/toolkit',
+      'react-redux',
+    ],
+  },
+  define: {
+    global: 'globalThis',
   },
 })
