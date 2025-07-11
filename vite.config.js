@@ -49,15 +49,17 @@ export default defineConfig({
             if (
               id.includes('react') ||
               id.includes('react-dom') ||
-              id.includes('react-router')
+              id.includes('react-router') ||
+              id.includes('@reduxjs/toolkit') ||
+              id.includes('react-redux') ||
+              id.includes('redux') ||
+              id.includes('immer') ||
+              id.includes('reselect')
             ) {
               return 'vendor'
             }
             if (id.includes('@radix-ui')) {
               return 'ui'
-            }
-            if (id.includes('@reduxjs/toolkit') || id.includes('react-redux')) {
-              return 'redux'
             }
             if (id.includes('lucide-react')) {
               return 'icons'
@@ -105,7 +107,14 @@ export default defineConfig({
       'react-router-dom',
       '@reduxjs/toolkit',
       'react-redux',
+      'immer',
+      'redux',
+      'reselect',
+      'redux-thunk',
     ],
+    esbuildOptions: {
+      target: 'es2015',
+    },
   },
   define: {
     global: 'globalThis',
