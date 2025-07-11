@@ -51,7 +51,7 @@ export const LoginPage = () => {
         <div>
           <div className="mt-6 flex items-center justify-center gap-2">
             <img
-              src="/logo.jpg"
+              src="/newicon.jpg"
               alt="Weather Flick Logo"
               className="h-10 w-10"
               loading="lazy"
