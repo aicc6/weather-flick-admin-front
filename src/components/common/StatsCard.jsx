@@ -85,25 +85,29 @@ export const StatsCard = memo(
               </span>
             </div>
 
-            {/* 활성 개수 */}
-            <div className="flex flex-col items-center">
-              <Badge variant="success" className="mb-1">
-                활성 ({activePercentage}%)
-              </Badge>
-              <span className="font-bold text-green-600">
-                {active?.toLocaleString() || 0}
-              </span>
-            </div>
+            {/* 활성 개수 - active가 undefined가 아닐 때만 표시 */}
+            {active !== undefined && (
+              <div className="flex flex-col items-center">
+                <Badge variant="success" className="mb-1">
+                  활성 ({activePercentage}%)
+                </Badge>
+                <span className="font-bold text-green-600">
+                  {active?.toLocaleString() || 0}
+                </span>
+              </div>
+            )}
 
-            {/* 비활성 개수 */}
-            <div className="flex flex-col items-center">
-              <Badge variant="destructive" className="mb-1">
-                비활성
-              </Badge>
-              <span className="font-bold text-gray-500">
-                {inactive?.toLocaleString() || 0}
-              </span>
-            </div>
+            {/* 비활성 개수 - inactive가 undefined가 아닐 때만 표시 */}
+            {inactive !== undefined && (
+              <div className="flex flex-col items-center">
+                <Badge variant="destructive" className="mb-1">
+                  비활성
+                </Badge>
+                <span className="font-bold text-gray-500">
+                  {inactive?.toLocaleString() || 0}
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
