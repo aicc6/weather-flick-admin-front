@@ -66,7 +66,7 @@ export const DefaultLayout = ({ children }) => {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <img
-                src="/logo.jpg"
+                src="/newicon.jpg"
                 alt="Weather Flick Logo"
                 className="mr-2 h-8 w-8 rounded"
                 loading="lazy"

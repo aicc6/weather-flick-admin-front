@@ -75,7 +75,7 @@ const createHttp = ({ baseUrl, headers, fetch = globalThis.fetch }) => {
 
 // 기본 설정
 const DEFAULT_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000',
+  baseUrl: '',
 }
 
 // 기본 HTTP 클라이언트
