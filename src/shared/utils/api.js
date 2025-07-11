@@ -1,22 +1,21 @@
-export class ApiException extends Error {
-  constructor(error, status = 500) {
-    super(error.error.message)
-    this.status = status
-    this.code = error.error.code
-    this.details = error.error.details
-    this.name = 'ApiException'
-  }
+export function createApiException(error, status = 500) {
+  const exception = new Error(error.error.message)
+  exception.status = status
+  exception.code = error.error.code
+  exception.details = error.error.details
+  exception.name = 'ApiException'
+  return exception
 }
 
 export const handleApiResponse = async (response) => {
   const data = await response.json()
 
   if (!response.ok) {
-    throw new ApiException(data, response.status)
+    throw createApiException(data, response.status)
   }
 
   if (!data.success) {
-    throw new ApiException(data)
+    throw createApiException(data)
   }
 
   return data.data

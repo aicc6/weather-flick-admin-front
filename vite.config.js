@@ -5,9 +5,16 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), tsconfigPaths()],
+  plugins: [
+    react({
+      jsxRuntime: 'automatic',
+    }),
+    tailwindcss(),
+    tsconfigPaths()
+  ],
   esbuild: {
-    target: 'es2020',
+    target: 'es2015',
+    keepNames: true,
   },
   server: {
     allowedHosts: true,
@@ -20,8 +27,8 @@ export default defineConfig({
     },
   },
   build: {
-    target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
-    minify: 'esbuild',
+    target: ['es2015', 'chrome63'],
+    minify: 'terser',
     sourcemap: false,
     rollupOptions: {
       output: {
