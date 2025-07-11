@@ -1,13 +1,10 @@
-import { useTranslation } from 'react-i18next'
 import { PageHeader } from './PageHeader'
 
 export function DashboardHeader() {
-  const { t } = useTranslation()
-
   return (
     <PageHeader
-      title={t('dashboard.title')}
-      description={t('dashboard.description')}
+      title="관리자 대시보드"
+      description="Weather Flick 관리 시스템"
     />
   )
 }

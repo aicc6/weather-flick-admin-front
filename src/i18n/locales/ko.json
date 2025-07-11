@@ -50,6 +50,10 @@
     "tourist_attractions": "관광지 관리",
     "batch": "배치 관리"
   },
+  "dashboard": {
+    "title": "대시보드",
+    "description": "Weather Flick 관리 시스템의 전체 현황을 확인하세요"
+  },
   "batch": {
     "title": "배치 관리",
     "description": "배치 작업을 수동으로 실행하고 모니터링합니다",

@@ -168,11 +168,6 @@ export function SystemStatusCard() {
                         systemStatus.external_apis.weather_api.status,
                       )}
                     </Badge>
-                    <span className="text-muted-foreground text-xs">
-                      {formatResponseTime(
-                        systemStatus.external_apis.weather_api.response_time,
-                      )}
-                    </span>
                   </div>
                 )}
 
@@ -195,11 +190,6 @@ export function SystemStatusCard() {
                         systemStatus.external_apis.tourism_api.status,
                       )}
                     </Badge>
-                    <span className="text-muted-foreground text-xs">
-                      {formatResponseTime(
-                        systemStatus.external_apis.tourism_api.response_time,
-                      )}
-                    </span>
                   </div>
                 )}
 
@@ -222,11 +212,6 @@ export function SystemStatusCard() {
                         systemStatus.external_apis.google_places.status,
                       )}
                     </Badge>
-                    <span className="text-muted-foreground text-xs">
-                      {formatResponseTime(
-                        systemStatus.external_apis.google_places.response_time,
-                      )}
-                    </span>
                   </div>
                 )}
               </div>
