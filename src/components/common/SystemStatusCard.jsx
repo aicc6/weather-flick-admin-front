@@ -126,32 +126,6 @@ export function SystemStatusCard() {
                       )}
                     </div>
                   )}
-                  {systemStatus.external_apis?.tourism_api && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-green-400" />
-                      <span className="text-xs">관광</span>
-                      <Badge
-                        variant={
-                          systemStatus.external_apis.tourism_api.status?.includes(
-                            '정상',
-                          ) ||
-                          systemStatus.external_apis.tourism_api.status?.includes(
-                            '200',
-                          )
-                            ? 'success'
-                            : 'destructive'
-                        }
-                        className="text-xs"
-                      >
-                        {systemStatus.external_apis.tourism_api.status}
-                      </Badge>
-                      {systemStatus.external_apis.tourism_api.response_time && (
-                        <span className="text-muted-foreground text-xs">
-                          {systemStatus.external_apis.tourism_api.response_time}
-                        </span>
-                      )}
-                    </div>
-                  )}
                   {systemStatus.external_apis?.google_places && (
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-yellow-400" />

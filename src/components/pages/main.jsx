@@ -6,7 +6,6 @@ import { UserInfoCard } from '../common/UserInfoCard'
 import { StatsCard } from '../common/StatsCard'
 import { WeatherStatsCard } from '../common/WeatherStatsCard'
 import { SystemStatusCard } from '../common/SystemStatusCard'
-import { TourismStatsCard } from '../common/TourismStatsCard'
 import { StatsGrid } from '../layouts/StatsGrid'
 import { useGetTravelCoursesQuery } from '../../store/api/contentApi'
 import { useGetFestivalEventsQuery } from '../../store/api/contentApi'
@@ -15,7 +14,7 @@ import { Link } from 'react-router-dom'
 
 export const MainPage = () => {
   const { user } = useAuth()
-  const { tourSummary, userSummary, adminSummary, weatherData, regionCount } =
+  const { userSummary, adminSummary, weatherData } =
     useDashboardData()
 
   // 컨텐츠 관리 요약 데이터
@@ -33,6 +32,9 @@ export const MainPage = () => {
     <div className="page-layout">
       <DashboardHeader />
 
+      {/* 시스템 상태 섹션 - 최상단 */}
+      <SystemStatusCard />
+      
       <StatsGrid>
         <UserInfoCard user={user} />
         <StatsCard
@@ -105,8 +107,6 @@ export const MainPage = () => {
         </StatsCard>
       </div>
       <WeatherStatsCard weatherData={weatherData} />
-      <SystemStatusCard />
-      <TourismStatsCard tourSummary={tourSummary} regionCount={regionCount} />
     </div>
   )
 }

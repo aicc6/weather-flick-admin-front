@@ -37,6 +37,12 @@ export const ROUTE_META = {
     breadcrumb: ['대시보드', '관광지 관리'],
     icon: 'MapPin',
   },
+  BATCH_MANAGEMENT: {
+    path: '/batch-management',
+    title: '배치 관리',
+    breadcrumb: ['대시보드', '배치 관리'],
+    icon: 'Settings',
+  },
 }
 
 // 네비게이션 메뉴 구성
@@ -47,4 +53,5 @@ export const NAVIGATION_ITEMS = [
   ROUTE_META.CONTENT,
   ROUTE_META.WEATHER,
   ROUTE_META.TOURIST_ATTRACTIONS,
+  ROUTE_META.BATCH_MANAGEMENT,
 ]

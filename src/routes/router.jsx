@@ -45,6 +45,11 @@ const TouristAttractionDetailWrapper = lazy(
 const ContentDetailPage = lazy(
   () => import('../components/pages/ContentDetailPage'),
 )
+const BatchManagementPage = lazy(
+  () => import('../components/pages/batch-management').then((module) => ({
+    default: module.default,
+  })),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -173,6 +178,18 @@ export const router = createBrowserRouter([
     meta: {
       title: '코스 상세',
       breadcrumb: ['대시보드', '콘텐츠 관리', '상세'],
+    },
+  },
+  {
+    path: '/batch-management',
+    element: (
+      <ProtectedLayout>
+        <BatchManagementPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '배치 관리',
+      breadcrumb: ['대시보드', '배치 관리'],
     },
   },
   {
