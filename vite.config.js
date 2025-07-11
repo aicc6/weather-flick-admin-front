@@ -8,6 +8,13 @@ export default defineConfig({
   plugins: [
     react({
       jsxRuntime: 'automatic',
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-runtime', {
+            regenerator: true
+          }]
+        ]
+      }
     }),
     tailwindcss(),
     tsconfigPaths()
@@ -27,8 +34,12 @@ export default defineConfig({
     },
   },
   build: {
-    target: ['es2015', 'chrome63'],
+    target: 'es2015',
     minify: 'terser',
+    terserOptions: {
+      keep_classnames: true,
+      keep_fnames: true,
+    },
     sourcemap: false,
     rollupOptions: {
       output: {
@@ -98,5 +109,10 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
   },
 })
