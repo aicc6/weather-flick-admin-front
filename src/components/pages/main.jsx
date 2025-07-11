@@ -14,8 +14,7 @@ import { Link } from 'react-router-dom'
 
 export const MainPage = () => {
   const { user } = useAuth()
-  const { userSummary, adminSummary, weatherData } =
-    useDashboardData()
+  const { userSummary, adminSummary, weatherData } = useDashboardData()
 
   // 컨텐츠 관리 요약 데이터
   const { data: travelCourseData } = useGetTravelCoursesQuery({
@@ -34,7 +33,7 @@ export const MainPage = () => {
 
       {/* 시스템 상태 섹션 - 최상단 */}
       <SystemStatusCard />
-      
+
       <StatsGrid>
         <UserInfoCard user={user} />
         <StatsCard

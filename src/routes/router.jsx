@@ -45,8 +45,8 @@ const TouristAttractionDetailWrapper = lazy(
 const ContentDetailPage = lazy(
   () => import('../components/pages/ContentDetailPage'),
 )
-const BatchManagementPage = lazy(
-  () => import('../components/pages/batch-management').then((module) => ({
+const BatchManagementPage = lazy(() =>
+  import('../components/pages/batch-management').then((module) => ({
     default: module.default,
   })),
 )

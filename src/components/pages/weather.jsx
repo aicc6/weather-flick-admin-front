@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import WeatherAlert from './WeatherAlert'
 import {
   Card,
@@ -9,16 +9,7 @@ import {
 } from '../ui/card'
 import { WeatherStatsCard } from '../common/WeatherStatsCard'
 import { getWeatherIcon } from '../../utils/weatherUtils'
-
-// 최신 도시별 날씨 데이터를 가져오는 함수 (재사용 가능)
-export async function fetchLatestWeatherData(limit = 20) {
-  const res = await fetch(
-    `http://localhost:9000/api/weather/database/data?limit=${limit}`,
-  )
-  if (!res.ok) throw new Error('서버 응답 오류')
-  const data = await res.json()
-  return data.data || []
-}
+import { useGetLatestWeatherDataQuery } from '../../store/api/weatherApi'
 
 // 간단한 날씨 아이콘 함수
 function getWeatherEmoji(desc) {
@@ -32,39 +23,27 @@ function getWeatherEmoji(desc) {
 }
 
 function WeatherRealtimePage() {
-  const [weatherList, setWeatherList] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // RTK Query로 데이터 가져오기 (1분마다 자동 갱신)
+  const {
+    data: weatherList = [],
+    isLoading: loading,
+    error,
+  } = useGetLatestWeatherDataQuery(20, {
+    pollingInterval: 60000, // 60초마다 자동 새로고침
+  })
 
-  // DB 최신 데이터
-  const loadWeather = () => {
-    setLoading(true)
-    fetchLatestWeatherData()
-      .then((data) => {
-        setWeatherList(data)
-        setError('')
-      })
-      .catch(() => setError('날씨 데이터를 불러오지 못했습니다.'))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    loadWeather()
-    const interval = setInterval(() => {
-      loadWeather()
-    }, 60 * 1000)
-    return () => clearInterval(interval)
-  }, [])
+  // weatherData 형식으로 변환
+  const weatherDataMap = useMemo(() => {
+    return weatherList.reduce((acc, cur) => {
+      acc[cur.city_name] = cur
+      return acc
+    }, {})
+  }, [weatherList])
 
   return (
     <div className="page-layout mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8">
       {/* 요약 통계 카드 (대시보드 스타일) */}
-      <WeatherStatsCard
-        weatherData={weatherList.reduce((acc, cur) => {
-          acc[cur.city_name] = cur
-          return acc
-        }, {})}
-      />
+      <WeatherStatsCard weatherData={weatherDataMap} />
 
       {/* 날씨 알림 카드 */}
       {weatherList.length > 0 && (
@@ -115,10 +94,16 @@ function WeatherRealtimePage() {
       {loading && (
         <p className="text-muted-foreground text-center">로딩 중...</p>
       )}
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {error && (
+        <p className="text-center text-red-500">
+          {error.data?.message || '날씨 데이터를 불러오지 못했습니다.'}
+        </p>
+      )}
     </div>
   )
 }
 
 export default WeatherRealtimePage
 export const WeatherPage = WeatherRealtimePage
+
+// 최신 도시별 날씨 데이터를 가져오는 함수는 더 이상 필요하지 않음 (RTK Query로 대체)

@@ -1,26 +1,102 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { STORAGE_KEYS } from '../../constants/storage'
 
-const baseQuery = fetchBaseQuery({
-  baseUrl: '',
+// 환경에 따른 base URL 설정
+const getBaseUrl = () => {
+  // 개발 환경에서는 vite proxy를 사용하므로 빈 문자열
+  // 프로덕션에서는 환경변수나 설정에서 가져옴
+  return import.meta.env.VITE_API_BASE_URL || ''
+}
+
+// 기본 baseQuery 설정
+export const baseQuery = fetchBaseQuery({
+  baseUrl: getBaseUrl(),
   prepareHeaders: (headers) => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (token) {
       headers.set('authorization', `Bearer ${token}`)
     }
-    headers.set('content-type', 'application/json')
+    // Content-Type은 RTK Query가 자동으로 설정하도록 함
     return headers
   },
 })
 
+// 401 에러 처리 함수
+const handle401Error = () => {
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+  localStorage.removeItem(STORAGE_KEYS.USER)
+  // React Router를 사용한 리다이렉트를 권장하지만,
+  // 간단한 구현을 위해 window.location 사용
+  window.location.href = '/login'
+}
+
+// 인증 및 응답 변환을 포함한 baseQuery
 export const baseQueryWithAuth = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions)
+  let result = await baseQuery(args, api, extraOptions)
+
+  // 401 에러 처리
+  if (result.error && result.error.status === 401) {
+    handle401Error()
+  }
+
+  // 백엔드 응답 형식이 { success: true, data: {...} } 인 경우
+  // data만 추출하여 반환 (weather-flick-front 패턴 참고)
+  if (
+    result.data &&
+    typeof result.data === 'object' &&
+    'success' in result.data
+  ) {
+    if (result.data.success && result.data.data !== undefined) {
+      result.data = result.data.data
+    } else if (!result.data.success && result.data.error) {
+      // 에러 응답 처리
+      result.error = {
+        status: result.error?.status || 'CUSTOM_ERROR',
+        data: result.data.error,
+      }
+      result.data = undefined
+    }
+  }
+
+  return result
+}
+
+// 재인증을 시도하는 baseQuery (필요시 사용)
+export const baseQueryWithReauth = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions)
 
   if (result.error && result.error.status === 401) {
-    // 토큰 만료 시 로그아웃 처리
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    localStorage.removeItem(STORAGE_KEYS.USER)
-    window.location.href = '/login'
+    // 리프레시 토큰으로 재인증 시도
+    const refreshResult = await baseQuery(
+      '/api/auth/refresh',
+      api,
+      extraOptions,
+    )
+
+    if (refreshResult.data) {
+      // 새 토큰 저장
+      const newToken =
+        refreshResult.data.access_token ||
+        refreshResult.data.token?.access_token
+      if (newToken) {
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken)
+        // 원래 요청 재시도
+        result = await baseQuery(args, api, extraOptions)
+      }
+    } else {
+      handle401Error()
+    }
+  }
+
+  // 응답 데이터 변환
+  if (
+    result.data &&
+    typeof result.data === 'object' &&
+    'success' in result.data
+  ) {
+    if (result.data.success && result.data.data !== undefined) {
+      result.data = result.data.data
+    }
   }
 
   return result

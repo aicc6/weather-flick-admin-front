@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Database, Server, Globe, MapPin } from 'lucide-react'
+import { Database, Server, Globe } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -8,39 +7,17 @@ import {
   CardTitle,
 } from '../ui/card'
 import { Badge } from '../ui/badge'
-import { authHttp } from '../../lib/http'
+import { useGetSystemStatusQuery } from '../../store/api/systemApi'
 
 export function SystemStatusCard() {
-  const [systemStatus, setSystemStatus] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const {
+    data: systemStatus,
+    isLoading,
+    error,
+  } = useGetSystemStatusQuery(undefined, {
+    pollingInterval: 30000, // 30초마다 자동 새로고침
+  })
 
-  useEffect(() => {
-    const fetchSystemStatus = async () => {
-      try {
-        setLoading(true)
-        const response = await authHttp.GET('/api/system/status')
-        const data = await response.json()
-
-        if (data.success) {
-          // 새로운 표준 응답 형식: { success: true, data: {...}, message: "..." }
-          setSystemStatus(data.data)
-        } else {
-          setError(
-            data.error?.message ||
-              data.message ||
-              '시스템 상태를 불러오지 못했습니다.',
-          )
-        }
-      } catch (err) {
-        setError(err.message || '시스템 상태를 불러오지 못했습니다.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSystemStatus()
-  }, [])
   return (
     <Card>
       <CardHeader>
@@ -48,12 +25,14 @@ export function SystemStatusCard() {
         <CardDescription>서버 기본 상태 및 외부 API 연결 상태</CardDescription>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="text-muted-foreground text-sm">
             시스템 상태 정보를 불러오는 중...
           </div>
         ) : error ? (
-          <div className="text-destructive text-sm">오류: {error}</div>
+          <div className="text-destructive text-sm">
+            오류: {error.data?.message || '시스템 상태를 불러오지 못했습니다.'}
+          </div>
         ) : systemStatus ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* 서버/DB 상태 */}

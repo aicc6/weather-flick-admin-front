@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Card,
@@ -9,30 +8,26 @@ import {
 } from '../ui/card'
 import { Button } from '../ui/button'
 import { REGION_MAP } from '../../constants/region'
-
+import { useGetTravelCourseByIdQuery } from '../../store/api/contentApi'
 
 export default function ContentDetailPage() {
   const { contentId } = useParams()
   const navigate = useNavigate()
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
-  useEffect(() => {
-    setLoading(true)
-    setError(null)
-    fetch(`/api/travel-courses/${contentId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('데이터를 불러올 수 없습니다.')
-        return res.json()
-      })
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [contentId])
+  // RTK Query를 사용한 데이터 페칭
+  const {
+    data,
+    isLoading: loading,
+    error,
+  } = useGetTravelCourseByIdQuery(contentId)
 
   if (loading) return <div className="p-8 text-center">불러오는 중...</div>
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>
+  if (error)
+    return (
+      <div className="p-8 text-center text-red-500">
+        {error.data?.message || '데이터를 불러올 수 없습니다.'}
+      </div>
+    )
   if (!data) return null
 
   function formatRawDate(raw) {

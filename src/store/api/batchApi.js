@@ -12,7 +12,8 @@ export const batchApi = createApi({
         const queryParams = new URLSearchParams()
         if (params.job_type) queryParams.append('job_type', params.job_type)
         if (params.status) queryParams.append('status', params.status)
-        if (params.start_date) queryParams.append('start_date', params.start_date)
+        if (params.start_date)
+          queryParams.append('start_date', params.start_date)
         if (params.end_date) queryParams.append('end_date', params.end_date)
         if (params.page) queryParams.append('page', params.page.toString())
         if (params.limit) queryParams.append('limit', params.limit.toString())
@@ -75,7 +76,8 @@ export const batchApi = createApi({
     getBatchStatistics: builder.query({
       query: (params = {}) => {
         const queryParams = new URLSearchParams()
-        if (params.start_date) queryParams.append('start_date', params.start_date)
+        if (params.start_date)
+          queryParams.append('start_date', params.start_date)
         if (params.end_date) queryParams.append('end_date', params.end_date)
 
         return `/api/batch/statistics?${queryParams.toString()}`

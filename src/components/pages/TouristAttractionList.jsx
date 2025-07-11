@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { authHttp } from '../../lib/http'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '../ui/card'
 import { REGION_MAP } from '../../constants/region'
@@ -15,9 +14,13 @@ import {
 import { Alert, AlertDescription } from '../ui/alert'
 import { Button } from '../ui/button'
 import { AlertCircle, RefreshCw, Edit2, Trash2 } from 'lucide-react'
+import {
+  useGetTouristAttractionsQuery,
+  useSearchTouristAttractionsQuery,
+  useDeleteTouristAttractionMutation,
+} from '../../store/api/touristAttractionsApi'
 
 export default function TouristAttractionList({ onEdit, onCreate }) {
-  const [data, setData] = useState({ items: [], total: 0 })
   // 입력값과 실제 검색값을 분리
   const [searchNameInput, setSearchNameInput] = useState('')
   const [searchRegionInput, setSearchRegionInput] = useState('')
@@ -26,91 +29,69 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   const [page, setPage] = useState(1)
   const pageSize = 12
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const fetchList = async (
-    pageNum = page,
-    name = searchName,
-    region = searchRegion,
-  ) => {
-    setLoading(true)
-    setError(null)
-    try {
-      let endpoint = '/api/tourist-attractions/'
-      const queryParams = {
-        limit: pageSize,
-        offset: (pageNum - 1) * pageSize,
-      }
-
-      // 지역 이름을 코드로 변환
-      let regionCode = region
-      if (regionCode) {
-        // 입력값이 코드가 아니라면(숫자가 아니면) 이름으로 간주
-        if (isNaN(Number(regionCode))) {
-          // REGION_MAP에서 코드 찾기
-          const found = Object.entries(REGION_MAP).find(
-            ([, name]) => name === regionCode,
-          )
-          regionCode = found ? found[0] : ''
-        }
-      }
-
-      if (name || regionCode) {
-        endpoint = '/api/tourist-attractions/search/'
-        if (name) queryParams.name = name
-        if (regionCode) queryParams.region = regionCode
-      }
-
-      const res = await authHttp.GET(endpoint, {
-        params: { query: queryParams },
-      })
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-      }
-
-      const result = await res.json()
-      setData(result)
-    } catch (error) {
-      console.error('관광지 데이터 로딩 실패:', error)
-      setError(error.message || '관광지 데이터를 불러오는데 실패했습니다.')
-      setData({ items: [], total: 0 })
-    } finally {
-      setLoading(false)
-    }
+  // 지역 이름을 코드로 변환
+  let regionCode = searchRegion
+  if (regionCode && isNaN(Number(regionCode))) {
+    const found = Object.entries(REGION_MAP).find(
+      ([, name]) => name === regionCode,
+    )
+    regionCode = found ? found[0] : ''
   }
 
-  useEffect(() => {
-    fetchList(page)
-    // eslint-disable-next-line
-  }, [page])
+  // RTK Query 훅 - 검색 여부에 따라 다른 쿼리 사용
+  const isSearching = searchName || regionCode
+  const queryParams = {
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+    ...(searchName && { name: searchName }),
+    ...(regionCode && { region: regionCode }),
+  }
+
+  // 일반 목록 조회
+  const {
+    data: listData,
+    isLoading: listLoading,
+    error: listError,
+    refetch: refetchList,
+  } = useGetTouristAttractionsQuery(queryParams, {
+    skip: isSearching,
+  })
+
+  // 검색 조회
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    error: searchError,
+    refetch: refetchSearch,
+  } = useSearchTouristAttractionsQuery(queryParams, {
+    skip: !isSearching,
+  })
+
+  // 삭제 mutation
+  const [deleteTouristAttraction, { isLoading: deleting }] =
+    useDeleteTouristAttractionMutation()
+
+  // 현재 사용할 데이터 선택
+  const data = isSearching ? searchData : listData
+  const loading = isSearching ? searchLoading : listLoading
+  const error = isSearching ? searchError : listError
+  const refetch = isSearching ? refetchSearch : refetchList
 
   const handleDelete = async (content_id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
-    setLoading(true)
     try {
-      const res = await authHttp.DELETE(
-        `/api/tourist-attractions/${content_id}`,
-      )
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-      }
-      fetchList()
+      await deleteTouristAttraction(content_id).unwrap()
+      refetch()
     } catch (error) {
       console.error('관광지 삭제 실패:', error)
-      setError(error.message || '삭제에 실패했습니다.')
-    } finally {
-      setLoading(false)
     }
   }
 
   const handleRetry = () => {
-    setError(null)
-    fetchList()
+    refetch()
   }
 
-  const totalPages = Math.ceil(data.total / pageSize)
+  const totalPages = Math.ceil((data?.total || 0) / pageSize)
   const renderPagination = () => {
     if (totalPages <= 1) return null
     const pageItems = []
@@ -226,7 +207,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error.data?.message || '관광지 데이터를 불러오는데 실패했습니다.'}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -243,8 +226,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
             onSubmit={(e) => {
               e.preventDefault()
+              setSearchName(searchNameInput)
+              setSearchRegion(searchRegionInput)
               setPage(1)
-              fetchList(1, searchNameInput, searchRegionInput)
             }}
           >
             <div className="flex flex-col gap-1 md:col-span-2">
@@ -285,15 +269,9 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             </div>
             <div className="flex gap-2 md:col-span-1 md:justify-end">
               <button
-                type="button"
+                type="submit"
                 disabled={loading}
                 className="rounded bg-blue-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-blue-700 disabled:opacity-50"
-                onClick={() => {
-                  setSearchName(searchNameInput)
-                  setSearchRegion(searchRegionInput)
-                  setPage(1)
-                  fetchList(1, searchNameInput, searchRegionInput)
-                }}
               >
                 검색
               </button>
@@ -320,85 +298,74 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
             </div>
           </div>
           {/* 카드형 그리드 */}
-          {loading && data.items.length === 0 ? (
+          {loading && (!data || data.items.length === 0) ? (
             <div className="flex flex-col items-center gap-2 py-8">
               <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
               <span className="text-gray-500">데이터를 불러오는 중...</span>
             </div>
-          ) : !loading && data.items.length === 0 ? (
+          ) : !loading && (!data || data.items.length === 0) ? (
             <div className="py-8 text-center text-gray-400">
               {error ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {data.items
-                .filter((a) => {
-                  const nameMatch = a.attraction_name
-                    .toLowerCase()
-                    .includes(searchName.toLowerCase())
-                  const regionName = REGION_MAP[a.region_code] || ''
-                  const regionMatch = searchRegion
-                    ? regionName === searchRegion
-                    : true
-                  return nameMatch && regionMatch
-                })
-                .map((a) => (
-                  <div
-                    key={a.content_id}
-                    className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
-                  >
-                    <div className="flex flex-1 flex-col gap-2">
-                      <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
-                        {a.image_url ? (
-                          <img
-                            src={a.image_url}
-                            alt={a.attraction_name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-gray-400">이미지 없음</span>
-                        )}
-                      </div>
-                      <div
-                        className="truncate text-lg font-bold text-gray-900"
-                        title={a.attraction_name}
-                      >
-                        <Link
-                          to={`/tourist-attractions/${a.content_id}`}
-                          className="text-blue-700 hover:underline"
-                        >
-                          {a.attraction_name}
-                        </Link>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          {REGION_MAP[a.region_code] || ''}
-                        </span>
-                        <span className="ml-auto text-xs text-gray-400">
-                          {a.created_at ? a.created_at.split('T')[0] : ''}
-                        </span>
-                      </div>
+              {data?.items.map((a) => (
+                <div
+                  key={a.content_id}
+                  className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
+                >
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
+                      {a.image_url ? (
+                        <img
+                          src={a.image_url}
+                          alt={a.attraction_name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-gray-400">이미지 없음</span>
+                      )}
                     </div>
-                    <div className="mt-4 flex gap-2">
-                      <button
-                        disabled={loading}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-full border border-blue-400 bg-gradient-to-r from-blue-50 to-white px-4 py-2 font-semibold text-blue-700 shadow transition hover:from-blue-100 hover:to-blue-200 disabled:opacity-50"
-                        onClick={() => onEdit(a.content_id)}
+                    <div
+                      className="truncate text-lg font-bold text-gray-900"
+                      title={a.attraction_name}
+                    >
+                      <Link
+                        to={`/tourist-attractions/${a.content_id}`}
+                        className="text-blue-700 hover:underline"
                       >
-                        <Edit2 size={18} className="text-blue-600" />
-                        <span>수정</span>
-                      </button>
-                      <button
-                        disabled={loading}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-full border border-red-400 bg-gradient-to-r from-red-50 to-white px-4 py-2 font-semibold text-red-700 shadow transition hover:from-red-100 hover:to-red-200 disabled:opacity-50"
-                        onClick={() => handleDelete(a.content_id)}
-                      >
-                        <Trash2 size={18} className="text-red-500" />
-                        <span>삭제</span>
-                      </button>
+                        {a.attraction_name}
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                        {REGION_MAP[a.region_code] || ''}
+                      </span>
+                      <span className="ml-auto text-xs text-gray-400">
+                        {a.created_at ? a.created_at.split('T')[0] : ''}
+                      </span>
                     </div>
                   </div>
-                ))}
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      disabled={loading || deleting}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full border border-blue-400 bg-gradient-to-r from-blue-50 to-white px-4 py-2 font-semibold text-blue-700 shadow transition hover:from-blue-100 hover:to-blue-200 disabled:opacity-50"
+                      onClick={() => onEdit(a.content_id)}
+                    >
+                      <Edit2 size={18} className="text-blue-600" />
+                      <span>수정</span>
+                    </button>
+                    <button
+                      disabled={loading || deleting}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full border border-red-400 bg-gradient-to-r from-red-50 to-white px-4 py-2 font-semibold text-red-700 shadow transition hover:from-red-100 hover:to-red-200 disabled:opacity-50"
+                      onClick={() => handleDelete(a.content_id)}
+                    >
+                      <Trash2 size={18} className="text-red-500" />
+                      <span>삭제</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           {/* 페이지네이션 */}

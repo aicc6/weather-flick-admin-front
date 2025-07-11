@@ -1,23 +1,40 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { AlertCircle, Play, Square, MoreVertical, RefreshCw } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  AlertCircle,
+  Play,
+  Square,
+  MoreVertical,
+  RefreshCw,
+} from 'lucide-react'
 import {
   useGetBatchJobsQuery,
   useExecuteBatchJobMutation,
   useStopBatchJobMutation,
   useGetBatchStatisticsQuery,
-  BATCH_JOB_TYPES,
   BATCH_JOB_STATUS,
   BATCH_JOB_TYPE_LABELS,
   BATCH_JOB_STATUS_LABELS,
-  BATCH_JOB_STATUS_COLORS
+  BATCH_JOB_STATUS_COLORS,
 } from '@/store/api/batchApi'
 
 const BatchManagement = () => {
@@ -29,14 +46,19 @@ const BatchManagement = () => {
   const [executeDialogOpen, setExecuteDialogOpen] = useState(false)
 
   // API 호출
-  const { data: jobsData, refetch: refetchJobs, isLoading: jobsLoading } = useGetBatchJobsQuery({
+  const {
+    data: jobsData,
+    refetch: refetchJobs,
+    isLoading: jobsLoading,
+  } = useGetBatchJobsQuery({
     job_type: jobTypeFilter || undefined,
     status: statusFilter || undefined,
     page,
-    limit: 10
+    limit: 10,
   })
 
-  const { data: statsData, refetch: refetchStats } = useGetBatchStatisticsQuery()
+  const { data: statsData, refetch: refetchStats } =
+    useGetBatchStatisticsQuery()
 
   const [executeBatchJob] = useExecuteBatchJobMutation()
   const [stopBatchJob] = useStopBatchJobMutation()
@@ -53,7 +75,7 @@ const BatchManagement = () => {
       await executeBatchJob({
         jobType: selectedJobType,
         parameters,
-        priority: 5
+        priority: 5,
       }).unwrap()
 
       setExecuteDialogOpen(false)
@@ -89,24 +111,24 @@ const BatchManagement = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">배치 관리</h1>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               refetchJobs()
               refetchStats()
             }}
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             새로고침
           </Button>
           <Dialog open={executeDialogOpen} onOpenChange={setExecuteDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Play className="w-4 h-4 mr-2" />
+                <Play className="mr-2 h-4 w-4" />
                 작업 실행
               </Button>
             </DialogTrigger>
@@ -117,16 +139,21 @@ const BatchManagement = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="jobType">작업 유형</Label>
-                  <Select value={selectedJobType} onValueChange={setSelectedJobType}>
+                  <Select
+                    value={selectedJobType}
+                    onValueChange={setSelectedJobType}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="작업 유형 선택" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(BATCH_JOB_TYPE_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      ))}
+                      {Object.entries(BATCH_JOB_TYPE_LABELS).map(
+                        ([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -146,7 +173,10 @@ const BatchManagement = () => {
                   >
                     취소
                   </Button>
-                  <Button onClick={handleExecuteJob} disabled={!selectedJobType}>
+                  <Button
+                    onClick={handleExecuteJob}
+                    disabled={!selectedJobType}
+                  >
                     실행
                   </Button>
                 </div>
@@ -169,17 +199,22 @@ const BatchManagement = () => {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Label htmlFor="jobTypeFilter">작업 유형</Label>
-                  <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
+                  <Select
+                    value={jobTypeFilter}
+                    onValueChange={setJobTypeFilter}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="전체" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">전체</SelectItem>
-                      {Object.entries(BATCH_JOB_TYPE_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      ))}
+                      {Object.entries(BATCH_JOB_TYPE_LABELS).map(
+                        ([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -191,11 +226,13 @@ const BatchManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">전체</SelectItem>
-                      {Object.entries(BATCH_JOB_STATUS_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
-                      ))}
+                      {Object.entries(BATCH_JOB_STATUS_LABELS).map(
+                        ([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -215,17 +252,19 @@ const BatchManagement = () => {
               jobsData.jobs.map((job) => (
                 <Card key={job.id}>
                   <CardContent className="pt-6">
-                    <div className="flex justify-between items-start">
+                    <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold">
                             {BATCH_JOB_TYPE_LABELS[job.job_type]}
                           </h3>
-                          <Badge className={BATCH_JOB_STATUS_COLORS[job.status]}>
+                          <Badge
+                            className={BATCH_JOB_STATUS_COLORS[job.status]}
+                          >
                             {BATCH_JOB_STATUS_LABELS[job.status]}
                           </Badge>
                         </div>
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="space-y-1 text-sm text-gray-600">
                           <div>작업 ID: {job.id}</div>
                           <div>생성일: {formatDate(job.created_at)}</div>
                           {job.started_at && (
@@ -235,15 +274,17 @@ const BatchManagement = () => {
                             <div>완료일: {formatDate(job.completed_at)}</div>
                           )}
                           {job.duration_seconds && (
-                            <div>실행 시간: {formatDuration(job.duration_seconds)}</div>
+                            <div>
+                              실행 시간: {formatDuration(job.duration_seconds)}
+                            </div>
                           )}
                           {job.progress > 0 && (
                             <div>진행률: {job.progress.toFixed(1)}%</div>
                           )}
                         </div>
                         {job.error_message && (
-                          <div className="flex items-center gap-2 text-red-600 text-sm">
-                            <AlertCircle className="w-4 h-4" />
+                          <div className="flex items-center gap-2 text-sm text-red-600">
+                            <AlertCircle className="h-4 w-4" />
                             {job.error_message}
                           </div>
                         )}
@@ -255,12 +296,12 @@ const BatchManagement = () => {
                             size="sm"
                             onClick={() => handleStopJob(job.id)}
                           >
-                            <Square className="w-4 h-4 mr-1" />
+                            <Square className="mr-1 h-4 w-4" />
                             중단
                           </Button>
                         )}
                         <Button variant="ghost" size="sm">
-                          <MoreVertical className="w-4 h-4" />
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -311,9 +352,11 @@ const BatchManagement = () => {
                   <CardTitle>전체 통계</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold">{statsData.total_jobs}</div>
+                      <div className="text-2xl font-bold">
+                        {statsData.total_jobs}
+                      </div>
                       <div className="text-sm text-gray-600">총 작업 수</div>
                     </div>
                     <div className="text-center">
@@ -332,7 +375,8 @@ const BatchManagement = () => {
                       <div className="text-2xl font-bold text-green-600">
                         {statsData.statistics_by_type
                           ?.reduce((sum, stat) => sum + stat.success_rate, 0)
-                          ?.toFixed(1) || 0}%
+                          ?.toFixed(1) || 0}
+                        %
                       </div>
                       <div className="text-sm text-gray-600">평균 성공률</div>
                     </div>
@@ -348,8 +392,11 @@ const BatchManagement = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {statsData.statistics_by_type?.map((stat) => (
-                      <div key={stat.job_type} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-2">
+                      <div
+                        key={stat.job_type}
+                        className="rounded-lg border p-4"
+                      >
+                        <div className="mb-2 flex items-center justify-between">
                           <h4 className="font-semibold">
                             {BATCH_JOB_TYPE_LABELS[stat.job_type]}
                           </h4>
@@ -357,26 +404,34 @@ const BatchManagement = () => {
                             성공률: {stat.success_rate.toFixed(1)}%
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
                           <div>
                             <div className="font-medium">총 작업</div>
                             <div>{stat.total_count}</div>
                           </div>
                           <div>
                             <div className="font-medium">완료</div>
-                            <div className="text-green-600">{stat.completed_count}</div>
+                            <div className="text-green-600">
+                              {stat.completed_count}
+                            </div>
                           </div>
                           <div>
                             <div className="font-medium">실패</div>
-                            <div className="text-red-600">{stat.failed_count}</div>
+                            <div className="text-red-600">
+                              {stat.failed_count}
+                            </div>
                           </div>
                           <div>
                             <div className="font-medium">실행 중</div>
-                            <div className="text-blue-600">{stat.running_count}</div>
+                            <div className="text-blue-600">
+                              {stat.running_count}
+                            </div>
                           </div>
                           <div>
                             <div className="font-medium">평균 시간</div>
-                            <div>{formatDuration(stat.average_duration_seconds)}</div>
+                            <div>
+                              {formatDuration(stat.average_duration_seconds)}
+                            </div>
                           </div>
                         </div>
                       </div>

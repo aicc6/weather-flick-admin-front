@@ -49,6 +49,14 @@ export const weatherApi = createApi({
       // 지역 정보는 자주 변경되지 않으므로 더 오래 캐시
       keepUnusedDataFor: 3600, // 1시간
     }),
+
+    // 데이터베이스에서 최신 날씨 데이터 조회
+    getLatestWeatherData: builder.query({
+      query: (limit = 20) => `/api/weather/database/data?limit=${limit}`,
+      transformResponse: (response) => response.data || [],
+      providesTags: ['Weather'],
+      keepUnusedDataFor: 60, // 1분
+    }),
   }),
 })
 
@@ -57,4 +65,5 @@ export const {
   useGetWeatherForecastQuery,
   useGetWeatherSummaryQuery,
   useGetAvailableRegionsQuery,
+  useGetLatestWeatherDataQuery,
 } = weatherApi
