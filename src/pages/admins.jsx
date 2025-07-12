@@ -5,6 +5,7 @@ import {
   useCreateAdminMutation,
   useUpdateAdminMutation,
   useDeleteAdminMutation,
+  useUpdateAdminStatusMutation,
 } from '@/store/api/adminsApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -55,6 +56,7 @@ export const AdminsPage = () => {
   const [createAdminMutation] = useCreateAdminMutation()
   const [updateAdminMutation] = useUpdateAdminMutation()
   const [deleteAdminMutation] = useDeleteAdminMutation()
+  const [updateAdminStatusMutation] = useUpdateAdminStatusMutation()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -98,6 +100,21 @@ export const AdminsPage = () => {
       await deleteAdminMutation(adminId).unwrap()
     } catch (error) {
       console.error('관리자 삭제에 실패했습니다:', error)
+    }
+  }
+
+  const handleStatusChange = async (adminId, newStatus) => {
+    try {
+      await updateAdminStatusMutation({
+        adminId,
+        status: newStatus,
+      }).unwrap()
+    } catch (error) {
+      console.error('관리자 상태 변경에 실패했습니다:', error)
+      // 에러 메시지가 있으면 표시
+      if (error?.data?.detail) {
+        alert(error.data.detail)
+      }
     }
   }
 
@@ -327,48 +344,52 @@ export const AdminsPage = () => {
                       </DialogContent>
                     </Dialog>
 
-                    {admin.is_active ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => console.log('비활성화:', admin.admin_id)}
-                      >
-                        비활성화
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => console.log('활성화:', admin.admin_id)}
-                      >
-                        활성화
-                      </Button>
-                    )}
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            정말로 이 관리자를 삭제하시겠습니까? 이 작업은
-                            되돌릴 수 없습니다.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteAdmin(admin.admin_id)}
+                    {!admin.is_superuser && (
+                      <>
+                        {admin.is_active ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(admin.admin_id, 'INACTIVE')}
                           >
-                            삭제
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            비활성화
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(admin.admin_id, 'ACTIVE')}
+                          >
+                            활성화
+                          </Button>
+                        )}
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                정말로 이 관리자를 삭제하시겠습니까? 이 작업은
+                                되돌릴 수 없습니다.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>취소</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteAdmin(admin.admin_id)}
+                              >
+                                삭제
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardContent>
