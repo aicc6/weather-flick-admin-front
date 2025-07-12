@@ -1,21 +1,10 @@
 import { useMemo } from 'react'
 import WeatherAlert from './WeatherAlert'
 
-import { WeatherStatsCard } from '../common/WeatherStatsCard'
-import { getWeatherIcon } from '../../utils/weatherUtils'
-import { useGetLatestWeatherDataQuery } from '../../store/api/weatherApi'
-import { PageContainer, PageHeader, ContentSection } from '../layouts'
-
-// 간단한 날씨 아이콘 함수
-function getWeatherEmoji(desc) {
-  if (!desc) return '❓'
-  if (desc.includes('맑')) return '☀️'
-  if (desc.includes('구름')) return '⛅'
-  if (desc.includes('비')) return '🌧️'
-  if (desc.includes('눈')) return '❄️'
-  if (desc.includes('흐림')) return '🌫️'
-  return '🌡️'
-}
+import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
+import { getWeatherIcon } from '@/utils/weatherUtils'
+import { useGetLatestWeatherDataQuery } from '@/store/api/weatherApi'
+import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 function WeatherRealtimePage() {
   // RTK Query로 데이터 가져오기 (1분마다 자동 갱신)

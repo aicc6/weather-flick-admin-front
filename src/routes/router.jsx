@@ -1,56 +1,54 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from '../components/auth/ProtectedRoute'
-import { AdminLayout } from '../components/layouts/admin-layout'
-import { LoadingSpinner } from '../components/common/LoadingSpinner'
-import { ErrorBoundary } from '../components/common'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { ErrorBoundary } from '@/components/common'
+import { AdminLayout } from '@/layouts/admin-layout'
 
 // 레이지 로딩으로 페이지 컴포넌트들 import
 const LoginPage = lazy(() =>
-  import('../components/pages/login').then((module) => ({
+  import('../pages/login').then((module) => ({
     default: module.LoginPage,
   })),
 )
 const MainPage = lazy(() =>
-  import('../components/pages/main').then((module) => ({
+  import('../pages/main').then((module) => ({
     default: module.MainPage,
   })),
 )
 const AdminsPage = lazy(() =>
-  import('../components/pages/admins').then((module) => ({
+  import('../pages/admins').then((module) => ({
     default: module.AdminsPage,
   })),
 )
 const UsersPage = lazy(() =>
-  import('../components/pages/users').then((module) => ({
+  import('../pages/users').then((module) => ({
     default: module.UsersPage,
   })),
 )
 const ContentPage = lazy(() =>
-  import('../components/pages/content').then((module) => ({
+  import('../pages/content').then((module) => ({
     default: module.ContentPage,
   })),
 )
 const WeatherPage = lazy(() =>
-  import('../components/pages/weather').then((module) => ({
+  import('../pages/weather').then((module) => ({
     default: module.WeatherPage,
   })),
 )
 const TouristAttractionAdminPage = lazy(
-  () => import('../components/pages/TouristAttractionAdminPage'),
+  () => import('../pages/TouristAttractionAdminPage'),
 )
 const TouristAttractionDetailWrapper = lazy(
-  () => import('../components/pages/TouristAttractionDetailWrapper'),
+  () => import('../pages/TouristAttractionDetailWrapper'),
 )
-const ContentDetailPage = lazy(
-  () => import('../components/pages/ContentDetailPage'),
-)
+const ContentDetailPage = lazy(() => import('../pages/ContentDetailPage'))
 const BatchManagementPage = lazy(() =>
-  import('../components/pages/batch-management').then((module) => ({
+  import('../pages/batch-management').then((module) => ({
     default: module.default,
   })),
 )
-const RegionsPage = lazy(() => import('../components/pages/regions'))
+const RegionsPage = lazy(() => import('../pages/regions'))
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (

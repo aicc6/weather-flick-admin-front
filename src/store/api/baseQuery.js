@@ -1,5 +1,5 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { STORAGE_KEYS } from '../../constants/storage'
+import { STORAGE_KEYS } from '@/constants/storage'
 
 // 환경에 따른 base URL 설정
 const getBaseUrl = () => {

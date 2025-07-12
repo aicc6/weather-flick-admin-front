@@ -13,17 +13,17 @@ import {
   useDeleteLeisureSportMutation,
   useGetFestivalEventNamesQuery,
   useGetLeisureFacilityNamesQuery,
-} from '../../store/api/contentApi'
+} from '@/store/api/contentApi'
 import {
   useGetTravelPlansQuery,
   useCreateTravelPlanMutation,
   useUpdateTravelPlanMutation,
   useDeleteTravelPlanMutation,
-} from '../../store/api/travelPlansApi'
-import { Card, CardContent } from '../ui/card'
+} from '@/store/api/travelPlansApi'
+import { Card, CardContent } from '@/components/ui/card'
 
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogTrigger,
@@ -32,7 +32,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-} from '../ui/dialog'
+} from '@/components/ui/dialog'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -42,11 +42,11 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from '../ui/alert-dialog'
+} from '@/components/ui/alert-dialog'
 import { Link } from 'react-router-dom'
-import { REGION_MAP } from '../../constants/region'
+import { REGION_MAP } from '@/constants/region'
 const REGION_OPTIONS = Object.entries(REGION_MAP)
-import { Alert, AlertDescription } from '../ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, RefreshCw, Trash2 } from 'lucide-react'
 import {
   Pagination,
@@ -56,9 +56,9 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-} from '../ui/pagination'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
-import { ContentSection, PageContainer, PageHeader } from '../layouts'
+} from '@/components/ui/pagination'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { ContentSection, PageContainer, PageHeader } from '@/layouts'
 
 const TABS = [
   { key: 'course', label: '여행 코스 관리' },

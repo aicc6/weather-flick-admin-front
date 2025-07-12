@@ -5,7 +5,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from '@/components/ui/card'
 
 export function TourismStatsCard({ tourSummary, regionCount }) {
   // 최근 관광지 3개에서 유니크 카테고리/지역 개수 계산

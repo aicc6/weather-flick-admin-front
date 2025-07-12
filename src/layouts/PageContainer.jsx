@@ -1,4 +1,4 @@
-import { cn } from '../../lib/utils'
+import { cn } from '@/lib/utils'
 
 /**
  * 페이지 컨테이너 - 일관된 페이지 레이아웃을 위한 래퍼 컴포넌트

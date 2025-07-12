@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
-import { Badge } from '../ui/badge'
+} from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export function UserInfoCard({ user }) {
   return (
@@ -35,11 +35,6 @@ export function UserInfoCard({ user }) {
             <Badge variant={user?.is_active ? 'success' : 'destructive'}>
               {user?.is_active ? '활성' : '비활성'}
             </Badge>
-          </div>
-          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
-            {user?.is_active
-              ? '계정이 정상적으로 있습니다'
-              : '계정이 비활성화되어 있습니다'}
           </div>
         </div>
       </CardContent>

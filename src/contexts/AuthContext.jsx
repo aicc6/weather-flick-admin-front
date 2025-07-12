@@ -6,9 +6,9 @@ import {
   setError,
   logout as logoutAction,
   initializeAuth,
-} from '../store/slices/authSlice'
-import { useLoginMutation, useGetCurrentUserQuery } from '../store/api/authApi'
-import { STORAGE_KEYS } from '../constants/storage'
+} from '@/store/slices/authSlice'
+import { useLoginMutation, useGetCurrentUserQuery } from '@/store/api/authApi'
+import { STORAGE_KEYS } from '@/constants/storage'
 
 const AuthContext = createContext()
 

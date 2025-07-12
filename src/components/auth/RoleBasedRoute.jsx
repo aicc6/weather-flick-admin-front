@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
-import { ErrorDisplay } from '../common/ErrorDisplay'
+import { useAuth } from '@/contexts/AuthContext'
+import { ErrorDisplay } from '@/components/common/ErrorDisplay'
 
 export function RoleBasedRoute({
   children,

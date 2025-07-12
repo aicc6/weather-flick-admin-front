@@ -1,5 +1,5 @@
-import { authHttp, http } from '../../../lib/http'
-import { handleApiResponse } from '../../../shared/utils/api'
+import { authHttp, http } from '@/lib/http'
+import { handleApiResponse } from '@/shared/utils/api'
 
 export const authApi = {
   async login(credentials) {

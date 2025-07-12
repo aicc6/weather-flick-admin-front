@@ -1,14 +1,34 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, MapPin } from 'lucide-react'
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ChevronRight,
+  ChevronDown,
+  MapPin,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { PageContainer } from '@/components/layouts/PageContainer'
-import { PageHeader } from '@/components/layouts/PageHeader'
-import { ContentSection } from '@/components/layouts/ContentSection'
+import { PageContainer } from '@/layouts/PageContainer'
+import { PageHeader } from '@/layouts/PageHeader'
+import { ContentSection } from '@/layouts/ContentSection'
 import {
   useGetRegionsQuery,
   useGetRegionTreeQuery,
@@ -95,7 +115,7 @@ export default function RegionsPage() {
 
       return (
         <div key={node.region_code} style={{ marginLeft: `${level * 24}px` }}>
-          <div className="flex items-center gap-2 py-2 hover:bg-accent rounded-md px-2 cursor-pointer">
+          <div className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-2 py-2">
             <button
               onClick={() => hasChildren && toggleNode(node.region_code)}
               className="p-0.5"
@@ -111,9 +131,11 @@ export default function RegionsPage() {
                 <div className="w-4" />
               )}
             </button>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <MapPin className="text-muted-foreground h-4 w-4" />
             <span className="font-medium">{node.region_name}</span>
-            <span className="text-sm text-muted-foreground">({node.region_code})</span>
+            <span className="text-muted-foreground text-sm">
+              ({node.region_code})
+            </span>
             <div className="ml-auto flex gap-2">
               <Button
                 variant="ghost"
@@ -150,8 +172,8 @@ export default function RegionsPage() {
       <PageHeader title="지역 관리" />
 
       <ContentSection title="지역 목록">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex gap-4 items-center">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <div className="flex gap-2">
               <Button
                 variant={view === 'list' ? 'default' : 'outline'}
@@ -190,25 +212,25 @@ export default function RegionsPage() {
             )}
           </div>
           <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             지역 추가
           </Button>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8">로딩 중...</div>
+          <div className="py-8 text-center">로딩 중...</div>
         ) : view === 'list' ? (
           <div className="rounded-md border">
             <table className="w-full">
               <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left p-3">지역코드</th>
-                  <th className="text-left p-3">지역명</th>
-                  <th className="text-left p-3">상위지역</th>
-                  <th className="text-left p-3">레벨</th>
-                  <th className="text-left p-3">위도</th>
-                  <th className="text-left p-3">경도</th>
-                  <th className="text-right p-3">작업</th>
+                <tr className="bg-muted/50 border-b">
+                  <th className="p-3 text-left">지역코드</th>
+                  <th className="p-3 text-left">지역명</th>
+                  <th className="p-3 text-left">상위지역</th>
+                  <th className="p-3 text-left">레벨</th>
+                  <th className="p-3 text-left">위도</th>
+                  <th className="p-3 text-left">경도</th>
+                  <th className="p-3 text-right">작업</th>
                 </tr>
               </thead>
               <tbody>
@@ -218,8 +240,12 @@ export default function RegionsPage() {
                     <td className="p-3 font-medium">{region.region_name}</td>
                     <td className="p-3">{region.parent_region_code || '-'}</td>
                     <td className="p-3">{region.region_level}</td>
-                    <td className="p-3">{region.latitude?.toFixed(6) || '-'}</td>
-                    <td className="p-3">{region.longitude?.toFixed(6) || '-'}</td>
+                    <td className="p-3">
+                      {region.latitude?.toFixed(6) || '-'}
+                    </td>
+                    <td className="p-3">
+                      {region.longitude?.toFixed(6) || '-'}
+                    </td>
                     <td className="p-3 text-right">
                       <Button
                         variant="ghost"
@@ -248,7 +274,7 @@ export default function RegionsPage() {
             </table>
           </div>
         ) : (
-          <div className="border rounded-md p-4">
+          <div className="rounded-md border p-4">
             {renderTree(treeData?.tree)}
           </div>
         )}
@@ -280,8 +306,8 @@ export default function RegionsPage() {
           <DialogHeader>
             <DialogTitle>지역 삭제</DialogTitle>
             <DialogDescription>
-              {selectedRegion?.region_name}을(를) 삭제하시겠습니까?
-              이 작업은 되돌릴 수 없습니다.
+              {selectedRegion?.region_name}을(를) 삭제하시겠습니까? 이 작업은
+              되돌릴 수 없습니다.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -299,7 +325,15 @@ export default function RegionsPage() {
 }
 
 // 지역 폼 다이얼로그 컴포넌트
-function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, regions, isEdit }) {
+function RegionFormDialog({
+  open,
+  onOpenChange,
+  title,
+  onSubmit,
+  initialData,
+  regions,
+  isEdit,
+}) {
   const [formData, setFormData] = useState({
     region_code: '',
     region_name: '',
@@ -343,7 +377,7 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       parent_region_code: formData.parent_region_code || null,
     }
-    
+
     if (isEdit) {
       const { region_code, ...updateData } = submitData
       onSubmit(updateData)
@@ -367,7 +401,9 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
               <Input
                 id="region_code"
                 value={formData.region_code}
-                onChange={(e) => setFormData({ ...formData, region_code: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, region_code: e.target.value })
+                }
                 className="col-span-3"
                 required
                 disabled={isEdit}
@@ -380,7 +416,9 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
               <Input
                 id="region_name"
                 value={formData.region_name}
-                onChange={(e) => setFormData({ ...formData, region_name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, region_name: e.target.value })
+                }
                 className="col-span-3"
                 required
               />
@@ -391,7 +429,9 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
               </Label>
               <Select
                 value={formData.region_level}
-                onValueChange={(value) => setFormData({ ...formData, region_level: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, region_level: value })
+                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue />
@@ -408,7 +448,9 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
               </Label>
               <Select
                 value={formData.parent_region_code}
-                onValueChange={(value) => setFormData({ ...formData, parent_region_code: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parent_region_code: value })
+                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="선택 안 함" />
@@ -418,7 +460,10 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
                   {regions
                     ?.filter((r) => r.region_level === 1)
                     .map((region) => (
-                      <SelectItem key={region.region_code} value={region.region_code}>
+                      <SelectItem
+                        key={region.region_code}
+                        value={region.region_code}
+                      >
                         {region.region_name} ({region.region_code})
                       </SelectItem>
                     ))}
@@ -434,7 +479,9 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
                 type="number"
                 step="0.000001"
                 value={formData.latitude}
-                onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, latitude: e.target.value })
+                }
                 className="col-span-3"
                 placeholder="37.123456"
               />
@@ -448,14 +495,20 @@ function RegionFormDialog({ open, onOpenChange, title, onSubmit, initialData, re
                 type="number"
                 step="0.000001"
                 value={formData.longitude}
-                onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, longitude: e.target.value })
+                }
                 className="col-span-3"
                 placeholder="127.123456"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               취소
             </Button>
             <Button type="submit">{isEdit ? '수정' : '생성'}</Button>

@@ -36,7 +36,7 @@ import {
   BATCH_JOB_STATUS_LABELS,
   BATCH_JOB_STATUS_COLORS,
 } from '@/store/api/batchApi'
-import { PageContainer, PageHeader, ContentSection } from '../layouts'
+import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 const BatchManagement = () => {
   const [jobTypeFilter, setJobTypeFilter] = useState('all')

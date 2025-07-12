@@ -5,10 +5,10 @@ import {
   CardTitle,
   CardContent,
   CardDescription,
-} from '../ui/card'
-import { Button } from '../ui/button'
-import { REGION_MAP } from '../../constants/region'
-import { useGetTravelCourseByIdQuery } from '../../store/api/contentApi'
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { REGION_MAP } from '@/constants/region'
+import { useGetTravelCourseByIdQuery } from '@/store/api/contentApi'
 
 export default function ContentDetailPage() {
   const { contentId } = useParams()

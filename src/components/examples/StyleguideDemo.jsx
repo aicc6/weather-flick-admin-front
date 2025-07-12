@@ -1,12 +1,12 @@
 import { Users, Settings, Database } from 'lucide-react'
-import { PageLayout } from '../layouts/PageLayout'
-import { StatsGrid } from '../layouts/StatsGrid'
-import { FormLayout } from '../layouts/FormLayout'
-import { StandardCard } from '../common/StandardCard'
-import { StatusBadge } from '../common/StatusBadge'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import { PageLayout } from '@/layouts/PageLayout'
+import { StatsGrid } from '@/layouts/StatsGrid'
+import { FormLayout } from '@/layouts/FormLayout'
+import { StandardCard } from '@/components/common/StandardCard'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export function StyleguideDemo() {
   return (

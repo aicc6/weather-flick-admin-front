@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
-import { calculateWeatherStats } from '../../utils/weatherUtils.jsx'
+} from '@/components/ui/card'
+import { calculateWeatherStats } from '@/utils/weatherUtils.jsx'
 
 export function WeatherStatsCard({ weatherData }) {
   const stats = calculateWeatherStats(weatherData)

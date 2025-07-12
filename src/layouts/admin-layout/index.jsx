@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { logout } from '../../../store/slices/authSlice'
-import { Button } from '../../ui/button'
-import { ScrollArea } from '../../ui/scroll-area'
+import { logout } from '@/store/slices/authSlice'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Menu,
   X,
@@ -20,7 +20,7 @@ import {
   Bell,
   User,
 } from 'lucide-react'
-import { cn } from '../../../lib/utils'
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,8 +28,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar'
+} from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const navigation = [
   { name: '대시보드', href: '/', icon: LayoutDashboard },

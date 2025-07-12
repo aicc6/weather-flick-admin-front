@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { authHttp } from '../../lib/http'
+import { authHttp } from '@/lib/http'
 import {
   Card,
   CardHeader,
@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardTitle,
   CardDescription,
-} from '../ui/card'
+} from '@/components/ui/card'
 
 const emptyForm = {
   content_id: '',

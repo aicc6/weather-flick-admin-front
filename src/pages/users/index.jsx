@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
-import { Card, CardContent } from '../../../components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/ui/select'
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../../components/ui/table'
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../../components/ui/dialog'
+} from '@/components/ui/dialog'
 
 import {
   Users,
@@ -39,12 +39,12 @@ import {
   Trash2,
   AlertCircle,
 } from 'lucide-react'
-import { useAuth } from '../../../contexts/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   useGetUsersQuery,
   useCreateUserMutation,
   useDeleteUserMutation,
-} from '../../../store/api/usersApi'
+} from '@/store/api/usersApi'
 
 /**
  * URL: '/users'

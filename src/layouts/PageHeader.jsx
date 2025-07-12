@@ -1,4 +1,4 @@
-import { cn } from '../../lib/utils'
+import { cn } from '@/lib/utils'
 
 /**
  * 페이지 헤더 - 일관된 페이지 제목과 설명을 위한 컴포넌트

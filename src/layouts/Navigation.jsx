@@ -9,7 +9,7 @@ import {
   MapPin,
   Map,
 } from 'lucide-react'
-import { NAVIGATION_ITEMS } from '../../routes/types'
+import { NAVIGATION_ITEMS } from '@/routes/types'
 import { usePermissions } from '../auth/RoleBasedRoute'
 
 // 아이콘 매핑

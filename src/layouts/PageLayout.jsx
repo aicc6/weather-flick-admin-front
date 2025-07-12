@@ -1,4 +1,4 @@
-import { PageHeader } from '../common/PageHeader'
+import { PageHeader } from '@/components/common/PageHeader'
 
 export function PageLayout({
   title,

@@ -1,5 +1,5 @@
-import { cn } from '../../lib/utils'
-import { Card } from '../ui/card'
+import { cn } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
 
 /**
  * 컨텐츠 섹션 - 일관된 컨텐츠 영역을 위한 컴포넌트

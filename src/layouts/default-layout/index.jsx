@@ -1,6 +1,6 @@
 import { Footer } from './footer'
 import { Header } from './header'
-import { Breadcrumb } from '../../common/Breadcrumb'
+import { Breadcrumb } from '@/components/common/Breadcrumb'
 
 export function DefaultLayout({ children }) {
   return (

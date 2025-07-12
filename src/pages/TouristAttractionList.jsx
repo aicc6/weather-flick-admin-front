@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { REGION_MAP } from '../../constants/region'
+import { REGION_MAP } from '@/constants/region'
 import {
   Pagination,
   PaginationContent,
@@ -9,15 +9,15 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-} from '../ui/pagination'
-import { Alert, AlertDescription } from '../ui/alert'
+} from '@/components/ui/pagination'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, Edit2, Trash2 } from 'lucide-react'
 import {
   useGetTouristAttractionsQuery,
   useSearchTouristAttractionsQuery,
   useDeleteTouristAttractionMutation,
-} from '../../store/api/touristAttractionsApi'
-import { PageContainer, PageHeader, ContentSection } from '../layouts'
+} from '@/store/api/touristAttractionsApi'
+import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 export default function TouristAttractionList({ onEdit, onCreate }) {
   // 입력값과 실제 검색값을 분리

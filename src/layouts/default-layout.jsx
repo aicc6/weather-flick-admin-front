@@ -1,5 +1,5 @@
-import { useAuth } from '../../contexts/AuthContext'
-import { Button } from '../ui/button'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
 import {
   LogOut,
   User,
@@ -18,7 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import { useEffect, useState } from 'react'
 
 export const DefaultLayout = ({ children }) => {

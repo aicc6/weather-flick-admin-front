@@ -6,11 +6,11 @@ import {
   CardContent,
   CardFooter,
   CardDescription,
-} from '../ui/card'
-import { Accordion, AccordionItem } from '../ui/accordion'
+} from '@/components/ui/card'
+import { Accordion, AccordionItem } from '@/components/ui/accordion'
 // MapComponent는 실제 지도 컴포넌트로 교체 필요
-// import MapComponent from '../common/MapComponent';
-import { authHttp } from '../../lib/http'
+// import MapComponent from '@/components/common/MapComponent';
+import { authHttp } from '@/lib/http'
 
 export default function TouristAttractionDetail({
   contentId,

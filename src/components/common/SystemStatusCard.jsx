@@ -5,9 +5,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
-import { Badge } from '../ui/badge'
-import { useGetSystemStatusQuery } from '../../store/api/systemApi'
+} from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { useGetSystemStatusQuery } from '@/store/api/systemApi'
 
 export function SystemStatusCard() {
   const {

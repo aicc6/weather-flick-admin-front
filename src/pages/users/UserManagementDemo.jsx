@@ -1,21 +1,18 @@
 import { useState } from 'react'
 import { Users, Plus } from 'lucide-react'
-import {
-  useGetUsersQuery,
-  useDeleteUserMutation,
-} from '../../../store/api/usersApi'
-import { useAuth } from '../../../contexts/AuthContext'
+import { useGetUsersQuery, useDeleteUserMutation } from '@/store/api/usersApi'
+import { useAuth } from '@/contexts/AuthContext'
 
 // 새로운 공통 컴포넌트들 사용
-import { LoadingSpinner } from '../../common/LoadingSpinner'
-import { ErrorDisplay } from '../../common/ErrorDisplay'
-import { PageHeader } from '../../common/PageHeader'
-import { StatusBadge } from '../../common/StatusBadge'
-import { SearchInput } from '../../common/SearchInput'
-import { ConfirmDialog } from '../../common/ConfirmDialog'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { ErrorDisplay } from '@/components/common/ErrorDisplay'
+import { PageHeader } from '@/components/common/PageHeader'
+import { StatusBadge } from '@/components/common/StatusBadge'
+import { SearchInput } from '@/components/common/SearchInput'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
-import { Button } from '../../ui/button'
-import { Card, CardContent } from '../../ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -23,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../ui/table'
+} from '@/components/ui/table'
 
 export function UserManagementDemo() {
   const { user: _user } = useAuth()

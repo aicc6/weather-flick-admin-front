@@ -1,6 +1,6 @@
 import { ChevronRight, Home } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { ROUTE_META } from '../../routes/types'
+import { ROUTE_META } from '@/routes/types'
 
 export function Breadcrumb({ className = '' }) {
   const location = useLocation()

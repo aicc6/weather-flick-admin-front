@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   useGetUserStatsQuery,
   useGetUsersQuery,
@@ -7,8 +7,8 @@ import {
   useResetUserPasswordMutation,
   useActivateUserMutation,
   useDeactivateUserMutation,
-} from '../../store/api/usersApi'
-import { Card } from '../ui/card'
+} from '@/store/api/usersApi'
+import { Card } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -16,10 +16,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Badge } from '../ui/badge'
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog'
+} from '@/components/ui/alert-dialog'
 import {
   Users,
   MoreHorizontal,
@@ -46,8 +46,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { PageContainer, PageHeader, ContentSection } from '../layouts'
+} from '@/components/ui/dropdown-menu'
+import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 export const UsersPage = () => {
   const { user: _user } = useAuth()
