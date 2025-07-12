@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const adminsApi = createApi({
   reducerPath: 'adminsApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Admin'],
   endpoints: (builder) => ({
     getAdmins: builder.query({

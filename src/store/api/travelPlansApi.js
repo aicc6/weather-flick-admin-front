@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const travelPlansApi = createApi({
   reducerPath: 'travelPlansApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['TravelPlan'],
   endpoints: (builder) => ({
     getTravelPlans: builder.query({

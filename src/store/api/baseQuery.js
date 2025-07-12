@@ -24,6 +24,7 @@ export const baseQuery = fetchBaseQuery({
 // 401 에러 처리 함수
 const handle401Error = () => {
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
   localStorage.removeItem(STORAGE_KEYS.USER)
   // React Router를 사용한 리다이렉트를 권장하지만,
   // 간단한 구현을 위해 window.location 사용
@@ -61,27 +62,48 @@ export const baseQueryWithAuth = async (args, api, extraOptions) => {
   return result
 }
 
-// 재인증을 시도하는 baseQuery (필요시 사용)
+// 재인증을 시도하는 baseQuery
 export const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
   if (result.error && result.error.status === 401) {
+    // 리프레시 토큰 가져오기
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+    
+    if (!refreshToken) {
+      handle401Error()
+      return result
+    }
+
     // 리프레시 토큰으로 재인증 시도
     const refreshResult = await baseQuery(
-      '/api/auth/refresh',
+      {
+        url: '/api/auth/refresh',
+        method: 'POST',
+        body: { refresh_token: refreshToken },
+      },
       api,
       extraOptions,
     )
 
     if (refreshResult.data) {
       // 새 토큰 저장
-      const newToken =
+      const newAccessToken =
         refreshResult.data.access_token ||
         refreshResult.data.token?.access_token
-      if (newToken) {
-        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken)
+      const newRefreshToken =
+        refreshResult.data.refresh_token ||
+        refreshResult.data.token?.refresh_token
+        
+      if (newAccessToken) {
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken)
+        if (newRefreshToken) {
+          localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken)
+        }
         // 원래 요청 재시도
         result = await baseQuery(args, api, extraOptions)
+      } else {
+        handle401Error()
       }
     } else {
       handle401Error()
@@ -96,6 +118,13 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
   ) {
     if (result.data.success && result.data.data !== undefined) {
       result.data = result.data.data
+    } else if (!result.data.success && result.data.error) {
+      // 에러 응답 처리
+      result.error = {
+        status: result.error?.status || 'CUSTOM_ERROR',
+        data: result.data.error,
+      }
+      result.data = undefined
     }
   }
 

@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const systemApi = createApi({
   reducerPath: 'systemApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['SystemStatus', 'DashboardStats', 'Logs'],
   endpoints: (builder) => ({
     getDashboardStats: builder.query({

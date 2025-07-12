@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const batchApi = createApi({
   reducerPath: 'batchApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['BatchJob', 'BatchStats'],
   endpoints: (builder) => ({
     // 배치 작업 목록 조회

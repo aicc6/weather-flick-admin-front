@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const weatherApi = createApi({
   reducerPath: 'weatherApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Weather', 'WeatherRegions'],
   endpoints: (builder) => ({
     getCurrentWeather: builder.query({

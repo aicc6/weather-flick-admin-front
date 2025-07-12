@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithAuth } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const contentApi = createApi({
   reducerPath: 'contentApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Destination', 'RecommendationSettings'],
   endpoints: (builder) => ({
     getDestinations: builder.query({
@@ -90,7 +90,7 @@ export const {
 // Travel Courses API
 export const travelCoursesApi = createApi({
   reducerPath: 'travelCoursesApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['TravelCourse'],
   endpoints: (builder) => ({
     getTravelCourses: builder.query({
@@ -148,7 +148,7 @@ export const {
 // Festivals Events API
 export const festivalsEventsApi = createApi({
   reducerPath: 'festivalsEventsApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['FestivalEvent'],
   endpoints: (builder) => ({
     getFestivalEvents: builder.query({
@@ -212,7 +212,7 @@ export const {
 // Leisure Sports API
 export const leisureSportsApi = createApi({
   reducerPath: 'leisureSportsApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['LeisureSport'],
   endpoints: (builder) => ({
     getLeisureSports: builder.query({

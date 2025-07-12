@@ -44,12 +44,17 @@ export const AuthProvider = ({ children }) => {
       console.log('로그인 응답:', response)
 
       // API 응답 구조에 맞게 토큰 저장
-      const token = response.token?.access_token
-      if (!token) {
+      const accessToken = response.token?.access_token
+      const refreshToken = response.token?.refresh_token
+      
+      if (!accessToken) {
         throw new Error('토큰을 받지 못했습니다.')
       }
 
-      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token)
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+      if (refreshToken) {
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
+      }
 
       // 로그인 응답에서 바로 관리자 정보 사용
       if (response.admin) {
