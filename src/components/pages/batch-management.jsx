@@ -39,8 +39,8 @@ import {
 import { PageContainer, PageHeader, ContentSection } from '../layouts'
 
 const BatchManagement = () => {
-  const [jobTypeFilter, setJobTypeFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [jobTypeFilter, setJobTypeFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [selectedJobType, setSelectedJobType] = useState('')
   const [jobParameters, setJobParameters] = useState('')
@@ -52,8 +52,8 @@ const BatchManagement = () => {
     refetch: refetchJobs,
     isLoading: jobsLoading,
   } = useGetBatchJobsQuery({
-    job_type: jobTypeFilter || undefined,
-    status: statusFilter || undefined,
+    job_type: jobTypeFilter === 'all' ? undefined : jobTypeFilter,
+    status: statusFilter === 'all' ? undefined : statusFilter,
     page,
     limit: 10,
   })
@@ -211,7 +211,7 @@ const BatchManagement = () => {
                         <SelectValue placeholder="전체" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">전체</SelectItem>
+                        <SelectItem value="all">전체</SelectItem>
                         {Object.entries(BATCH_JOB_TYPE_LABELS).map(
                           ([key, label]) => (
                             <SelectItem key={key} value={key}>
@@ -232,7 +232,7 @@ const BatchManagement = () => {
                         <SelectValue placeholder="전체" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">전체</SelectItem>
+                        <SelectItem value="all">전체</SelectItem>
                         {Object.entries(BATCH_JOB_STATUS_LABELS).map(
                           ([key, label]) => (
                             <SelectItem key={key} value={key}>
