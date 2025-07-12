@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       // API 응답 구조에 맞게 토큰 저장
       const accessToken = response.token?.access_token
       const refreshToken = response.token?.refresh_token
-      
+
       if (!accessToken) {
         throw new Error('토큰을 받지 못했습니다.')
       }

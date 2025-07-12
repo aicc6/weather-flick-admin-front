@@ -78,7 +78,11 @@ export function AdminLayout({ children }) {
         {/* Sidebar Header */}
         <div className="border-sidebar-border flex h-16 items-center justify-between border-b px-6">
           <div className="flex items-center gap-2">
-            <img src="/newicon.jpg" alt="Weather Flick Logo" className="h-8 w-8 rounded-lg" />
+            <img
+              src="/newicon.jpg"
+              alt="Weather Flick Logo"
+              className="h-8 w-8 rounded-lg"
+            />
             <span className="text-sidebar-foreground text-lg font-semibold">
               Weather Flick
             </span>
@@ -101,10 +105,10 @@ export function AdminLayout({ children }) {
               if (!canAccess(item)) {
                 return null
               }
-              
+
               const isActive = location.pathname === item.path
               const Icon = ICON_MAP[item.icon] || LayoutDashboard
-              
+
               return (
                 <button
                   key={item.path}

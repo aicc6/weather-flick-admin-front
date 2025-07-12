@@ -59,7 +59,8 @@ export default function RegionsPage() {
   const [createRegion] = useCreateRegionMutation()
   const [updateRegion] = useUpdateRegionMutation()
   const [deleteRegion] = useDeleteRegionMutation()
-  const [updateCoordinates, { isLoading: isUpdatingCoordinates }] = useUpdateCoordinatesMutation()
+  const [updateCoordinates, { isLoading: isUpdatingCoordinates }] =
+    useUpdateCoordinatesMutation()
   const { data: missingCoordData } = useGetMissingCoordinatesQuery()
 
   // 트리 노드 토글
@@ -117,7 +118,7 @@ export default function RegionsPage() {
     try {
       const result = await updateCoordinates().unwrap()
       toast.success(
-        `좌표 업데이트 완료: ${result.updated}개 업데이트, ${result.skipped}개 스킵, ${result.not_found}개 미발견`
+        `좌표 업데이트 완료: ${result.updated}개 업데이트, ${result.skipped}개 스킵, ${result.not_found}개 미발견`,
       )
       refetch()
     } catch (error) {
@@ -237,10 +238,9 @@ export default function RegionsPage() {
                 disabled={isUpdatingCoordinates}
               >
                 <Navigation className="mr-2 h-4 w-4" />
-                {isUpdatingCoordinates 
-                  ? '업데이트 중...' 
-                  : `좌표 업데이트 (${missingCoordData.total}개 누락)`
-                }
+                {isUpdatingCoordinates
+                  ? '업데이트 중...'
+                  : `좌표 업데이트 (${missingCoordData.total}개 누락)`}
               </Button>
             )}
             <Button onClick={() => setIsCreateOpen(true)}>
@@ -480,9 +480,12 @@ function RegionFormDialog({
                 상위지역
               </Label>
               <Select
-                value={formData.parent_region_code || "none"}
+                value={formData.parent_region_code || 'none'}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, parent_region_code: value === "none" ? "" : value })
+                  setFormData({
+                    ...formData,
+                    parent_region_code: value === 'none' ? '' : value,
+                  })
                 }
               >
                 <SelectTrigger className="col-span-3">

@@ -8,7 +8,13 @@ export const regionsApi = createApi({
   endpoints: (builder) => ({
     // 지역 목록 조회
     getRegions: builder.query({
-      query: ({ page = 1, size = 50, search, parent_region_code, region_level }) => ({
+      query: ({
+        page = 1,
+        size = 50,
+        search,
+        parent_region_code,
+        region_level,
+      }) => ({
         url: '/api/regions',
         params: {
           page,
@@ -24,7 +30,9 @@ export const regionsApi = createApi({
     // 특정 지역 조회
     getRegion: builder.query({
       query: (regionCode) => `/api/regions/${regionCode}`,
-      providesTags: (result, error, regionCode) => [{ type: 'Region', id: regionCode }],
+      providesTags: (result, error, regionCode) => [
+        { type: 'Region', id: regionCode },
+      ],
     }),
 
     // 지역 생성

@@ -69,7 +69,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
   if (result.error && result.error.status === 401) {
     // 리프레시 토큰 가져오기
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
-    
+
     if (!refreshToken) {
       handle401Error()
       return result
@@ -94,7 +94,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
       const newRefreshToken =
         refreshResult.data.refresh_token ||
         refreshResult.data.token?.refresh_token
-        
+
       if (newAccessToken) {
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken)
         if (newRefreshToken) {
