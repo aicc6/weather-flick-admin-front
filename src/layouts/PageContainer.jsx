@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils'
  */
 export function PageContainer({ children, className }) {
   return (
-    <div className={cn('mx-auto max-w-7xl space-y-4 px-4 py-6', className)}>
-      {children}
-    </div>
+    <div className={cn('mx-auto space-y-4 py-6', className)}>{children}</div>
   )
 }
