@@ -56,9 +56,7 @@ export const LoginPage = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mb-6 flex items-center justify-center gap-3">
-            <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-lg shadow-lg">
-              <Cloud className="text-primary-foreground h-7 w-7" />
-            </div>
+            <img src="/newicon.jpg" alt="Weather Flick Logo" className="h-12 w-12 rounded-lg shadow-lg" />
             <h1 className="text-foreground text-3xl font-bold">
               Weather Flick
             </h1>

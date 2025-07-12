@@ -70,9 +70,7 @@ export function AdminLayout({ children }) {
         {/* Sidebar Header */}
         <div className="border-sidebar-border flex h-16 items-center justify-between border-b px-6">
           <div className="flex items-center gap-2">
-            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-              <Cloud className="text-primary-foreground h-5 w-5" />
-            </div>
+            <img src="/newicon.jpg" alt="Weather Flick Logo" className="h-8 w-8 rounded-lg" />
             <span className="text-sidebar-foreground text-lg font-semibold">
               Weather Flick
             </span>
