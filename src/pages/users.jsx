@@ -64,7 +64,7 @@ export const UsersPage = () => {
     isLoading: usersLoading,
     error: usersError,
     refetch: refetchUsers,
-  } = useGetUsersQuery({ page: 1, size: 50 })
+  } = useGetUsersQuery({ page: 1, size: 50, include_deleted: true })
 
   // Mutation 훅들
   const [deleteUser] = useDeleteUserMutation()
@@ -79,11 +79,37 @@ export const UsersPage = () => {
     useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
 
   // 파생 상태
   const users = usersData?.users || []
   const loading = statsLoading || usersLoading
   const error = statsError || usersError
+  
+  // 탈퇴한 사용자 필터링
+  const deletedUsers = users.filter(user => user.email?.startsWith('deleted_'))
+  const activeUsers = users.filter(user => !user.email?.startsWith('deleted_'))
+  
+  // 통계 데이터가 없으면 사용자 목록에서 계산
+  const calculatedStats = {
+    total: activeUsers.length,
+    active: activeUsers.filter(user => user.is_active).length,
+    inactive: activeUsers.filter(user => !user.is_active).length,
+    deleted: deletedUsers.length
+  }
+  
+  // API 응답의 필드명을 맞춰줌
+  const displayStats = stats ? {
+    total: stats.total_users || 0,
+    active: stats.active_users || 0,
+    inactive: (stats.total_users || 0) - (stats.active_users || 0),
+    deleted: deletedUsers.length  // API 통계에는 없으므로 직접 계산
+  } : calculatedStats
+  
+  // 디버깅용
+  console.log('Stats:', stats)
+  console.log('Users:', users)
+  console.log('Display Stats:', displayStats)
 
   // 에러 로깅
   useEffect(() => {
@@ -98,12 +124,25 @@ export const UsersPage = () => {
     refetchUsers()
   }
 
-  // 검색 필터링
-  const filteredUsers = users.filter(
-    (user) =>
+  // 검색 및 상태 필터링
+  const filteredUsers = users.filter((user) => {
+    // 검색어 필터
+    const matchesSearch =
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.nickname?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // 탈퇴 여부 확인
+    const isDeleted = user.email?.startsWith('deleted_')
+    
+    // 상태 필터
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'active' && user.is_active && !isDeleted) ||
+      (statusFilter === 'inactive' && !user.is_active && !isDeleted) ||
+      (statusFilter === 'deleted' && isDeleted)
+    
+    return matchesSearch && matchesStatus
+  })
 
   // 사용자 삭제
   const handleDeleteItem = async () => {
@@ -175,7 +214,7 @@ export const UsersPage = () => {
   }
 
   // 에러가 있거나 데이터가 없는 경우 처리
-  if (!stats && !users) {
+  if (!displayStats && !users) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
@@ -196,45 +235,62 @@ export const UsersPage = () => {
       />
 
       {/* 상단 요약 카드 */}
-      {stats && (
+      {displayStats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="flex flex-col items-center justify-center p-4">
+          <Card 
+            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+              statusFilter === 'all' ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => setStatusFilter('all')}
+          >
             <Users className="text-primary mb-2 h-8 w-8" />
             <span className="text-muted-foreground text-sm font-medium">
               총 사용자
             </span>
             <span className="text-foreground text-2xl font-bold">
-              {stats.total}
+              {displayStats.total}명
             </span>
           </Card>
-          <Card className="flex flex-col items-center justify-center p-4">
+          <Card 
+            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+              statusFilter === 'active' ? 'ring-2 ring-green-600' : ''
+            }`}
+            onClick={() => setStatusFilter('active')}
+          >
             <UserCheck className="mb-2 h-8 w-8 text-green-600" />
             <span className="text-muted-foreground text-sm font-medium">
               활성 사용자
             </span>
             <span className="text-2xl font-bold text-green-600">
-              {stats.active}
+              {displayStats.active}명
             </span>
           </Card>
-          <Card className="flex flex-col items-center justify-center p-4">
+          <Card 
+            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+              statusFilter === 'inactive' ? 'ring-2 ring-gray-600' : ''
+            }`}
+            onClick={() => setStatusFilter('inactive')}
+          >
             <UserX className="text-muted-foreground mb-2 h-8 w-8" />
             <span className="text-muted-foreground text-sm font-medium">
               비활성 사용자
             </span>
             <span className="text-muted-foreground text-2xl font-bold">
-              {stats.inactive}
+              {displayStats.inactive}명
             </span>
           </Card>
-          <Card className="flex flex-col items-center justify-center p-4">
-            <Users className="text-accent-cyan mb-2 h-8 w-8" />
+          <Card 
+            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+              statusFilter === 'deleted' ? 'ring-2 ring-red-600' : ''
+            }`}
+            onClick={() => setStatusFilter('deleted')}
+          >
+            <Trash2 className="text-red-600 mb-2 h-8 w-8" />
             <span className="text-muted-foreground text-sm font-medium">
-              활성률
+              탈퇴 사용자
             </span>
-            <span className="text-accent-cyan text-2xl font-bold">
-              {stats.total > 0
-                ? Math.round((stats.active / stats.total) * 100)
-                : 0}
-              %
+            <span className="text-red-600 text-2xl font-bold">
+              {displayStats.deleted}명
             </span>
           </Card>
         </div>
@@ -243,12 +299,28 @@ export const UsersPage = () => {
       {/* 검색 영역 */}
       <ContentSection transparent>
         <div className="flex items-center justify-between">
-          <Input
-            placeholder="이메일 또는 닉네임으로 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm"
-          />
+          <div className="flex items-center gap-4">
+            <Input
+              placeholder="이메일 또는 닉네임으로 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-sm"
+            />
+            {statusFilter !== 'all' && (
+              <Badge 
+                variant="secondary" 
+                className="cursor-pointer"
+                onClick={() => setStatusFilter('all')}
+              >
+                {statusFilter === 'active' ? '활성 사용자' : 
+                 statusFilter === 'inactive' ? '비활성 사용자' : '탈퇴 사용자'} 필터
+                <span className="ml-1">✕</span>
+              </Badge>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            전체 {users.length}명 중 {filteredUsers.length}명 표시
+          </div>
         </div>
       </ContentSection>
 
@@ -265,39 +337,50 @@ export const UsersPage = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((item) => (
-              <TableRow
-                key={item.user_id}
-                className="transition hover:bg-gray-50"
-              >
-                <TableCell>{item.email}</TableCell>
-                <TableCell>{item.nickname || item.name}</TableCell>
-                <TableCell>
-                  <Badge variant={item.is_active ? 'success' : 'destructive'}>
-                    {item.is_active ? '활성' : '비활성'}
-                  </Badge>
-                </TableCell>
+            {filteredUsers.map((item) => {
+              const isDeleted = item.email?.startsWith('deleted_')
+              return (
+                <TableRow
+                  key={item.user_id}
+                  className={`transition hover:bg-gray-50 ${isDeleted ? 'opacity-60' : ''}`}
+                >
+                  <TableCell>{item.email}</TableCell>
+                  <TableCell>{item.nickname || item.name}</TableCell>
+                  <TableCell>
+                    {isDeleted ? (
+                      <Badge variant="destructive">
+                        탈퇴
+                      </Badge>
+                    ) : (
+                      <Badge variant={item.is_active ? 'success' : 'destructive'}>
+                        {item.is_active ? '활성' : '비활성'}
+                      </Badge>
+                    )}
+                  </TableCell>
                 <TableCell>
                   <Badge variant={item.is_superuser ? 'success' : 'outline'}>
                     {item.is_superuser ? '슈퍼유저' : '일반'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                          console.log('드롭다운 버튼 클릭됨', item)
-                          e.stopPropagation()
-                        }}
-                      >
-                        <span className="sr-only">메뉴 열기</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                  {isDeleted ? (
+                    <span className="text-muted-foreground text-sm">탈퇴됨</span>
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            console.log('드롭다운 버튼 클릭됨', item)
+                            e.stopPropagation()
+                          }}
+                        >
+                          <span className="sr-only">메뉴 열기</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={(e) => {
                           console.log('상세보기 클릭됨', item)
@@ -354,11 +437,13 @@ export const UsersPage = () => {
                         <Trash2 className="mr-2 h-4 w-4" />
                         삭제
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </TableCell>
               </TableRow>
-            ))}
+              )
+            })}
           </TableBody>
         </Table>
       </ContentSection>
