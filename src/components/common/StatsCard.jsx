@@ -73,7 +73,7 @@ export const StatsCard = memo(
             <CardTitle className="text-base font-medium">{title}</CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
-          <div className={cn('rounded-lg p-2 bg-primary/10')}>
+          <div className={cn('bg-primary/10 rounded-lg p-2')}>
             <Icon className={iconClasses} aria-hidden="true" />
           </div>
         </CardHeader>

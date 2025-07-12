@@ -199,20 +199,25 @@ export const AdminsPage = () => {
         </Alert>
       )}
 
-      <div className="flex items-center space-x-2">
-        <div className="relative">
-          <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-          <Input
-            placeholder="관리자 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8"
-          />
+      {/* 검색 영역 */}
+      <ContentSection transparent>
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+            <Input
+              placeholder="관리자 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
         </div>
-      </div>
+      </ContentSection>
 
-      <div className="grid gap-4">
-        {filteredAdmins.map((admin) => (
+      {/* 관리자 목록 */}
+      <ContentSection transparent>
+        <div className="grid gap-4">
+          {filteredAdmins.map((admin) => (
           <Card key={admin.admin_id}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -367,14 +372,15 @@ export const AdminsPage = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {filteredAdmins.length === 0 && (
-        <div className="py-8 text-center">
-          <p className="text-muted-foreground">관리자가 없습니다.</p>
+          ))}
         </div>
-      )}
-    </div>
+
+        {filteredAdmins.length === 0 && (
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground">관리자가 없습니다.</p>
+          </div>
+        )}
+      </ContentSection>
+    </PageContainer>
   )
 }

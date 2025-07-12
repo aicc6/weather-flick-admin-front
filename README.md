@@ -16,17 +16,17 @@ Weather Flick Admin Frontend는 서비스 운영진이 사용자, 콘텐츠, 시
 
 ## 🚀 기술 스택
 
-| 카테고리 | 기술 | 버전 | 선택 이유 |
-|---|---|---|---|
-| **프레임워크** | React | 18.3.1 | 안정성과 생태계 지원 |
-| **언어** | JavaScript (JSX) | ES2022 | 개발 속도 및 팀 역량 |
-| **빌드 도구** | Vite | 6.3.5 | 빠른 개발 서버 |
-| **스타일링** | TailwindCSS + Radix UI | 4.1.10 | 접근성 중심 디자인 |
-| **상태 관리** | Redux Toolkit + RTK Query | 2.8.2 | 서버 상태 최적화 |
-| **라우팅** | React Router | 7.6.2 | 최신 라우팅 시스템 |
-| **폼 관리** | React Hook Form + Zod | 7.58.1 | 성능과 검증 |
-| **HTTP 클라이언트** | Custom Fetch + RTK Query | - | 3중 레이어 구조 |
-| **아이콘** | Lucide React | 0.522.0 | 가벼운 아이콘 세트 |
+| 카테고리            | 기술                      | 버전    | 선택 이유            |
+| ------------------- | ------------------------- | ------- | -------------------- |
+| **프레임워크**      | React                     | 18.3.1  | 안정성과 생태계 지원 |
+| **언어**            | JavaScript (JSX)          | ES2022  | 개발 속도 및 팀 역량 |
+| **빌드 도구**       | Vite                      | 6.3.5   | 빠른 개발 서버       |
+| **스타일링**        | TailwindCSS + Radix UI    | 4.1.10  | 접근성 중심 디자인   |
+| **상태 관리**       | Redux Toolkit + RTK Query | 2.8.2   | 서버 상태 최적화     |
+| **라우팅**          | React Router              | 7.6.2   | 최신 라우팅 시스템   |
+| **폼 관리**         | React Hook Form + Zod     | 7.58.1  | 성능과 검증          |
+| **HTTP 클라이언트** | Custom Fetch + RTK Query  | -       | 3중 레이어 구조      |
+| **아이콘**          | Lucide React              | 0.522.0 | 가벼운 아이콘 세트   |
 
 ## 📁 프로젝트 구조
 
@@ -121,14 +121,14 @@ VITE_ADMIN_SESSION_TIMEOUT=3600000
 
 ```javascript
 // RTK Query 사용 예시 (서버 상태)
-import { useGetAdminsQuery } from '@/store/api/adminsApi';
-import { useGetUsersStatsQuery } from '@/store/api/usersApi';
+import { useGetAdminsQuery } from '@/store/api/adminsApi'
+import { useGetUsersStatsQuery } from '@/store/api/usersApi'
 
-const { data: admins, isLoading } = useGetAdminsQuery();
-const { data: userStats } = useGetUsersStatsQuery();
+const { data: admins, isLoading } = useGetAdminsQuery()
+const { data: userStats } = useGetUsersStatsQuery()
 
 // Context API 사용 예시 (인증)
-const { user, login, logout } = useAuth();
+const { user, login, logout } = useAuth()
 ```
 
 ### HTTP 통신 (3중 레이어 구조)
@@ -137,16 +137,16 @@ const { user, login, logout } = useAuth();
 
 ```javascript
 // 1. RTK Query API (주 사용)
-import { useGetAdminsStatsQuery } from '@/store/api/adminsApi';
-const { data: stats } = useGetAdminsStatsQuery();
+import { useGetAdminsStatsQuery } from '@/store/api/adminsApi'
+const { data: stats } = useGetAdminsStatsQuery()
 
 // 2. 커스텀 HTTP 클라이언트
-import { authHttp } from '@/lib/http';
-const response = await authHttp.GET('/auth/admins/stats');
+import { authHttp } from '@/lib/http'
+const response = await authHttp.GET('/auth/admins/stats')
 
 // 3. 기본 API 서비스
-import { authAPI } from '@/services/api';
-const result = await authAPI.getAdminStats();
+import { authAPI } from '@/services/api'
+const result = await authAPI.getAdminStats()
 
 // 자동 Bearer 토큰 관리
 // 관리자 권한 검증 포함
@@ -168,7 +168,7 @@ const result = await authAPI.getAdminStats();
  */
 const AdminStatsCard = ({ stats, period }) => {
   // 컴포넌트 구현
-};
+}
 ```
 
 ## 🔗 백엔드 연동
@@ -193,36 +193,47 @@ python run_dev.py  # 개발 서버 (포트: 9000)
 - `/api/v1/admin/system/*` - 시스템 상태 관리
 
 **실제 구현된 엔드포인트 예시:**
+
 ```javascript
-GET /auth/admins/stats     // 관리자 통계
-GET /users/stats           // 사용자 통계
-GET /tourist-attractions/  // 관광지 목록
-GET /weather/summary-db    // 날씨 요약
+GET / auth / admins / stats // 관리자 통계
+GET / users / stats // 사용자 통계
+GET / tourist -
+  attractions / // 관광지 목록
+    GET /
+    weather /
+    summary -
+  db // 날씨 요약
 ```
 
 ## 📱 주요 페이지
 
 ### 1. 로그인 (`/login`)
+
 - 관리자 전용 인증 시스템
 - 보안 강화된 로그인 프로세스
 
 ### 2. 메인 대시보드 (`/`)
+
 - 전체 서비스 통계 요약
 - 실시간 모니터링 위젯
 
 ### 3. 사용자 관리 (`/users`)
+
 - 회원 목록 및 상세 정보
 - 계정 상태 관리 및 권한 설정
 
 ### 4. 콘텐츠 관리 (`/content`)
+
 - 관광지 정보 편집
 - 리뷰 및 여행 계획 승인
 
 ### 5. 시스템 관리 (`/system`)
+
 - 서비스 설정 및 구성
 - 로그 모니터링 및 알림 설정
 
 ### 6. 관리자 관리 (`/admins`)
+
 - 관리자 계정 관리
 - 권한 및 역할 설정
 
@@ -236,7 +247,7 @@ GET /weather/summary-db    // 날씨 요약
 
 ```javascript
 // 권한 확인 예시
-const { hasPermission } = useAuth();
+const { hasPermission } = useAuth()
 
 if (hasPermission('USER_MANAGEMENT')) {
   // 사용자 관리 기능 접근 허용
@@ -279,15 +290,15 @@ npm run build
 server {
     listen 443 ssl;
     server_name admin.your-domain.com;
-    
+
     # SSL 설정 필수
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
-    
+
     location / {
         root /path/to/dist;
         try_files $uri $uri/ /index.html;
-        
+
         # IP 제한 (관리자 접근만 허용)
         allow 192.168.1.0/24;
         deny all;

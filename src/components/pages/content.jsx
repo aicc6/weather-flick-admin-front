@@ -237,59 +237,38 @@ export const ContentPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 py-8">
+    <PageContainer>
+      <PageHeader
+        title="콘텐츠 관리"
+        description="여행 코스, 여행 계획, 축제 이벤트 및 레저 스포츠 시설을 관리합니다."
+      />
+      
       {/* 탭 UI */}
-      <div className="mb-6 flex gap-2 border-b">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            className={`px-4 py-2 font-semibold transition-colors focus:outline-none ${activeTab === tab.key ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-blue-600'}`}
-            onClick={() => setActiveTab(tab.key)}
-            type="button"
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      {/* 섹션별 내용 */}
-      {activeTab === 'course' && (
-        <>
-          {/* 상단 제목/설명 */}
-          <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-                여행코스 관리
-              </h2>
-              <p className="mt-1 text-gray-500">
-                여행코스 정보를 등록, 수정, 삭제하고 검색할 수 있습니다.
-              </p>
-            </div>
+      <ContentSection>
+        <div className="mb-4 flex gap-2 border-b">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`px-4 py-2 font-semibold transition-colors focus:outline-none ${activeTab === tab.key ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-blue-600'}`}
+              onClick={() => setActiveTab(tab.key)}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {/* 섹션별 내용 */}
+        {activeTab === 'course' && (
+          <>
+            {/* 에러 알림 */}
             {errorMsg && (
-              <Button
-                onClick={() => {
-                  setErrorMsg(null)
-                  refetch()
-                }}
-                variant="outline"
-                size="sm"
-                disabled={isLoading}
-              >
-                <RefreshCw
-                  className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
-                />
-                재시도
-              </Button>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errorMsg}</AlertDescription>
+              </Alert>
             )}
-          </div>
-          {/* 에러 알림 */}
-          {errorMsg && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{errorMsg}</AlertDescription>
-            </Alert>
-          )}
-          {/* 검색/등록 카드 */}
-          <Card className="border border-gray-200 shadow-md">
+            {/* 검색/등록 카드 */}
+            <Card className="border border-gray-200 shadow-md">
             <CardContent>
               <div className="mb-2">
                 <div className="text-lg font-bold">검색 및 등록</div>
@@ -551,7 +530,8 @@ export const ContentPage = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </ContentSection>
+    </PageContainer>
   )
 }
 
@@ -1734,6 +1714,7 @@ function TravelPlansSection() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+      </ContentSection>
+    </PageContainer>
   )
 }

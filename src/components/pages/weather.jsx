@@ -1,15 +1,10 @@
 import { useMemo } from 'react'
 import WeatherAlert from './WeatherAlert'
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from '../ui/card'
+
 import { WeatherStatsCard } from '../common/WeatherStatsCard'
 import { getWeatherIcon } from '../../utils/weatherUtils'
 import { useGetLatestWeatherDataQuery } from '../../store/api/weatherApi'
+import { PageContainer, PageHeader, ContentSection } from '../layouts'
 
 // 간단한 날씨 아이콘 함수
 function getWeatherEmoji(desc) {
@@ -41,65 +36,69 @@ function WeatherRealtimePage() {
   }, [weatherList])
 
   return (
-    <div className="page-layout mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8">
+    <PageContainer>
+      <PageHeader
+        title="날씨 정보 관리"
+        description="주요 도시의 실시간 날씨 정보를 확인하고 관리합니다."
+      />
+
       {/* 요약 통계 카드 (대시보드 스타일) */}
-      <WeatherStatsCard weatherData={weatherDataMap} />
+      <ContentSection transparent>
+        <WeatherStatsCard weatherData={weatherDataMap} />
+      </ContentSection>
 
       {/* 날씨 알림 카드 */}
       {weatherList.length > 0 && (
-        <Card className="mx-auto w-full">
-          <CardHeader></CardHeader>
-          <CardContent>
-            <WeatherAlert weather={weatherList[0]} />
-          </CardContent>
-        </Card>
+        <ContentSection>
+          <WeatherAlert weather={weatherList[0]} />
+        </ContentSection>
       )}
 
       {/* 도시별 요약 카드 (가로 스크롤) */}
       {weatherList.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>도시별 요약</CardTitle>
-            <CardDescription>
-              주요 도시의 현재 날씨를 한눈에 확인
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4 overflow-x-auto py-2">
-              {weatherList.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-muted flex min-w-[110px] flex-col items-center rounded-lg border px-2 py-2"
-                  style={{ flex: '0 0 110px' }}
-                >
-                  <div className="mb-1 text-sm font-semibold text-blue-900">
-                    {item.city_name}
-                  </div>
-                  <div className="mb-1 text-2xl font-bold text-blue-600">
-                    {item.temperature}°
-                  </div>
-                  <div className="mb-1">
-                    {getWeatherIcon(item.weather_description)}
-                  </div>
-                  <div className="text-muted-foreground min-h-[18px] text-center text-xs">
-                    {item.weather_description}
-                  </div>
+        <ContentSection>
+          <h3 className="mb-4 text-lg font-semibold">도시별 요약</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
+            주요 도시의 현재 날씨를 한눈에 확인
+          </p>
+          <div className="flex gap-4 overflow-x-auto py-2">
+            {weatherList.map((item) => (
+              <div
+                key={item.id}
+                className="bg-muted flex min-w-[110px] flex-col items-center rounded-lg border px-2 py-2"
+                style={{ flex: '0 0 110px' }}
+              >
+                <div className="mb-1 text-sm font-semibold text-blue-900">
+                  {item.city_name}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <div className="mb-1 text-2xl font-bold text-blue-600">
+                  {item.temperature}°
+                </div>
+                <div className="mb-1">
+                  {getWeatherIcon(item.weather_description)}
+                </div>
+                <div className="text-muted-foreground min-h-[18px] text-center text-xs">
+                  {item.weather_description}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ContentSection>
       )}
 
       {loading && (
-        <p className="text-muted-foreground text-center">로딩 중...</p>
+        <div className="text-center">
+          <p className="text-muted-foreground">로딩 중...</p>
+        </div>
       )}
       {error && (
-        <p className="text-center text-red-500">
-          {error.data?.message || '날씨 데이터를 불러오지 못했습니다.'}
-        </p>
+        <div className="text-center">
+          <p className="text-red-500">
+            {error.data?.message || '날씨 데이터를 불러오지 못했습니다.'}
+          </p>
+        </div>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

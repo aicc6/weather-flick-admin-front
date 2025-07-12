@@ -47,6 +47,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { PageContainer, PageHeader, ContentSection } from '../layouts'
 
 export const UsersPage = () => {
   const { user: _user } = useAuth()
@@ -188,49 +189,71 @@ export const UsersPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold tracking-tight">사용자 관리</h2>
-        <p className="text-muted-foreground">
-          전체 사용자를 효율적으로 관리할 수 있습니다.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="사용자 관리"
+        description="전체 사용자를 효율적으로 관리할 수 있습니다."
+      />
+
       {/* 상단 요약 카드 */}
       {stats && (
-        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="flex flex-col items-center justify-center p-4">
-            <Users className="mb-1 h-7 w-7 text-blue-500" />
-            <span className="font-semibold">총 사용자</span>
-            <span className="text-lg font-bold text-blue-700">
+            <Users className="text-primary mb-2 h-8 w-8" />
+            <span className="text-muted-foreground text-sm font-medium">
+              총 사용자
+            </span>
+            <span className="text-foreground text-2xl font-bold">
               {stats.total}
             </span>
           </Card>
           <Card className="flex flex-col items-center justify-center p-4">
-            <UserCheck className="mb-1 h-7 w-7 text-green-500" />
-            <span className="font-semibold">활성 사용자</span>
-            <span className="text-lg font-bold text-green-700">
+            <UserCheck className="mb-2 h-8 w-8 text-green-600" />
+            <span className="text-muted-foreground text-sm font-medium">
+              활성 사용자
+            </span>
+            <span className="text-2xl font-bold text-green-600">
               {stats.active}
             </span>
           </Card>
           <Card className="flex flex-col items-center justify-center p-4">
-            <UserX className="mb-1 h-7 w-7 text-gray-400" />
-            <span className="font-semibold">비활성 사용자</span>
-            <span className="text-lg font-bold text-gray-500">
+            <UserX className="text-muted-foreground mb-2 h-8 w-8" />
+            <span className="text-muted-foreground text-sm font-medium">
+              비활성 사용자
+            </span>
+            <span className="text-muted-foreground text-2xl font-bold">
               {stats.inactive}
+            </span>
+          </Card>
+          <Card className="flex flex-col items-center justify-center p-4">
+            <Users className="text-accent-cyan mb-2 h-8 w-8" />
+            <span className="text-muted-foreground text-sm font-medium">
+              활성률
+            </span>
+            <span className="text-accent-cyan text-2xl font-bold">
+              {stats.total > 0
+                ? Math.round((stats.active / stats.total) * 100)
+                : 0}
+              %
             </span>
           </Card>
         </div>
       )}
-      <div className="mb-4 flex items-center justify-between">
-        <Input
-          placeholder="이메일/닉네임 검색..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-64 rounded-lg shadow-sm"
-        />
-      </div>
-      {/* 테이블 modern 스타일 */}
-      <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
+
+      {/* 검색 영역 */}
+      <ContentSection transparent>
+        <div className="flex items-center justify-between">
+          <Input
+            placeholder="이메일 또는 닉네임으로 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-sm"
+          />
+        </div>
+      </ContentSection>
+
+      {/* 사용자 테이블 */}
+      <ContentSection noPadding>
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
@@ -338,7 +361,7 @@ export const UsersPage = () => {
             ))}
           </TableBody>
         </Table>
-      </div>
+      </ContentSection>
 
       {/* 비밀번호 초기화 확인 다이얼로그 */}
       <AlertDialog
@@ -393,6 +416,6 @@ export const UsersPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   )
 }

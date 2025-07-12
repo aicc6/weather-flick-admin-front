@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '../../lib/utils'
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto rounded-lg border border-border">
+  <div className="border-border relative w-full overflow-auto rounded-lg border">
     <table
       ref={ref}
       className={cn('w-full caption-bottom text-sm', className)}
@@ -13,7 +13,11 @@ const Table = React.forwardRef(({ className, ...props }, ref) => (
 Table.displayName = 'Table'
 
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('bg-muted/50 [&_tr]:border-b', className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn('bg-muted/50 [&_tr]:border-b', className)}
+    {...props}
+  />
 ))
 TableHeader.displayName = 'TableHeader'
 
@@ -42,7 +46,7 @@ const TableRow = React.forwardRef(({ className, ...props }, ref) => (
   <tr
     ref={ref}
     className={cn(
-      'border-b transition-colors hover:bg-muted/30 data-[state=selected]:bg-muted',
+      'hover:bg-muted/30 data-[state=selected]:bg-muted border-b transition-colors',
       className,
     )}
     {...props}
@@ -54,7 +58,7 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
+      'text-muted-foreground h-12 px-4 text-left align-middle font-medium [&:has([role=checkbox])]:pr-0',
       className,
     )}
     {...props}

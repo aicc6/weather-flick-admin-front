@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../../../store/slices/authSlice'
 import { Button } from '../../ui/button'
 import { ScrollArea } from '../../ui/scroll-area'
-import { 
+import {
   Menu,
   X,
   LayoutDashboard,
@@ -18,7 +18,7 @@ import {
   Sun,
   Moon,
   Bell,
-  User
+  User,
 } from 'lucide-react'
 import { cn } from '../../../lib/utils'
 import {
@@ -59,21 +59,21 @@ export function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="bg-background flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-300 lg:relative lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          'bg-sidebar border-sidebar-border fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r transition-transform duration-300 lg:relative lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         {/* Sidebar Header */}
-        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+        <div className="border-sidebar-border flex h-16 items-center justify-between border-b px-6">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Cloud className="h-5 w-5 text-primary-foreground" />
+            <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+              <Cloud className="text-primary-foreground h-5 w-5" />
             </div>
-            <span className="text-lg font-semibold text-sidebar-foreground">
+            <span className="text-sidebar-foreground text-lg font-semibold">
               Weather Flick
             </span>
           </div>
@@ -97,10 +97,10 @@ export function AdminLayout({ children }) {
                   key={item.name}
                   onClick={() => navigate(item.href)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     isActive
-                      ? "sidebar-item-active"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      ? 'sidebar-item-active'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                   )}
                 >
                   <item.icon className="h-5 w-5" />
@@ -112,7 +112,7 @@ export function AdminLayout({ children }) {
         </ScrollArea>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-sidebar-border p-4">
+        <div className="border-sidebar-border border-t p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage src={user?.avatar} />
@@ -120,11 +120,11 @@ export function AdminLayout({ children }) {
                 {user?.username?.charAt(0).toUpperCase() || 'A'}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
+            <div className="min-w-0 flex-1">
+              <p className="text-sidebar-foreground truncate text-sm font-medium">
                 {user?.username || 'Admin'}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-muted-foreground truncate text-xs">
                 {user?.email || 'admin@weatherflick.com'}
               </p>
             </div>
@@ -143,7 +143,7 @@ export function AdminLayout({ children }) {
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="flex h-16 items-center justify-between border-b bg-card px-6">
+        <header className="bg-card flex h-16 items-center justify-between border-b px-6">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -178,7 +178,7 @@ export function AdminLayout({ children }) {
               className="text-muted-foreground hover:text-foreground relative"
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
+              <span className="bg-destructive absolute top-1 right-1 h-2 w-2 rounded-full" />
             </Button>
 
             {/* User Menu */}
@@ -186,7 +186,7 @@ export function AdminLayout({ children }) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                 >
                   <User className="h-5 w-5" />
                   <span className="hidden sm:inline-block">
@@ -220,10 +220,8 @@ export function AdminLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-background">
-          <div className="container mx-auto p-6">
-            {children}
-          </div>
+        <main className="bg-background flex-1 overflow-auto">
+          <div className="container mx-auto p-6">{children}</div>
         </main>
       </div>
     </div>

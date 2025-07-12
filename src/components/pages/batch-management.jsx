@@ -36,6 +36,7 @@ import {
   BATCH_JOB_STATUS_LABELS,
   BATCH_JOB_STATUS_COLORS,
 } from '@/store/api/batchApi'
+import { PageContainer, PageHeader, ContentSection } from '../layouts'
 
 const BatchManagement = () => {
   const [jobTypeFilter, setJobTypeFilter] = useState('')
@@ -111,9 +112,11 @@ const BatchManagement = () => {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">배치 관리</h1>
+    <PageContainer>
+      <PageHeader
+        title="배치 관리"
+        description="시스템의 배치 작업을 관리하고 모니터링합니다."
+      >
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -184,266 +187,272 @@ const BatchManagement = () => {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </PageHeader>
 
-      <Tabs defaultValue="jobs" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="jobs">작업 목록</TabsTrigger>
-          <TabsTrigger value="statistics">통계</TabsTrigger>
-        </TabsList>
+      <ContentSection>
+        <Tabs defaultValue="jobs" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="jobs">작업 목록</TabsTrigger>
+            <TabsTrigger value="statistics">통계</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="jobs" className="space-y-4">
-          {/* 필터 */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="jobTypeFilter">작업 유형</Label>
-                  <Select
-                    value={jobTypeFilter}
-                    onValueChange={setJobTypeFilter}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="전체" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">전체</SelectItem>
-                      {Object.entries(BATCH_JOB_TYPE_LABELS).map(
-                        ([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ),
-                      )}
-                    </SelectContent>
-                  </Select>
+          <TabsContent value="jobs" className="space-y-4">
+            {/* 필터 */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <Label htmlFor="jobTypeFilter">작업 유형</Label>
+                    <Select
+                      value={jobTypeFilter}
+                      onValueChange={setJobTypeFilter}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="전체" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">전체</SelectItem>
+                        {Object.entries(BATCH_JOB_TYPE_LABELS).map(
+                          ([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="statusFilter">상태</Label>
+                    <Select
+                      value={statusFilter}
+                      onValueChange={setStatusFilter}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="전체" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">전체</SelectItem>
+                        {Object.entries(BATCH_JOB_STATUS_LABELS).map(
+                          ([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <Label htmlFor="statusFilter">상태</Label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="전체" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">전체</SelectItem>
-                      {Object.entries(BATCH_JOB_STATUS_LABELS).map(
-                        ([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ),
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* 작업 목록 */}
-          <div className="space-y-4">
-            {jobsLoading ? (
-              <Card>
-                <CardContent className="py-6">
-                  <div className="text-center">로딩 중...</div>
-                </CardContent>
-              </Card>
-            ) : jobsData?.jobs?.length > 0 ? (
-              jobsData.jobs.map((job) => (
-                <Card key={job.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">
-                            {BATCH_JOB_TYPE_LABELS[job.job_type]}
-                          </h3>
-                          <Badge
-                            className={BATCH_JOB_STATUS_COLORS[job.status]}
-                          >
-                            {BATCH_JOB_STATUS_LABELS[job.status]}
-                          </Badge>
-                        </div>
-                        <div className="space-y-1 text-sm text-gray-600">
-                          <div>작업 ID: {job.id}</div>
-                          <div>생성일: {formatDate(job.created_at)}</div>
-                          {job.started_at && (
-                            <div>시작일: {formatDate(job.started_at)}</div>
-                          )}
-                          {job.completed_at && (
-                            <div>완료일: {formatDate(job.completed_at)}</div>
-                          )}
-                          {job.duration_seconds && (
-                            <div>
-                              실행 시간: {formatDuration(job.duration_seconds)}
+            {/* 작업 목록 */}
+            <div className="space-y-4">
+              {jobsLoading ? (
+                <Card>
+                  <CardContent className="py-6">
+                    <div className="text-center">로딩 중...</div>
+                  </CardContent>
+                </Card>
+              ) : jobsData?.jobs?.length > 0 ? (
+                jobsData.jobs.map((job) => (
+                  <Card key={job.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold">
+                              {BATCH_JOB_TYPE_LABELS[job.job_type]}
+                            </h3>
+                            <Badge
+                              className={BATCH_JOB_STATUS_COLORS[job.status]}
+                            >
+                              {BATCH_JOB_STATUS_LABELS[job.status]}
+                            </Badge>
+                          </div>
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <div>작업 ID: {job.id}</div>
+                            <div>생성일: {formatDate(job.created_at)}</div>
+                            {job.started_at && (
+                              <div>시작일: {formatDate(job.started_at)}</div>
+                            )}
+                            {job.completed_at && (
+                              <div>완료일: {formatDate(job.completed_at)}</div>
+                            )}
+                            {job.duration_seconds && (
+                              <div>
+                                실행 시간:{' '}
+                                {formatDuration(job.duration_seconds)}
+                              </div>
+                            )}
+                            {job.progress > 0 && (
+                              <div>진행률: {job.progress.toFixed(1)}%</div>
+                            )}
+                          </div>
+                          {job.error_message && (
+                            <div className="flex items-center gap-2 text-sm text-red-600">
+                              <AlertCircle className="h-4 w-4" />
+                              {job.error_message}
                             </div>
                           )}
-                          {job.progress > 0 && (
-                            <div>진행률: {job.progress.toFixed(1)}%</div>
-                          )}
                         </div>
-                        {job.error_message && (
-                          <div className="flex items-center gap-2 text-sm text-red-600">
-                            <AlertCircle className="h-4 w-4" />
-                            {job.error_message}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        {job.status === BATCH_JOB_STATUS.RUNNING && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleStopJob(job.id)}
-                          >
-                            <Square className="mr-1 h-4 w-4" />
-                            중단
+                        <div className="flex gap-2">
+                          {job.status === BATCH_JOB_STATUS.RUNNING && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleStopJob(job.id)}
+                            >
+                              <Square className="mr-1 h-4 w-4" />
+                              중단
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                        )}
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="py-6">
+                    <div className="text-center text-gray-500">
+                      배치 작업이 없습니다.
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* 페이지네이션 */}
+            {jobsData && jobsData.total_pages > 1 && (
+              <div className="flex justify-center gap-2">
+                <Button
+                  variant="outline"
+                  disabled={page === 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  이전
+                </Button>
+                <span className="flex items-center px-4">
+                  {page} / {jobsData.total_pages}
+                </span>
+                <Button
+                  variant="outline"
+                  disabled={page === jobsData.total_pages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  다음
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="statistics" className="space-y-4">
+            {statsData && (
+              <>
+                {/* 전체 통계 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>전체 통계</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {statsData.total_jobs}
+                        </div>
+                        <div className="text-sm text-gray-600">총 작업 수</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {statsData.currently_running?.length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">실행 중</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-red-600">
+                          {statsData.recent_failures?.length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">최근 실패</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                          {statsData.statistics_by_type
+                            ?.reduce((sum, stat) => sum + stat.success_rate, 0)
+                            ?.toFixed(1) || 0}
+                          %
+                        </div>
+                        <div className="text-sm text-gray-600">평균 성공률</div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            ) : (
-              <Card>
-                <CardContent className="py-6">
-                  <div className="text-center text-gray-500">
-                    배치 작업이 없습니다.
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
 
-          {/* 페이지네이션 */}
-          {jobsData && jobsData.total_pages > 1 && (
-            <div className="flex justify-center gap-2">
-              <Button
-                variant="outline"
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-              >
-                이전
-              </Button>
-              <span className="flex items-center px-4">
-                {page} / {jobsData.total_pages}
-              </span>
-              <Button
-                variant="outline"
-                disabled={page === jobsData.total_pages}
-                onClick={() => setPage(page + 1)}
-              >
-                다음
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="statistics" className="space-y-4">
-          {statsData && (
-            <>
-              {/* 전체 통계 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>전체 통계</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">
-                        {statsData.total_jobs}
-                      </div>
-                      <div className="text-sm text-gray-600">총 작업 수</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {statsData.currently_running?.length || 0}
-                      </div>
-                      <div className="text-sm text-gray-600">실행 중</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-red-600">
-                        {statsData.recent_failures?.length || 0}
-                      </div>
-                      <div className="text-sm text-gray-600">최근 실패</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {statsData.statistics_by_type
-                          ?.reduce((sum, stat) => sum + stat.success_rate, 0)
-                          ?.toFixed(1) || 0}
-                        %
-                      </div>
-                      <div className="text-sm text-gray-600">평균 성공률</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 작업 유형별 통계 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>작업 유형별 통계</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {statsData.statistics_by_type?.map((stat) => (
-                      <div
-                        key={stat.job_type}
-                        className="rounded-lg border p-4"
-                      >
-                        <div className="mb-2 flex items-center justify-between">
-                          <h4 className="font-semibold">
-                            {BATCH_JOB_TYPE_LABELS[stat.job_type]}
-                          </h4>
-                          <Badge variant="outline">
-                            성공률: {stat.success_rate.toFixed(1)}%
-                          </Badge>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-                          <div>
-                            <div className="font-medium">총 작업</div>
-                            <div>{stat.total_count}</div>
+                {/* 작업 유형별 통계 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>작업 유형별 통계</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {statsData.statistics_by_type?.map((stat) => (
+                        <div
+                          key={stat.job_type}
+                          className="rounded-lg border p-4"
+                        >
+                          <div className="mb-2 flex items-center justify-between">
+                            <h4 className="font-semibold">
+                              {BATCH_JOB_TYPE_LABELS[stat.job_type]}
+                            </h4>
+                            <Badge variant="outline">
+                              성공률: {stat.success_rate.toFixed(1)}%
+                            </Badge>
                           </div>
-                          <div>
-                            <div className="font-medium">완료</div>
-                            <div className="text-green-600">
-                              {stat.completed_count}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-medium">실패</div>
-                            <div className="text-red-600">
-                              {stat.failed_count}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-medium">실행 중</div>
-                            <div className="text-blue-600">
-                              {stat.running_count}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-medium">평균 시간</div>
+                          <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
                             <div>
-                              {formatDuration(stat.average_duration_seconds)}
+                              <div className="font-medium">총 작업</div>
+                              <div>{stat.total_count}</div>
+                            </div>
+                            <div>
+                              <div className="font-medium">완료</div>
+                              <div className="text-green-600">
+                                {stat.completed_count}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="font-medium">실패</div>
+                              <div className="text-red-600">
+                                {stat.failed_count}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="font-medium">실행 중</div>
+                              <div className="text-blue-600">
+                                {stat.running_count}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="font-medium">평균 시간</div>
+                              <div>
+                                {formatDuration(stat.average_duration_seconds)}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
+      </ContentSection>
+    </PageContainer>
   )
 }
 

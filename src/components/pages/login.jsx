@@ -46,29 +46,29 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-primary-blue-light/10 via-background to-accent-cyan-light/10 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="from-primary-blue-light/10 via-background to-accent-cyan-light/10 relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br px-4 py-12 sm:px-6 lg:px-8">
       {/* 배경 장식 요소 */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-blue/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent-cyan/10 blur-3xl" />
+        <div className="bg-primary-blue/10 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />
+        <div className="bg-accent-cyan/10 absolute -bottom-40 -left-40 h-80 w-80 rounded-full blur-3xl" />
       </div>
-      
+
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-lg bg-primary flex items-center justify-center shadow-lg">
-              <Cloud className="h-7 w-7 text-primary-foreground" />
+          <div className="mb-6 flex items-center justify-center gap-3">
+            <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-lg shadow-lg">
+              <Cloud className="text-primary-foreground h-7 w-7" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-foreground text-3xl font-bold">
               Weather Flick
             </h1>
           </div>
           <p className="text-muted-foreground">관리자 대시보드</p>
         </div>
-        
-        <Card className="shadow-xl border-0 bg-card/95 backdrop-blur-sm">
+
+        <Card className="bg-card/95 border-0 shadow-xl backdrop-blur-sm">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl text-center">로그인</CardTitle>
+            <CardTitle className="text-center text-2xl">로그인</CardTitle>
             <CardDescription className="text-center">
               관리자 계정으로 로그인하세요
             </CardDescription>
@@ -105,7 +105,7 @@ export const LoginPage = () => {
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -127,8 +127,8 @@ export const LoginPage = () => {
             </form>
           </CardContent>
         </Card>
-        
-        <p className="text-center text-sm text-muted-foreground">
+
+        <p className="text-muted-foreground text-center text-sm">
           © 2024 Weather Flick. All rights reserved.
         </p>
       </div>

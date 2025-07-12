@@ -40,7 +40,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  
+
   /* Admin Theme Colors */
   --color-admin-primary: var(--admin-primary);
   --color-admin-secondary: var(--admin-secondary);
@@ -104,14 +104,14 @@
   --border: var(--neutral-gray-200);
   --input: var(--neutral-white);
   --ring: var(--primary-blue);
-  
+
   /* Chart Colors */
   --chart-1: var(--primary-blue);
   --chart-2: var(--accent-cyan);
   --chart-3: var(--accent-yellow);
   --chart-4: var(--primary-blue-light);
   --chart-5: var(--soft-mint);
-  
+
   /* Sidebar Colors - 관리자 사이드바 전용 */
   --sidebar: var(--neutral-white);
   --sidebar-foreground: var(--neutral-gray-700);
@@ -121,7 +121,7 @@
   --sidebar-accent-foreground: var(--neutral-gray-900);
   --sidebar-border: var(--neutral-gray-200);
   --sidebar-ring: var(--primary-blue);
-  
+
   /* Admin Specific */
   --admin-primary: var(--primary-blue);
   --admin-secondary: var(--accent-cyan);
@@ -150,14 +150,14 @@
   --border: var(--neutral-gray-800);
   --input: var(--neutral-gray-800);
   --ring: var(--accent-cyan);
-  
+
   /* Chart Colors */
   --chart-1: var(--accent-cyan);
   --chart-2: var(--primary-blue);
   --chart-3: var(--accent-yellow);
   --chart-4: var(--primary-blue-light);
   --chart-5: var(--soft-mint);
-  
+
   /* Sidebar Colors - 다크 모드 */
   --sidebar: var(--neutral-gray-900);
   --sidebar-foreground: var(--neutral-gray-100);
@@ -167,7 +167,7 @@
   --sidebar-accent-foreground: var(--accent-cyan);
   --sidebar-border: var(--neutral-gray-800);
   --sidebar-ring: var(--accent-cyan);
-  
+
   /* Admin Specific */
   --admin-primary: var(--accent-cyan);
   --admin-secondary: var(--primary-blue);
@@ -180,31 +180,50 @@
     border-color: var(--border);
     outline-color: color-mix(in srgb, var(--ring) 50%, transparent 50%);
   }
-  
+
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: 'Monda', 'Noto Sans KR', system-ui, sans-serif;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* 헤딩 폰트 최적화 */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Monda', 'Noto Sans KR', system-ui, sans-serif;
     font-weight: 600;
     color: var(--foreground);
     letter-spacing: -0.02em;
   }
-  
+
   /* 폰트 크기 계층 */
-  h1 { @apply text-3xl lg:text-4xl; }
-  h2 { @apply text-2xl lg:text-3xl; }
-  h3 { @apply text-xl lg:text-2xl; }
-  h4 { @apply text-lg lg:text-xl; }
-  h5 { @apply text-base lg:text-lg; }
-  h6 { @apply text-sm lg:text-base; }
+  h1 {
+    @apply text-3xl lg:text-4xl;
+  }
+  h2 {
+    @apply text-2xl lg:text-3xl;
+  }
+  h3 {
+    @apply text-xl lg:text-2xl;
+  }
+  h4 {
+    @apply text-lg lg:text-xl;
+  }
+  h5 {
+    @apply text-base lg:text-lg;
+  }
+  h6 {
+    @apply text-sm lg:text-base;
+  }
 }
 
 /* ===================== */
@@ -213,56 +232,56 @@
 @layer components {
   /* Admin Card - 관리자 카드 */
   .admin-card {
-    @apply bg-card text-card-foreground rounded-lg border border-border shadow-sm;
+    @apply bg-card text-card-foreground border-border rounded-lg border shadow-sm;
     @apply transition-shadow duration-200 hover:shadow-md;
   }
-  
+
   /* Glass Effect - 유리 효과 (선택적) */
   .glass-effect {
     background: color-mix(in srgb, var(--card) 80%, transparent 20%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
-  
+
   /* Admin Buttons - 관리자 버튼 스타일 */
   .admin-button-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
-    @apply font-medium rounded-md px-4 py-2;
+    @apply rounded-md px-4 py-2 font-medium;
     @apply transition-colors duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    @apply focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
-  
+
   .admin-button-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
-    @apply font-medium rounded-md px-4 py-2;
+    @apply rounded-md px-4 py-2 font-medium;
     @apply transition-colors duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    @apply focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
-  
+
   /* Sidebar Active State */
   .sidebar-item-active {
     @apply bg-sidebar-accent text-sidebar-accent-foreground;
-    @apply relative before:absolute before:left-0 before:top-0 before:h-full before:w-1;
+    @apply relative before:absolute before:top-0 before:left-0 before:h-full before:w-1;
     @apply before:bg-sidebar-primary before:rounded-r;
   }
-  
+
   /* Data Table */
   .data-table {
     @apply w-full text-sm;
   }
-  
+
   .data-table thead {
     @apply bg-muted/50 border-b;
   }
-  
+
   .data-table th {
-    @apply px-4 py-3 text-left font-medium text-muted-foreground;
+    @apply text-muted-foreground px-4 py-3 text-left font-medium;
   }
-  
+
   .data-table td {
-    @apply px-4 py-3 border-b border-border/50;
+    @apply border-border/50 border-b px-4 py-3;
   }
-  
+
   .data-table tbody tr {
     @apply hover:bg-muted/30 transition-colors;
   }
@@ -273,42 +292,60 @@
 /* ===================== */
 @layer utilities {
   /* 폰트 웨이트 */
-  .font-thin { font-weight: 100; }
-  .font-extralight { font-weight: 200; }
-  .font-light { font-weight: 300; }
-  .font-normal { font-weight: 400; }
-  .font-medium { font-weight: 500; }
-  .font-semibold { font-weight: 600; }
-  .font-bold { font-weight: 700; }
-  .font-extrabold { font-weight: 800; }
-  .font-black { font-weight: 900; }
-  
+  .font-thin {
+    font-weight: 100;
+  }
+  .font-extralight {
+    font-weight: 200;
+  }
+  .font-light {
+    font-weight: 300;
+  }
+  .font-normal {
+    font-weight: 400;
+  }
+  .font-medium {
+    font-weight: 500;
+  }
+  .font-semibold {
+    font-weight: 600;
+  }
+  .font-bold {
+    font-weight: 700;
+  }
+  .font-extrabold {
+    font-weight: 800;
+  }
+  .font-black {
+    font-weight: 900;
+  }
+
   /* 관리자 페이지 전용 그리드 */
   .admin-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+    @apply grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
   }
-  
+
   /* 스크롤바 스타일 */
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: var(--muted-foreground) var(--muted);
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: var(--muted);
     border-radius: 4px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: var(--muted-foreground);
     border-radius: 4px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--foreground);
   }

@@ -4,7 +4,7 @@
 
 /* 페이지 레이아웃 */
 .page-layout {
-  @apply space-y-6 animate-in fade-in duration-300;
+  @apply animate-in fade-in space-y-6 duration-300;
 }
 
 .section-layout {
@@ -17,15 +17,15 @@
 
 /* 그리드 패턴 - 반응형 개선 */
 .stats-grid {
-  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
 }
 
 .stats-grid-3 {
-  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
 }
 
 .stats-grid-4 {
-  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4;
 }
 
 .form-grid {
@@ -33,7 +33,7 @@
 }
 
 .table-grid {
-  @apply grid gap-4 grid-cols-1 lg:grid-cols-2;
+  @apply grid grid-cols-1 gap-4 lg:grid-cols-2;
 }
 
 /* 카드 스타일 - Weather Flick 테마 */
@@ -42,7 +42,7 @@
 }
 
 .card-wrapper {
-  @apply overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow duration-200 hover:shadow-md;
+  @apply border-border bg-card overflow-hidden rounded-lg border shadow-sm transition-shadow duration-200 hover:shadow-md;
 }
 
 .card-content-padded {
@@ -144,11 +144,11 @@
 }
 
 .responsive-heading {
-  @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+  @apply text-xl font-semibold sm:text-2xl lg:text-3xl;
 }
 
 .responsive-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
 }
 
 /* 모바일 친화적 터치 타겟 */
@@ -165,7 +165,7 @@
   .hide-mobile {
     @apply hidden;
   }
-  
+
   .stack-mobile {
     @apply flex flex-col gap-2;
   }
