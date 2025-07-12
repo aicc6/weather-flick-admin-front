@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Pencil,
@@ -344,7 +344,7 @@ function RegionFormDialog({
   })
 
   // 초기 데이터 설정
-  useState(() => {
+  useEffect(() => {
     if (open) {
       if (initialData) {
         setFormData({
@@ -447,16 +447,16 @@ function RegionFormDialog({
                 상위지역
               </Label>
               <Select
-                value={formData.parent_region_code}
+                value={formData.parent_region_code || "none"}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, parent_region_code: value })
+                  setFormData({ ...formData, parent_region_code: value === "none" ? "" : value })
                 }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="선택 안 함" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">선택 안 함</SelectItem>
+                  <SelectItem value="none">선택 안 함</SelectItem>
                   {regions
                     ?.filter((r) => r.region_level === 1)
                     .map((region) => (
