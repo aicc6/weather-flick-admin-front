@@ -32,7 +32,7 @@ export const ROUTE_META = {
     icon: 'Cloud',
   },
   TOURIST_ATTRACTIONS: {
-    path: '/tourist-attractions',
+    path: '/attractions',
     title: '관광지 관리',
     breadcrumb: ['대시보드', '관광지 관리'],
     icon: 'MapPin',
@@ -42,6 +42,12 @@ export const ROUTE_META = {
     title: '배치 관리',
     breadcrumb: ['대시보드', '배치 관리'],
     icon: 'Settings',
+  },
+  REGIONS: {
+    path: '/regions',
+    title: '지역 관리',
+    breadcrumb: ['대시보드', '지역 관리'],
+    icon: 'Map',
   },
 }
 
@@ -53,5 +59,6 @@ export const NAVIGATION_ITEMS = [
   ROUTE_META.CONTENT,
   ROUTE_META.WEATHER,
   ROUTE_META.TOURIST_ATTRACTIONS,
+  ROUTE_META.REGIONS,
   ROUTE_META.BATCH_MANAGEMENT,
 ]

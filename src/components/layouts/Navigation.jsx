@@ -7,6 +7,7 @@ import {
   Settings,
   Cloud,
   MapPin,
+  Map,
 } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '../../routes/types'
 import { usePermissions } from '../auth/RoleBasedRoute'
@@ -20,6 +21,7 @@ const ICON_MAP = {
   Settings,
   Cloud,
   MapPin,
+  Map,
 }
 
 export function Navigation({ className = '' }) {

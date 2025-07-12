@@ -50,6 +50,7 @@ const BatchManagementPage = lazy(() =>
     default: module.default,
   })),
 )
+const RegionsPage = lazy(() => import('../components/pages/regions'))
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -190,6 +191,18 @@ export const router = createBrowserRouter([
     meta: {
       title: '배치 관리',
       breadcrumb: ['대시보드', '배치 관리'],
+    },
+  },
+  {
+    path: '/regions',
+    element: (
+      <ProtectedLayout>
+        <RegionsPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '지역 관리',
+      breadcrumb: ['대시보드', '지역 관리'],
     },
   },
   {

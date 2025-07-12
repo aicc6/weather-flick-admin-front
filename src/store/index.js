@@ -12,6 +12,7 @@ import { travelPlansApi } from './api/travelPlansApi'
 import { batchApi } from './api/batchApi'
 import { touristAttractionsApi } from './api/touristAttractionsApi'
 import { dashboardApi } from './api/dashboardApi'
+import { regionsApi } from './api/regionsApi'
 import authReducer from './slices/authSlice'
 import uiReducer from './slices/uiSlice'
 
@@ -31,6 +32,7 @@ export const store = configureStore({
     [batchApi.reducerPath]: batchApi.reducer,
     [touristAttractionsApi.reducerPath]: touristAttractionsApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [regionsApi.reducerPath]: regionsApi.reducer,
     // Regular slices
     auth: authReducer,
     ui: uiReducer,
@@ -59,6 +61,7 @@ export const store = configureStore({
       .concat(travelPlansApi.middleware)
       .concat(batchApi.middleware)
       .concat(touristAttractionsApi.middleware)
-      .concat(dashboardApi.middleware),
+      .concat(dashboardApi.middleware)
+      .concat(regionsApi.middleware),
   devTools: import.meta.env.MODE !== 'production',
 })
