@@ -1,9 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQuery } from './baseQuery'
+import { baseQueryWithReauth } from './baseQuery'
 
 export const regionsApi = createApi({
   reducerPath: 'regionsApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Region'],
   endpoints: (builder) => ({
     // 지역 목록 조회
@@ -64,6 +64,21 @@ export const regionsApi = createApi({
       query: () => '/api/regions/tree/hierarchy',
       providesTags: ['Region'],
     }),
+
+    // 좌표 업데이트
+    updateCoordinates: builder.mutation({
+      query: () => ({
+        url: '/api/regions/update-coordinates',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Region'],
+    }),
+
+    // 좌표 누락 지역 조회
+    getMissingCoordinates: builder.query({
+      query: () => '/api/regions/missing-coordinates',
+      providesTags: ['Region'],
+    }),
   }),
 })
 
@@ -74,4 +89,6 @@ export const {
   useUpdateRegionMutation,
   useDeleteRegionMutation,
   useGetRegionTreeQuery,
+  useUpdateCoordinatesMutation,
+  useGetMissingCoordinatesQuery,
 } = regionsApi

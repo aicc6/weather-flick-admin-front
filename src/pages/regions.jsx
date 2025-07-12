@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ChevronDown,
   MapPin,
+  Navigation,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,6 +36,8 @@ import {
   useCreateRegionMutation,
   useUpdateRegionMutation,
   useDeleteRegionMutation,
+  useUpdateCoordinatesMutation,
+  useGetMissingCoordinatesQuery,
 } from '@/store/api/regionsApi'
 
 export default function RegionsPage() {
@@ -56,6 +59,8 @@ export default function RegionsPage() {
   const [createRegion] = useCreateRegionMutation()
   const [updateRegion] = useUpdateRegionMutation()
   const [deleteRegion] = useDeleteRegionMutation()
+  const [updateCoordinates, { isLoading: isUpdatingCoordinates }] = useUpdateCoordinatesMutation()
+  const { data: missingCoordData } = useGetMissingCoordinatesQuery()
 
   // 트리 노드 토글
   const toggleNode = (regionCode) => {
@@ -104,6 +109,19 @@ export default function RegionsPage() {
       refetch()
     } catch (error) {
       toast.error(error.data?.detail || '지역 삭제에 실패했습니다.')
+    }
+  }
+
+  // 좌표 일괄 업데이트
+  const handleUpdateCoordinates = async () => {
+    try {
+      const result = await updateCoordinates().unwrap()
+      toast.success(
+        `좌표 업데이트 완료: ${result.updated}개 업데이트, ${result.skipped}개 스킵, ${result.not_found}개 미발견`
+      )
+      refetch()
+    } catch (error) {
+      toast.error(error.data?.detail || '좌표 업데이트에 실패했습니다.')
     }
   }
 
@@ -211,10 +229,25 @@ export default function RegionsPage() {
               </>
             )}
           </div>
-          <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            지역 추가
-          </Button>
+          <div className="flex gap-2">
+            {missingCoordData?.total > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleUpdateCoordinates}
+                disabled={isUpdatingCoordinates}
+              >
+                <Navigation className="mr-2 h-4 w-4" />
+                {isUpdatingCoordinates 
+                  ? '업데이트 중...' 
+                  : `좌표 업데이트 (${missingCoordData.total}개 누락)`
+                }
+              </Button>
+            )}
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              지역 추가
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
