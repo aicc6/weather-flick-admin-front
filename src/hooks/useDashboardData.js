@@ -7,11 +7,15 @@ import {
   useGetTouristAttractionsSummaryQuery,
 } from '../store/api/dashboardApi'
 import { useGetSystemStatusQuery } from '../store/api/systemApi'
+import { useGetUsersQuery } from '../store/api/usersApi'
 
 export function useDashboardData() {
-  // RTK Query 훅들 사용
+  // 사용자 전체 목록 가져오기 (limit를 충분히 크게)
+  const { data: usersData = {} } = useGetUsersQuery({ limit: 9999 })
+  const users = usersData?.users || []
+
+  // 기존 쿼리들 유지
   const { data: weatherData = null } = useGetWeatherSummaryQuery()
-  const { data: userStats = null } = useGetUserStatsQuery()
   const { data: adminStats = null } = useGetAdminStatsQuery()
   const { data: regionCountData = null } = useGetTravelCourseRegionCountQuery()
   const { data: tourSummary = null } = useGetTouristAttractionsSummaryQuery()
@@ -19,15 +23,20 @@ export function useDashboardData() {
 
   // 데이터 정규화 및 기본값 설정
   const normalizedData = useMemo(() => {
+    // 사용자 통계 직접 계산
+    const total = users.length
+    const active = users.filter((u) => u.is_active).length
+    const inactive = total - active
+
     return {
       // 날씨 데이터 (객체 형태로 변환됨)
       weatherData: weatherData || {},
 
-      // 사용자 통계
+      // 사용자 통계 (직접 계산)
       userSummary: {
-        total: userStats?.total || 0,
-        active: userStats?.active || 0,
-        inactive: userStats?.inactive || 0,
+        total,
+        active,
+        inactive,
       },
 
       // 관리자 통계
@@ -55,7 +64,7 @@ export function useDashboardData() {
     }
   }, [
     weatherData,
-    userStats,
+    users,
     adminStats,
     tourSummary,
     regionCountData,
