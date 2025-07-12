@@ -48,6 +48,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 // 헬퍼 함수 선언
@@ -55,6 +71,17 @@ const isDeletedUser = (user) => user.email?.startsWith('deleted_')
 
 export const UsersPage = () => {
   const { user: _user } = useAuth()
+  
+  // 로컬 상태 (UI 전용) - 먼저 선언
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [_selectedUser, _setSelectedUser] = useState(null)
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [actionUser, setActionUser] = useState(null)
+  const [isHardDeleteDialogOpen, setIsHardDeleteDialogOpen] = useState(false)
 
   // RTK Query 훅들
   const {
@@ -63,12 +90,35 @@ export const UsersPage = () => {
     error: statsError,
     refetch: refetchStats,
   } = useGetUserStatsQuery()
+  
+  // API 쿼리 파라미터 구성
+  const queryParams = {
+    page: currentPage,
+    size: pageSize,
+    include_deleted: true,
+  }
+  
+  // 검색어가 있을 때만 추가
+  if (searchTerm) {
+    queryParams.email = searchTerm
+    queryParams.nickname = searchTerm
+  }
+  
+  // 상태 필터 적용
+  if (statusFilter === 'active') {
+    queryParams.is_active = true
+  } else if (statusFilter === 'inactive') {
+    queryParams.is_active = false
+  } else if (statusFilter === 'deleted') {
+    queryParams.only_deleted = true
+  }
+  
   const {
     data: usersData,
     isLoading: usersLoading,
     error: usersError,
     refetch: refetchUsers,
-  } = useGetUsersQuery({ page: 1, size: 50, include_deleted: true })
+  } = useGetUsersQuery(queryParams)
 
   // Mutation 훅들
   const [deleteUser] = useDeleteUserMutation()
@@ -77,18 +127,10 @@ export const UsersPage = () => {
   const [deactivateUser] = useDeactivateUserMutation()
   const [hardDeleteUser] = useHardDeleteUserMutation()
 
-  // 로컬 상태 (UI 전용)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [_selectedUser, _setSelectedUser] = useState(null)
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
-    useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [actionUser, setActionUser] = useState(null)
-  const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
-  const [isHardDeleteDialogOpen, setIsHardDeleteDialogOpen] = useState(false)
-
   // 파생 상태
   const users = usersData?.users || []
+  const totalCount = usersData?.total || 0
+  const totalPages = usersData?.total_pages || Math.ceil(totalCount / pageSize)
   const loading = statsLoading || usersLoading
   const error = statsError || usersError
 
@@ -125,32 +167,31 @@ export const UsersPage = () => {
       console.error('Failed to load data:', error)
     }
   }, [error])
+  
+  // 필터 변경 시 첫 페이지로 이동
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [statusFilter, searchTerm])
 
   // 데이터 새로고침
   const handleRefreshData = () => {
     refetchStats()
     refetchUsers()
   }
+  
+  // 페이지 변경 핸들러
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
+  
+  // 페이지 크기 변경 핸들러
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(parseInt(newSize))
+    setCurrentPage(1) // 페이지 크기 변경 시 첫 페이지로
+  }
 
-  // 검색 및 상태 필터링
-  const filteredUsers = users.filter((user) => {
-    // 검색어 필터
-    const matchesSearch =
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
-
-    // 탈퇴 여부 확인
-    const isDeleted = isDeletedUser(user)
-
-    // 상태 필터
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && user.is_active && !isDeleted) ||
-      (statusFilter === 'inactive' && !user.is_active && !isDeleted) ||
-      (statusFilter === 'deleted' && isDeleted)
-
-    return matchesSearch && matchesStatus
-  })
+  // 서버 사이드 필터링을 사용하므로 클라이언트 필터링은 제거
+  const filteredUsers = users
 
   // 사용자 삭제
   const handleDeleteItem = async () => {
@@ -322,33 +363,28 @@ export const UsersPage = () => {
 
       {/* 검색 영역 */}
       <ContentSection transparent>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Input
-              placeholder="이메일 또는 닉네임으로 검색..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-sm"
-            />
-            {statusFilter !== 'all' && (
-              <Badge
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={() => setStatusFilter('all')}
-              >
-                {statusFilter === 'active'
-                  ? '활성 사용자'
-                  : statusFilter === 'inactive'
-                    ? '비활성 사용자'
-                    : '탈퇴 사용자'}{' '}
-                필터
-                <span className="ml-1">✕</span>
-              </Badge>
-            )}
-          </div>
-          <div className="text-muted-foreground text-sm">
-            전체 {users.length}명 중 {filteredUsers.length}명 표시
-          </div>
+        <div className="flex items-center gap-4">
+          <Input
+            placeholder="이메일 또는 닉네임으로 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-sm"
+          />
+          {statusFilter !== 'all' && (
+            <Badge
+              variant="secondary"
+              className="cursor-pointer"
+              onClick={() => setStatusFilter('all')}
+            >
+              {statusFilter === 'active'
+                ? '활성 사용자'
+                : statusFilter === 'inactive'
+                  ? '비활성 사용자'
+                  : '탈퇴 사용자'}{' '}
+              필터
+              <span className="ml-1">✕</span>
+            </Badge>
+          )}
         </div>
       </ContentSection>
 
@@ -488,6 +524,96 @@ export const UsersPage = () => {
             })}
           </TableBody>
         </Table>
+        
+        {/* 페이지네이션 */}
+        <div className="flex flex-col gap-4 px-2 py-4">
+          {/* 페이지 크기 선택 및 현재 표시 정보 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">페이지당 표시:</span>
+              <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                <SelectTrigger className="w-[80px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="text-sm text-muted-foreground">
+              총 {totalCount}명 중 {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalCount)}명 표시
+            </div>
+          </div>
+          
+          {/* 페이지 네비게이션 */}
+          <div className="flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+                
+                {/* 페이지 번호 표시 */}
+                {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  if (pageNum > totalPages) return null;
+                  
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={currentPage === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+                
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <>
+                    <PaginationItem>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink
+                        onClick={() => handlePageChange(totalPages)}
+                        className="cursor-pointer"
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        </div>
       </ContentSection>
 
       {/* 비밀번호 초기화 확인 다이얼로그 */}

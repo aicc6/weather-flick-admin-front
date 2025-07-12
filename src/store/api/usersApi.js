@@ -23,6 +23,9 @@ export const usersApi = createApi({
         if (params.include_deleted) {
           queryParams.append('include_deleted', params.include_deleted)
         }
+        if (params.only_deleted) {
+          queryParams.append('only_deleted', params.only_deleted)
+        }
         // 필요시 추가 필드
         return `/api/users/?${queryParams.toString()}`
       },
