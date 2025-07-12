@@ -116,6 +116,14 @@ export const usersApi = createApi({
       }),
       providesTags: ['User'],
     }),
+
+    hardDeleteUser: builder.mutation({
+      query: (userId) => ({
+        url: `/api/users/${userId}/hard`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'User', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -132,4 +140,5 @@ export const {
   useResetUserPasswordMutation,
   useSearchUsersQuery,
   useGetUsersByRegionQuery,
+  useHardDeleteUserMutation,
 } = usersApi

@@ -7,6 +7,7 @@ import {
   useResetUserPasswordMutation,
   useActivateUserMutation,
   useDeactivateUserMutation,
+  useHardDeleteUserMutation,
 } from '@/store/api/usersApi'
 import { Card } from '@/components/ui/card'
 import {
@@ -49,6 +50,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
+// 헬퍼 함수 선언
+const isDeletedUser = (user) => user.email?.startsWith('deleted_')
+
 export const UsersPage = () => {
   const { user: _user } = useAuth()
 
@@ -71,6 +75,7 @@ export const UsersPage = () => {
   const [resetUserPassword] = useResetUserPasswordMutation()
   const [activateUser] = useActivateUserMutation()
   const [deactivateUser] = useDeactivateUserMutation()
+  const [hardDeleteUser] = useHardDeleteUserMutation()
 
   // 로컬 상태 (UI 전용)
   const [searchTerm, setSearchTerm] = useState('')
@@ -80,32 +85,35 @@ export const UsersPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
+  const [isHardDeleteDialogOpen, setIsHardDeleteDialogOpen] = useState(false)
 
   // 파생 상태
   const users = usersData?.users || []
   const loading = statsLoading || usersLoading
   const error = statsError || usersError
-  
+
   // 탈퇴한 사용자 필터링
-  const deletedUsers = users.filter(user => user.email?.startsWith('deleted_'))
-  const activeUsers = users.filter(user => !user.email?.startsWith('deleted_'))
-  
+  const deletedUsers = users.filter(isDeletedUser)
+  const activeUsers = users.filter((user) => !isDeletedUser(user))
+
   // 통계 데이터가 없으면 사용자 목록에서 계산
   const calculatedStats = {
     total: activeUsers.length,
-    active: activeUsers.filter(user => user.is_active).length,
-    inactive: activeUsers.filter(user => !user.is_active).length,
-    deleted: deletedUsers.length
+    active: activeUsers.filter((user) => user.is_active).length,
+    inactive: activeUsers.filter((user) => !user.is_active).length,
+    deleted: deletedUsers.length,
   }
-  
+
   // API 응답의 필드명을 맞춰줌
-  const displayStats = stats ? {
-    total: stats.total_users || 0,
-    active: stats.active_users || 0,
-    inactive: (stats.total_users || 0) - (stats.active_users || 0),
-    deleted: deletedUsers.length  // API 통계에는 없으므로 직접 계산
-  } : calculatedStats
-  
+  const displayStats = stats
+    ? {
+        total: stats.total_users || 0,
+        active: stats.active_users || 0,
+        inactive: (stats.total_users || 0) - (stats.active_users || 0),
+        deleted: deletedUsers.length, // API 통계에는 없으므로 직접 계산
+      }
+    : calculatedStats
+
   // 디버깅용
   console.log('Stats:', stats)
   console.log('Users:', users)
@@ -130,17 +138,17 @@ export const UsersPage = () => {
     const matchesSearch =
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
-    
+
     // 탈퇴 여부 확인
-    const isDeleted = user.email?.startsWith('deleted_')
-    
+    const isDeleted = isDeletedUser(user)
+
     // 상태 필터
     const matchesStatus =
       statusFilter === 'all' ||
       (statusFilter === 'active' && user.is_active && !isDeleted) ||
       (statusFilter === 'inactive' && !user.is_active && !isDeleted) ||
       (statusFilter === 'deleted' && isDeleted)
-    
+
     return matchesSearch && matchesStatus
   })
 
@@ -205,6 +213,22 @@ export const UsersPage = () => {
     }
   }
 
+  const handleHardDeleteItem = async () => {
+    if (!actionUser) return
+    try {
+      await hardDeleteUser(actionUser.user_id).unwrap()
+      setIsHardDeleteDialogOpen(false)
+      setActionUser(null)
+      refetchStats()
+      refetchUsers()
+    } catch (error) {
+      console.error('Failed to hard delete:', error)
+      const errorMsg =
+        error.data?.detail || error.message || '영구 삭제에 실패했습니다.'
+      alert(errorMsg)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -237,9 +261,9 @@ export const UsersPage = () => {
       {/* 상단 요약 카드 */}
       {displayStats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card 
-            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
-              statusFilter === 'all' ? 'ring-2 ring-primary' : ''
+          <Card
+            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
+              statusFilter === 'all' ? 'ring-primary ring-2' : ''
             }`}
             onClick={() => setStatusFilter('all')}
           >
@@ -251,8 +275,8 @@ export const UsersPage = () => {
               {displayStats.total}명
             </span>
           </Card>
-          <Card 
-            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+          <Card
+            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'active' ? 'ring-2 ring-green-600' : ''
             }`}
             onClick={() => setStatusFilter('active')}
@@ -265,8 +289,8 @@ export const UsersPage = () => {
               {displayStats.active}명
             </span>
           </Card>
-          <Card 
-            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+          <Card
+            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'inactive' ? 'ring-2 ring-gray-600' : ''
             }`}
             onClick={() => setStatusFilter('inactive')}
@@ -279,17 +303,17 @@ export const UsersPage = () => {
               {displayStats.inactive}명
             </span>
           </Card>
-          <Card 
-            className={`flex flex-col items-center justify-center p-4 cursor-pointer transition-all hover:shadow-md ${
+          <Card
+            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'deleted' ? 'ring-2 ring-red-600' : ''
             }`}
             onClick={() => setStatusFilter('deleted')}
           >
-            <Trash2 className="text-red-600 mb-2 h-8 w-8" />
+            <Trash2 className="mb-2 h-8 w-8 text-red-600" />
             <span className="text-muted-foreground text-sm font-medium">
               탈퇴 사용자
             </span>
-            <span className="text-red-600 text-2xl font-bold">
+            <span className="text-2xl font-bold text-red-600">
               {displayStats.deleted}명
             </span>
           </Card>
@@ -307,18 +331,22 @@ export const UsersPage = () => {
               className="w-full max-w-sm"
             />
             {statusFilter !== 'all' && (
-              <Badge 
-                variant="secondary" 
+              <Badge
+                variant="secondary"
                 className="cursor-pointer"
                 onClick={() => setStatusFilter('all')}
               >
-                {statusFilter === 'active' ? '활성 사용자' : 
-                 statusFilter === 'inactive' ? '비활성 사용자' : '탈퇴 사용자'} 필터
+                {statusFilter === 'active'
+                  ? '활성 사용자'
+                  : statusFilter === 'inactive'
+                    ? '비활성 사용자'
+                    : '탈퇴 사용자'}{' '}
+                필터
                 <span className="ml-1">✕</span>
               </Badge>
             )}
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             전체 {users.length}명 중 {filteredUsers.length}명 표시
           </div>
         </div>
@@ -338,7 +366,7 @@ export const UsersPage = () => {
           </TableHeader>
           <TableBody>
             {filteredUsers.map((item) => {
-              const isDeleted = item.email?.startsWith('deleted_')
+              const isDeleted = isDeletedUser(item)
               return (
                 <TableRow
                   key={item.user_id}
@@ -348,100 +376,114 @@ export const UsersPage = () => {
                   <TableCell>{item.nickname || item.name}</TableCell>
                   <TableCell>
                     {isDeleted ? (
-                      <Badge variant="destructive">
-                        탈퇴
-                      </Badge>
+                      <Badge variant="destructive">탈퇴</Badge>
                     ) : (
-                      <Badge variant={item.is_active ? 'success' : 'destructive'}>
+                      <Badge
+                        variant={item.is_active ? 'success' : 'destructive'}
+                      >
                         {item.is_active ? '활성' : '비활성'}
                       </Badge>
                     )}
                   </TableCell>
-                <TableCell>
-                  <Badge variant={item.is_superuser ? 'success' : 'outline'}>
-                    {item.is_superuser ? '슈퍼유저' : '일반'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  {isDeleted ? (
-                    <span className="text-muted-foreground text-sm">탈퇴됨</span>
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
-                            console.log('드롭다운 버튼 클릭됨', item)
-                            e.stopPropagation()
-                          }}
-                        >
-                          <span className="sr-only">메뉴 열기</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                      <DropdownMenuItem
+                  <TableCell>
+                    <Badge variant={item.is_superuser ? 'success' : 'outline'}>
+                      {item.is_superuser ? '슈퍼유저' : '일반'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {isDeleted ? (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="ml-2 text-white"
                         onClick={(e) => {
-                          console.log('상세보기 클릭됨', item)
                           e.stopPropagation()
-                          _setSelectedUser(item)
+                          setActionUser(item)
+                          setTimeout(() => setIsHardDeleteDialogOpen(true), 0)
                         }}
                       >
-                        <Eye className="mr-2 h-4 w-4" />
-                        상세보기
-                      </DropdownMenuItem>
+                        영구 삭제
+                      </Button>
+                    ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              console.log('드롭다운 버튼 클릭됨', item)
+                              e.stopPropagation()
+                            }}
+                          >
+                            <span className="sr-only">메뉴 열기</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('상세보기 클릭됨', item)
+                              e.stopPropagation()
+                              _setSelectedUser(item)
+                            }}
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            상세보기
+                          </DropdownMenuItem>
 
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 비밀번호 초기화 클릭됨', item)
-                          e.stopPropagation()
-                          setActionUser(item)
-                          setTimeout(
-                            () => setIsResetPasswordDialogOpen(true),
-                            0,
-                          )
-                        }}
-                      >
-                        <KeyRound className="mr-2 h-4 w-4" />
-                        비밀번호 초기화
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 상태 변경 클릭됨', item)
-                          e.stopPropagation()
-                          handleToggleUserStatus(item.user_id, item.is_active)
-                        }}
-                      >
-                        {item.is_active ? (
-                          <>
-                            <Lock className="mr-2 h-4 w-4" />
-                            비활성화
-                          </>
-                        ) : (
-                          <>
-                            <Unlock className="mr-2 h-4 w-4" />
-                            활성화
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          console.log('사용자 삭제 클릭됨', item)
-                          e.stopPropagation()
-                          setActionUser(item)
-                          setTimeout(() => setIsDeleteDialogOpen(true), 0)
-                        }}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        삭제
-                      </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </TableCell>
-              </TableRow>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('사용자 비밀번호 초기화 클릭됨', item)
+                              e.stopPropagation()
+                              setActionUser(item)
+                              setTimeout(
+                                () => setIsResetPasswordDialogOpen(true),
+                                0,
+                              )
+                            }}
+                          >
+                            <KeyRound className="mr-2 h-4 w-4" />
+                            비밀번호 초기화
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('사용자 상태 변경 클릭됨', item)
+                              e.stopPropagation()
+                              handleToggleUserStatus(
+                                item.user_id,
+                                item.is_active,
+                              )
+                            }}
+                          >
+                            {item.is_active ? (
+                              <>
+                                <Lock className="mr-2 h-4 w-4" />
+                                비활성화
+                              </>
+                            ) : (
+                              <>
+                                <Unlock className="mr-2 h-4 w-4" />
+                                활성화
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              console.log('사용자 삭제 클릭됨', item)
+                              e.stopPropagation()
+                              setActionUser(item)
+                              setTimeout(() => setIsDeleteDialogOpen(true), 0)
+                            }}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            삭제
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </TableCell>
+                </TableRow>
               )
             })}
           </TableBody>
@@ -497,6 +539,35 @@ export const UsersPage = () => {
               className="bg-red-600 hover:bg-red-700"
             >
               삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 영구 삭제 확인 다이얼로그 */}
+      <AlertDialog
+        open={isHardDeleteDialogOpen}
+        onOpenChange={setIsHardDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>탈퇴 회원 영구 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              사용자 &apos;{actionUser?.nickname || actionUser?.email}&apos;를
+              <br />
+              <b>DB에서 완전히 삭제</b>하시겠습니까?
+              <br />이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setActionUser(null)}>
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleHardDeleteItem}
+              className="bg-red-700 hover:bg-red-800"
+            >
+              영구 삭제
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
