@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
-import { DefaultLayout } from '../components/layouts/default-layout'
+import { AdminLayout } from '../components/layouts/admin-layout'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
 import { ErrorBoundary } from '../components/common'
 
@@ -63,9 +63,9 @@ const SuspenseWrapper = ({ children }) => (
 // 보호된 레이아웃 컴포넌트
 const ProtectedLayout = ({ children }) => (
   <ProtectedRoute>
-    <DefaultLayout>
+    <AdminLayout>
       <SuspenseWrapper>{children}</SuspenseWrapper>
-    </DefaultLayout>
+    </AdminLayout>
   </ProtectedRoute>
 )
 
@@ -145,7 +145,7 @@ export const router = createBrowserRouter([
     },
   },
   {
-    path: '/tourist-attractions',
+    path: '/attractions',
     element: (
       <ProtectedLayout>
         <TouristAttractionAdminPage />
@@ -157,7 +157,7 @@ export const router = createBrowserRouter([
     },
   },
   {
-    path: '/tourist-attractions/:contentId',
+    path: '/attractions/:contentId',
     element: (
       <ProtectedLayout>
         <TouristAttractionDetailWrapper />

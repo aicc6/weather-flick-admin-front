@@ -68,12 +68,14 @@ export const StatsCard = memo(
         className={cn('transition-all duration-200 hover:shadow-md', className)}
         {...props}
       >
-        <CardHeader className="card-header-standard">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle>{title}</CardTitle>
+            <CardTitle className="text-base font-medium">{title}</CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
-          <Icon className={iconClasses} aria-hidden="true" />
+          <div className={cn('rounded-lg p-2 bg-primary/10')}>
+            <Icon className={iconClasses} aria-hidden="true" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex-between gap-standard">

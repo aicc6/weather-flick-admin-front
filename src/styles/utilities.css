@@ -1,8 +1,10 @@
-/* 레이아웃 유틸리티 클래스 */
+/* ===================== */
+/* 🎨 레이아웃 유틸리티 */
+/* ===================== */
 
 /* 페이지 레이아웃 */
 .page-layout {
-  @apply space-y-6;
+  @apply space-y-6 animate-in fade-in duration-300;
 }
 
 .section-layout {
@@ -10,37 +12,41 @@
 }
 
 .form-layout {
-  @apply space-y-2;
+  @apply space-y-4;
 }
 
-/* 그리드 패턴 */
+/* 그리드 패턴 - 반응형 개선 */
 .stats-grid {
-  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3;
+  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+.stats-grid-3 {
+  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
 }
 
 .stats-grid-4 {
-  @apply grid gap-4 md:grid-cols-2 lg:grid-cols-4;
+  @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
 }
 
 .form-grid {
-  @apply grid grid-cols-1 items-end gap-3 md:grid-cols-5;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
 }
 
 .table-grid {
-  @apply grid gap-4 md:grid-cols-2;
+  @apply grid gap-4 grid-cols-1 lg:grid-cols-2;
 }
 
-/* 카드 스타일 */
+/* 카드 스타일 - Weather Flick 테마 */
 .card-header-standard {
-  @apply flex flex-row items-center justify-between pb-2;
+  @apply flex flex-row items-center justify-between space-y-0 pb-2;
 }
 
 .card-wrapper {
-  @apply overflow-hidden rounded-lg border bg-white shadow-sm;
+  @apply overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-shadow duration-200 hover:shadow-md;
 }
 
 .card-content-padded {
-  @apply p-4;
+  @apply p-6;
 }
 
 /* 버튼 그룹 */
@@ -91,9 +97,9 @@
   @apply min-h-screen bg-gray-50;
 }
 
-/* 상태 색상 */
+/* 상태 색상 - Weather Flick 테마 */
 .text-primary {
-  @apply text-blue-600;
+  @apply text-primary;
 }
 
 .text-success {
@@ -105,36 +111,64 @@
 }
 
 .text-danger {
-  @apply text-red-600;
+  @apply text-destructive;
 }
 
-.bg-primary {
-  @apply bg-blue-600;
+.bg-primary-light {
+  @apply bg-primary/10;
 }
 
-.bg-success {
-  @apply bg-green-600;
+.bg-success-light {
+  @apply bg-green-600/10;
 }
 
-.bg-warning {
-  @apply bg-yellow-600;
+.bg-warning-light {
+  @apply bg-yellow-600/10;
 }
 
-.bg-danger {
-  @apply bg-red-600;
+.bg-danger-light {
+  @apply bg-destructive/10;
 }
 
-/* 반응형 헬퍼 */
+/* 반응형 헬퍼 - 개선 */
 .responsive-padding {
   @apply px-4 sm:px-6 lg:px-8;
 }
 
+.responsive-padding-y {
+  @apply py-4 sm:py-6 lg:py-8;
+}
+
 .responsive-text {
-  @apply text-sm md:text-base;
+  @apply text-sm sm:text-base;
+}
+
+.responsive-heading {
+  @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
 }
 
 .responsive-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+/* 모바일 친화적 터치 타겟 */
+.touch-target {
+  @apply min-h-[44px] min-w-[44px];
+}
+
+/* 반응형 테이블 */
+.responsive-table {
+  @apply w-full overflow-x-auto;
+}
+
+@media (max-width: 640px) {
+  .hide-mobile {
+    @apply hidden;
+  }
+  
+  .stack-mobile {
+    @apply flex flex-col gap-2;
+  }
 }
 
 /* 플렉스 헬퍼 */

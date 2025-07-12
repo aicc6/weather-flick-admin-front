@@ -40,82 +40,276 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Admin Theme Colors */
+  --color-admin-primary: var(--admin-primary);
+  --color-admin-secondary: var(--admin-secondary);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-surface: var(--admin-surface);
 }
 
+/* ===================== */
+/* 🎨 관리자 색상 시스템 */
+/* ===================== */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem;
+
+  /* 🌈 Weather Flick 색상을 기반으로 한 관리자 팔레트 */
+  /* Primary Blues - 주요 파란색 계열 */
+  --primary-blue-dark: #3674b5;
+  --primary-blue: #578fca;
+  --primary-blue-light: #a1e3f9;
+
+  /* Accent Cyans - 강조 청록색 계열 */
+  --accent-cyan-bright: #4ed7f1;
+  --accent-cyan: #6fe6fc;
+  --accent-cyan-light: #a8f1ff;
+
+  /* Supporting Colors - 보조 색상 */
+  --accent-yellow: #fffa8d;
+  --soft-mint: #d1f8ef;
+
+  /* Neutral Colors - 중성 색상 (관리자용 확장) */
+  --neutral-white: #ffffff;
+  --neutral-gray-50: #f8fafc;
+  --neutral-gray-100: #f1f5f9;
+  --neutral-gray-150: #e8eef5;
+  --neutral-gray-200: #e2e8f0;
+  --neutral-gray-300: #cbd5e1;
+  --neutral-gray-400: #94a3b8;
+  --neutral-gray-500: #64748b;
+  --neutral-gray-600: #475569;
+  --neutral-gray-700: #334155;
+  --neutral-gray-800: #1e293b;
+  --neutral-gray-900: #0f172a;
+  --neutral-gray-950: #020617;
+
+  /* 🌤️ 라이트 모드 - 관리자 페이지에 최적화 */
+  --background: var(--neutral-gray-50);
+  --foreground: var(--neutral-gray-900);
+  --card: var(--neutral-white);
+  --card-foreground: var(--neutral-gray-900);
+  --popover: var(--neutral-white);
+  --popover-foreground: var(--neutral-gray-900);
+  --primary: var(--primary-blue);
+  --primary-foreground: var(--neutral-white);
+  --secondary: var(--neutral-gray-100);
+  --secondary-foreground: var(--neutral-gray-900);
+  --muted: var(--neutral-gray-150);
+  --muted-foreground: var(--neutral-gray-600);
+  --accent: var(--accent-cyan-light);
+  --accent-foreground: var(--neutral-gray-900);
+  --destructive: #ef4444;
+  --destructive-foreground: var(--neutral-white);
+  --border: var(--neutral-gray-200);
+  --input: var(--neutral-white);
+  --ring: var(--primary-blue);
+  
+  /* Chart Colors */
+  --chart-1: var(--primary-blue);
+  --chart-2: var(--accent-cyan);
+  --chart-3: var(--accent-yellow);
+  --chart-4: var(--primary-blue-light);
+  --chart-5: var(--soft-mint);
+  
+  /* Sidebar Colors - 관리자 사이드바 전용 */
+  --sidebar: var(--neutral-white);
+  --sidebar-foreground: var(--neutral-gray-700);
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: var(--neutral-white);
+  --sidebar-accent: var(--neutral-gray-100);
+  --sidebar-accent-foreground: var(--neutral-gray-900);
+  --sidebar-border: var(--neutral-gray-200);
+  --sidebar-ring: var(--primary-blue);
+  
+  /* Admin Specific */
+  --admin-primary: var(--primary-blue);
+  --admin-secondary: var(--accent-cyan);
+  --admin-accent: var(--soft-mint);
+  --admin-surface: var(--neutral-gray-50);
 }
 
 .dark {
-  --background: #18181b;
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* 🌙 다크 모드 - 관리자 페이지에 최적화 */
+  --background: var(--neutral-gray-950);
+  --foreground: var(--neutral-gray-50);
+  --card: var(--neutral-gray-900);
+  --card-foreground: var(--neutral-gray-50);
+  --popover: var(--neutral-gray-900);
+  --popover-foreground: var(--neutral-gray-50);
+  --primary: var(--accent-cyan);
+  --primary-foreground: var(--neutral-gray-900);
+  --secondary: var(--neutral-gray-800);
+  --secondary-foreground: var(--neutral-gray-50);
+  --muted: var(--neutral-gray-800);
+  --muted-foreground: var(--neutral-gray-400);
+  --accent: var(--primary-blue-dark);
+  --accent-foreground: var(--neutral-gray-50);
+  --destructive: #dc2626;
+  --destructive-foreground: var(--neutral-white);
+  --border: var(--neutral-gray-800);
+  --input: var(--neutral-gray-800);
+  --ring: var(--accent-cyan);
+  
+  /* Chart Colors */
+  --chart-1: var(--accent-cyan);
+  --chart-2: var(--primary-blue);
+  --chart-3: var(--accent-yellow);
+  --chart-4: var(--primary-blue-light);
+  --chart-5: var(--soft-mint);
+  
+  /* Sidebar Colors - 다크 모드 */
+  --sidebar: var(--neutral-gray-900);
+  --sidebar-foreground: var(--neutral-gray-100);
+  --sidebar-primary: var(--accent-cyan);
+  --sidebar-primary-foreground: var(--neutral-gray-900);
+  --sidebar-accent: var(--neutral-gray-800);
+  --sidebar-accent-foreground: var(--accent-cyan);
+  --sidebar-border: var(--neutral-gray-800);
+  --sidebar-ring: var(--accent-cyan);
+  
+  /* Admin Specific */
+  --admin-primary: var(--accent-cyan);
+  --admin-secondary: var(--primary-blue);
+  --admin-accent: var(--primary-blue-dark);
+  --admin-surface: var(--neutral-gray-900);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent 50%);
   }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Monda', 'Noto Sans KR', system-ui, sans-serif;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 헤딩 폰트 최적화 */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Monda', 'Noto Sans KR', system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+  }
+  
+  /* 폰트 크기 계층 */
+  h1 { @apply text-3xl lg:text-4xl; }
+  h2 { @apply text-2xl lg:text-3xl; }
+  h3 { @apply text-xl lg:text-2xl; }
+  h4 { @apply text-lg lg:text-xl; }
+  h5 { @apply text-base lg:text-lg; }
+  h6 { @apply text-sm lg:text-base; }
+}
+
+/* ===================== */
+/* 🎨 관리자 컴포넌트 스타일 */
+/* ===================== */
+@layer components {
+  /* Admin Card - 관리자 카드 */
+  .admin-card {
+    @apply bg-card text-card-foreground rounded-lg border border-border shadow-sm;
+    @apply transition-shadow duration-200 hover:shadow-md;
+  }
+  
+  /* Glass Effect - 유리 효과 (선택적) */
+  .glass-effect {
+    background: color-mix(in srgb, var(--card) 80%, transparent 20%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  /* Admin Buttons - 관리자 버튼 스타일 */
+  .admin-button-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    @apply font-medium rounded-md px-4 py-2;
+    @apply transition-colors duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+  
+  .admin-button-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply font-medium rounded-md px-4 py-2;
+    @apply transition-colors duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+  
+  /* Sidebar Active State */
+  .sidebar-item-active {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground;
+    @apply relative before:absolute before:left-0 before:top-0 before:h-full before:w-1;
+    @apply before:bg-sidebar-primary before:rounded-r;
+  }
+  
+  /* Data Table */
+  .data-table {
+    @apply w-full text-sm;
+  }
+  
+  .data-table thead {
+    @apply bg-muted/50 border-b;
+  }
+  
+  .data-table th {
+    @apply px-4 py-3 text-left font-medium text-muted-foreground;
+  }
+  
+  .data-table td {
+    @apply px-4 py-3 border-b border-border/50;
+  }
+  
+  .data-table tbody tr {
+    @apply hover:bg-muted/30 transition-colors;
+  }
+}
+
+/* ===================== */
+/* 🎨 유틸리티 클래스 */
+/* ===================== */
+@layer utilities {
+  /* 폰트 웨이트 */
+  .font-thin { font-weight: 100; }
+  .font-extralight { font-weight: 200; }
+  .font-light { font-weight: 300; }
+  .font-normal { font-weight: 400; }
+  .font-medium { font-weight: 500; }
+  .font-semibold { font-weight: 600; }
+  .font-bold { font-weight: 700; }
+  .font-extrabold { font-weight: 800; }
+  .font-black { font-weight: 900; }
+  
+  /* 관리자 페이지 전용 그리드 */
+  .admin-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+  
+  /* 스크롤바 스타일 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) var(--muted);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--foreground);
   }
 }
