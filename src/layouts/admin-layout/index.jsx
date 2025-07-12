@@ -19,7 +19,11 @@ import {
   Moon,
   Bell,
   User,
+  Shield,
+  Map,
 } from 'lucide-react'
+import { NAVIGATION_ITEMS } from '@/routes/types'
+import { usePermissions } from '@/components/auth/RoleBasedRoute'
 import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
@@ -31,20 +35,24 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-const navigation = [
-  { name: '대시보드', href: '/', icon: LayoutDashboard },
-  { name: '사용자 관리', href: '/users', icon: Users },
-  { name: '관광지 관리', href: '/attractions', icon: MapPin },
-  { name: '날씨 관리', href: '/weather', icon: Cloud },
-  { name: '콘텐츠 관리', href: '/content', icon: FileText },
-  { name: '배치 관리', href: '/batch-management', icon: Settings },
-]
+// 아이콘 매핑
+const ICON_MAP = {
+  LayoutDashboard,
+  Users,
+  Shield,
+  FileText,
+  Settings,
+  Cloud,
+  MapPin,
+  Map,
+}
 
 export function AdminLayout({ children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
   const user = useSelector((state) => state.auth.user)
+  const { canAccess } = usePermissions()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -88,12 +96,19 @@ export function AdminLayout({ children }) {
         {/* Sidebar Navigation */}
         <ScrollArea className="flex-1 px-3 py-4">
           <nav className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href
+            {NAVIGATION_ITEMS.map((item) => {
+              // 권한 확인
+              if (!canAccess(item)) {
+                return null
+              }
+              
+              const isActive = location.pathname === item.path
+              const Icon = ICON_MAP[item.icon] || LayoutDashboard
+              
               return (
                 <button
-                  key={item.name}
-                  onClick={() => navigate(item.href)}
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
                   className={cn(
                     'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     isActive
@@ -101,8 +116,8 @@ export function AdminLayout({ children }) {
                       : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                   )}
                 >
-                  <item.icon className="h-5 w-5" />
-                  {item.name}
+                  <Icon className="h-5 w-5" />
+                  {item.title}
                 </button>
               )
             })}

@@ -10,7 +10,7 @@ import {
   Map,
 } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '@/routes/types'
-import { usePermissions } from '../auth/RoleBasedRoute'
+import { usePermissions } from '@/components/auth/RoleBasedRoute'
 
 // 아이콘 매핑
 const ICON_MAP = {

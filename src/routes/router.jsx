@@ -36,11 +36,15 @@ const WeatherPage = lazy(() =>
     default: module.WeatherPage,
   })),
 )
-const TouristAttractionAdminPage = lazy(
-  () => import('../pages/TouristAttractionAdminPage'),
+const TouristAttractionAdminPage = lazy(() =>
+  import('../pages/TouristAttractionAdminPage').then((module) => ({
+    default: module.default,
+  })),
 )
-const TouristAttractionDetailWrapper = lazy(
-  () => import('../pages/TouristAttractionDetailWrapper'),
+const TouristAttractionDetailWrapper = lazy(() =>
+  import('../pages/TouristAttractionDetailWrapper').then((module) => ({
+    default: module.default,
+  })),
 )
 const ContentDetailPage = lazy(() => import('../pages/ContentDetailPage'))
 const BatchManagementPage = lazy(() =>
@@ -48,7 +52,11 @@ const BatchManagementPage = lazy(() =>
     default: module.default,
   })),
 )
-const RegionsPage = lazy(() => import('../pages/regions'))
+const RegionsPage = lazy(() =>
+  import('../pages/regions').then((module) => ({
+    default: module.default,
+  })),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (

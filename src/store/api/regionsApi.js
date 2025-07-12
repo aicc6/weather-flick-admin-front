@@ -9,7 +9,7 @@ export const regionsApi = createApi({
     // 지역 목록 조회
     getRegions: builder.query({
       query: ({ page = 1, size = 50, search, parent_region_code, region_level }) => ({
-        url: '/regions',
+        url: '/api/regions',
         params: {
           page,
           size,
@@ -23,14 +23,14 @@ export const regionsApi = createApi({
 
     // 특정 지역 조회
     getRegion: builder.query({
-      query: (regionCode) => `/regions/${regionCode}`,
+      query: (regionCode) => `/api/regions/${regionCode}`,
       providesTags: (result, error, regionCode) => [{ type: 'Region', id: regionCode }],
     }),
 
     // 지역 생성
     createRegion: builder.mutation({
       query: (regionData) => ({
-        url: '/regions',
+        url: '/api/regions',
         method: 'POST',
         body: regionData,
       }),
@@ -40,7 +40,7 @@ export const regionsApi = createApi({
     // 지역 수정
     updateRegion: builder.mutation({
       query: ({ regionCode, ...regionData }) => ({
-        url: `/regions/${regionCode}`,
+        url: `/api/regions/${regionCode}`,
         method: 'PUT',
         body: regionData,
       }),
@@ -53,7 +53,7 @@ export const regionsApi = createApi({
     // 지역 삭제
     deleteRegion: builder.mutation({
       query: (regionCode) => ({
-        url: `/regions/${regionCode}`,
+        url: `/api/regions/${regionCode}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Region'],
@@ -61,7 +61,7 @@ export const regionsApi = createApi({
 
     // 지역 계층 구조 조회
     getRegionTree: builder.query({
-      query: () => '/regions/tree/hierarchy',
+      query: () => '/api/regions/tree/hierarchy',
       providesTags: ['Region'],
     }),
   }),
