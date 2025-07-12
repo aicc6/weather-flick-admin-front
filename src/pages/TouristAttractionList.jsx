@@ -90,7 +90,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
     refetch()
   }
 
-  const totalPages = Math.ceil((data?.total || 0) / pageSize)
+  const totalPages = Math.ceil((data?.count || 0) / pageSize)
   const renderPagination = () => {
     if (totalPages <= 1) return null
     const pageItems = []
@@ -271,18 +271,18 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
           </div>
         </div>
         {/* 카드형 그리드 */}
-        {loading && (!data || data.items.length === 0) ? (
+        {loading && (!data || data?.results?.length === 0) ? (
           <div className="flex flex-col items-center gap-2 py-8">
             <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
             <span className="text-gray-500">데이터를 불러오는 중...</span>
           </div>
-        ) : !loading && (!data || data.items.length === 0) ? (
+        ) : !loading && (!data || data?.results?.length === 0) ? (
           <div className="py-8 text-center text-gray-400">
             {error ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.items.map((a) => (
+            {data?.results.map((a) => (
               <div
                 key={a.content_id}
                 className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"

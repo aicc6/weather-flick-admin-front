@@ -29,6 +29,11 @@ export default defineConfig({
   server: {
     allowedHosts: true,
     proxy: {
+      '/api/batch': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api': {
         target: 'http://localhost:9000',
         changeOrigin: true,
