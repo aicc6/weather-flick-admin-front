@@ -58,6 +58,7 @@ import {
   PaginationEllipsis,
 } from '../ui/pagination'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs'
+import { ContentSection, PageContainer, PageHeader } from '../layouts'
 
 const TABS = [
   { key: 'course', label: '여행 코스 관리' },
@@ -242,7 +243,7 @@ export const ContentPage = () => {
         title="콘텐츠 관리"
         description="여행 코스, 여행 계획, 축제 이벤트 및 레저 스포츠 시설을 관리합니다."
       />
-      
+
       {/* 탭 UI */}
       <ContentSection>
         <div className="mb-4 flex gap-2 border-b">
@@ -269,267 +270,273 @@ export const ContentPage = () => {
             )}
             {/* 검색/등록 카드 */}
             <Card className="border border-gray-200 shadow-md">
-            <CardContent>
-              <div className="mb-2">
-                <div className="text-lg font-bold">검색 및 등록</div>
-                <div className="text-sm text-gray-500">
-                  여행코스 정보를 검색하거나 새로 등록하세요.
+              <CardContent>
+                <div className="mb-2">
+                  <div className="text-lg font-bold">검색 및 등록</div>
+                  <div className="text-sm text-gray-500">
+                    여행코스 정보를 검색하거나 새로 등록하세요.
+                  </div>
                 </div>
-              </div>
-              <form
-                className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  setPage(1)
-                  // 검색은 입력값 그대로 사용
-                }}
-              >
-                <div className="relative flex flex-col gap-1 md:col-span-2">
-                  <label
-                    htmlFor="search-course-name"
-                    className="mb-1 text-xs text-gray-500"
-                  >
-                    코스명
-                  </label>
-                  <input
-                    id="search-course-name"
-                    className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                    placeholder="코스명"
-                    value={searchCourseName}
-                    onChange={handleCourseNameChange}
-                    autoComplete="off"
-                  />
-                  {suggestions.length > 0 && (
-                    <ul className="absolute top-full right-0 left-0 z-10 mt-1 w-full rounded border bg-white shadow">
-                      {suggestions.map((name, idx) => (
-                        <li
-                          key={idx}
-                          className="cursor-pointer px-3 py-1 text-sm hover:bg-blue-100"
-                          onClick={() => {
-                            setSearchCourseName(name)
-                            setSuggestions([])
-                          }}
-                        >
+                <form
+                  className="grid grid-cols-1 items-end gap-3 md:grid-cols-5"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    setPage(1)
+                    // 검색은 입력값 그대로 사용
+                  }}
+                >
+                  <div className="relative flex flex-col gap-1 md:col-span-2">
+                    <label
+                      htmlFor="search-course-name"
+                      className="mb-1 text-xs text-gray-500"
+                    >
+                      코스명
+                    </label>
+                    <input
+                      id="search-course-name"
+                      className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                      placeholder="코스명"
+                      value={searchCourseName}
+                      onChange={handleCourseNameChange}
+                      autoComplete="off"
+                    />
+                    {suggestions.length > 0 && (
+                      <ul className="absolute top-full right-0 left-0 z-10 mt-1 w-full rounded border bg-white shadow">
+                        {suggestions.map((name, idx) => (
+                          <li
+                            key={idx}
+                            className="cursor-pointer px-3 py-1 text-sm hover:bg-blue-100"
+                            onClick={() => {
+                              setSearchCourseName(name)
+                              setSuggestions([])
+                            }}
+                          >
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 md:col-span-2">
+                    <label
+                      htmlFor="search-region"
+                      className="mb-1 text-xs text-gray-500"
+                    >
+                      지역
+                    </label>
+                    <select
+                      id="search-region"
+                      className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                      value={searchRegion}
+                      onChange={(e) => setSearchRegion(e.target.value)}
+                    >
+                      <option value="">전체</option>
+                      {REGION_OPTIONS.map(([code, name]) => (
+                        <option key={code} value={code}>
                           {name}
-                        </li>
+                        </option>
                       ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1 md:col-span-2">
-                  <label
-                    htmlFor="search-region"
-                    className="mb-1 text-xs text-gray-500"
-                  >
-                    지역
-                  </label>
-                  <select
-                    id="search-region"
-                    className="rounded border px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                    value={searchRegion}
-                    onChange={(e) => setSearchRegion(e.target.value)}
-                  >
-                    <option value="">전체</option>
-                    {REGION_OPTIONS.map(([code, name]) => (
-                      <option key={code} value={code}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex gap-2 md:col-span-1 md:justify-end">
-                  <button
-                    type="button"
-                    disabled={isLoading}
-                    className="rounded bg-blue-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-blue-700 disabled:opacity-50"
-                    onClick={() => {
-                      setPage(1)
-                      refetch()
-                    }}
-                  >
-                    검색
-                  </button>
-                  <Dialog open={addOpen} onOpenChange={setAddOpen}>
-                    <DialogTrigger asChild>
-                      <button
-                        type="button"
-                        disabled={isLoading}
-                        className="rounded border border-blue-600 px-4 py-2 font-semibold text-blue-600 shadow transition hover:bg-blue-50 disabled:opacity-50"
-                      >
-                        여행코스 등록
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>여행코스 추가</DialogTitle>
-                      </DialogHeader>
-                      <form onSubmit={handleAdd} className="space-y-4">
-                        <Input
-                          required
-                          placeholder="코스명"
-                          value={form.course_name}
-                          onChange={(e) =>
-                            setForm((f) => ({
-                              ...f,
-                              course_name: e.target.value,
-                            }))
-                          }
-                        />
-                        <Input
-                          required
-                          placeholder="지역코드"
-                          value={form.region_code}
-                          onChange={(e) =>
-                            setForm((f) => ({
-                              ...f,
-                              region_code: e.target.value,
-                            }))
-                          }
-                        />
-                        <DialogFooter>
-                          <Button type="submit" disabled={isCreating}>
-                            추가
-                          </Button>
-                          <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                              취소
+                    </select>
+                  </div>
+                  <div className="flex gap-2 md:col-span-1 md:justify-end">
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      className="rounded bg-blue-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-blue-700 disabled:opacity-50"
+                      onClick={() => {
+                        setPage(1)
+                        refetch()
+                      }}
+                    >
+                      검색
+                    </button>
+                    <Dialog open={addOpen} onOpenChange={setAddOpen}>
+                      <DialogTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          className="rounded border border-blue-600 px-4 py-2 font-semibold text-blue-600 shadow transition hover:bg-blue-50 disabled:opacity-50"
+                        >
+                          여행코스 등록
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>여행코스 추가</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleAdd} className="space-y-4">
+                          <Input
+                            required
+                            placeholder="코스명"
+                            value={form.course_name}
+                            onChange={(e) =>
+                              setForm((f) => ({
+                                ...f,
+                                course_name: e.target.value,
+                              }))
+                            }
+                          />
+                          <Input
+                            required
+                            placeholder="지역코드"
+                            value={form.region_code}
+                            onChange={(e) =>
+                              setForm((f) => ({
+                                ...f,
+                                region_code: e.target.value,
+                              }))
+                            }
+                          />
+                          <DialogFooter>
+                            <Button type="submit" disabled={isCreating}>
+                              추가
                             </Button>
-                          </DialogClose>
-                        </DialogFooter>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
+                            <DialogClose asChild>
+                              <Button type="button" variant="outline">
+                                취소
+                              </Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            {/* 여행코스 목록 카드 */}
+            <Card className="border border-gray-200 shadow-md">
+              <CardContent>
+                <div className="mb-2">
+                  <div className="text-lg font-bold">여행코스 목록</div>
+                  <div className="text-sm text-gray-500">
+                    등록된 여행코스 정보를 확인하세요.
+                  </div>
                 </div>
-              </form>
-            </CardContent>
-          </Card>
-          {/* 여행코스 목록 카드 */}
+                {/* 카드형 그리드 */}
+                {isLoading && (!filtered || filtered.length === 0) ? (
+                  <div className="flex flex-col items-center gap-2 py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
+                    <span className="text-gray-500">
+                      데이터를 불러오는 중...
+                    </span>
+                  </div>
+                ) : !isLoading && (!filtered || filtered.length === 0) ? (
+                  <div className="py-8 text-center text-gray-400">
+                    {errorMsg
+                      ? '데이터를 불러올 수 없습니다.'
+                      : '데이터가 없습니다.'}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.slice(0, 15).map((course) => (
+                      <div
+                        key={course.content_id}
+                        className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
+                      >
+                        <div className="flex flex-1 flex-col gap-2">
+                          <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
+                            {course.first_image ? (
+                              <img
+                                src={course.first_image}
+                                alt={course.course_name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-gray-400">이미지 없음</span>
+                            )}
+                          </div>
+                          <div
+                            className="truncate text-lg font-bold text-gray-900"
+                            title={course.course_name}
+                          >
+                            <Link
+                              to={`/content/${course.content_id}`}
+                              className="text-blue-700 hover:underline"
+                            >
+                              {course.course_name}
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <span className="inline-block rounded border border-blue-300 bg-white px-2 py-0.5 text-xs text-blue-700">
+                              {REGION_MAP[course.region_code] ||
+                                course.region_code}
+                            </span>
+                            <span className="ml-auto text-xs text-gray-400">
+                              {course.created_at
+                                ? course.created_at.split('T')[0]
+                                : ''}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex gap-2">
+                          <button
+                            disabled={isLoading}
+                            className="flex items-center justify-center gap-1 rounded border border-red-400 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 shadow transition hover:bg-red-100 disabled:opacity-50"
+                            style={{ minWidth: 0, minHeight: 0 }}
+                            onClick={() => setDeleteId(course.content_id)}
+                          >
+                            <Trash2 size={14} className="text-red-500" />
+                            <span>삭제</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* 페이지네이션 */}
+                <div className="mt-6 flex justify-center">
+                  {renderPagination()}
+                </div>
+              </CardContent>
+            </Card>
+            {/* 삭제 다이얼로그 */}
+            <AlertDialog
+              open={!!deleteId}
+              onOpenChange={(open) => {
+                if (!open) setDeleteId(null)
+              }}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>정말 삭제할까요?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} autoFocus>
+                    삭제
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
+        {activeTab === 'plan' && (
+          <div className="mx-auto max-w-5xl space-y-8 py-8">
+            <TravelPlansSection />
+          </div>
+        )}
+        {activeTab === 'festival' && (
           <Card className="border border-gray-200 shadow-md">
             <CardContent>
-              <div className="mb-2">
-                <div className="text-lg font-bold">여행코스 목록</div>
-                <div className="text-sm text-gray-500">
-                  등록된 여행코스 정보를 확인하세요.
-                </div>
-              </div>
-              {/* 카드형 그리드 */}
-              {isLoading && (!filtered || filtered.length === 0) ? (
-                <div className="flex flex-col items-center gap-2 py-8">
-                  <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-                  <span className="text-gray-500">데이터를 불러오는 중...</span>
-                </div>
-              ) : !isLoading && (!filtered || filtered.length === 0) ? (
-                <div className="py-8 text-center text-gray-400">
-                  {errorMsg
-                    ? '데이터를 불러올 수 없습니다.'
-                    : '데이터가 없습니다.'}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                  {filtered.slice(0, 15).map((course) => (
-                    <div
-                      key={course.content_id}
-                      className="flex h-full flex-col rounded-lg border bg-white p-4 shadow"
-                    >
-                      <div className="flex flex-1 flex-col gap-2">
-                        <div className="mb-2 flex h-36 w-full items-center justify-center overflow-hidden rounded bg-gray-100">
-                          {course.first_image ? (
-                            <img
-                              src={course.first_image}
-                              alt={course.course_name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-gray-400">이미지 없음</span>
-                          )}
-                        </div>
-                        <div
-                          className="truncate text-lg font-bold text-gray-900"
-                          title={course.course_name}
-                        >
-                          <Link
-                            to={`/content/${course.content_id}`}
-                            className="text-blue-700 hover:underline"
-                          >
-                            {course.course_name}
-                          </Link>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="inline-block rounded border border-blue-300 bg-white px-2 py-0.5 text-xs text-blue-700">
-                            {REGION_MAP[course.region_code] ||
-                              course.region_code}
-                          </span>
-                          <span className="ml-auto text-xs text-gray-400">
-                            {course.created_at
-                              ? course.created_at.split('T')[0]
-                              : ''}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex gap-2">
-                        <button
-                          disabled={isLoading}
-                          className="flex items-center justify-center gap-1 rounded border border-red-400 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 shadow transition hover:bg-red-100 disabled:opacity-50"
-                          style={{ minWidth: 0, minHeight: 0 }}
-                          onClick={() => setDeleteId(course.content_id)}
-                        >
-                          <Trash2 size={14} className="text-red-500" />
-                          <span>삭제</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {/* 페이지네이션 */}
-              <div className="mt-6 flex justify-center">
-                {renderPagination()}
-              </div>
+              <Tabs defaultValue="event" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="event">축제 이벤트</TabsTrigger>
+                  <TabsTrigger value="leisure">레저 스포츠</TabsTrigger>
+                </TabsList>
+                <TabsContent value="event">
+                  <FestivalEventSection />
+                </TabsContent>
+                <TabsContent value="leisure">
+                  <LeisureSportsSection />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
-          {/* 삭제 다이얼로그 */}
-          <AlertDialog
-            open={!!deleteId}
-            onOpenChange={(open) => {
-              if (!open) setDeleteId(null)
-            }}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>정말 삭제할까요?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  이 작업은 되돌릴 수 없습니다.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>취소</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} autoFocus>
-                  삭제
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      )}
-      {activeTab === 'plan' && <TravelPlansSection />}
-      {activeTab === 'festival' && (
-        <Card className="border border-gray-200 shadow-md">
-          <CardContent>
-            <Tabs defaultValue="event" className="w-full">
-              <TabsList>
-                <TabsTrigger value="event">축제 이벤트</TabsTrigger>
-                <TabsTrigger value="leisure">레저 스포츠</TabsTrigger>
-              </TabsList>
-              <TabsContent value="event">
-                <FestivalEventSection />
-              </TabsContent>
-              <TabsContent value="leisure">
-                <LeisureSportsSection />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+        )}
       </ContentSection>
     </PageContainer>
   )
@@ -1714,7 +1721,6 @@ function TravelPlansSection() {
           </form>
         </DialogContent>
       </Dialog>
-      </ContentSection>
-    </PageContainer>
+    </div>
   )
 }
