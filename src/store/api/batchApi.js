@@ -17,7 +17,7 @@ const batchBaseQuery = fetchBaseQuery({
   prepareHeaders: (headers) => {
     // 배치 서버 인증을 위한 X-API-Key 헤더
     headers.set('X-API-Key', getBatchApiKey())
-    
+
     // 관리자 인증 토큰도 함께 전송 (필요한 경우)
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
     if (token) {

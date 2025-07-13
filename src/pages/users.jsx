@@ -9,15 +9,7 @@ import {
   useDeactivateUserMutation,
   useHardDeleteUserMutation,
 } from '@/store/api/usersApi'
-import { Card } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+// Card is imported as StyledCard from common components
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -48,7 +40,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LoadingState, EmptyState, ErrorState } from '@/components/common'
+import {
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  StyledCard,
+} from '@/components/common'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   Select,
   SelectContent,
@@ -72,14 +77,15 @@ const isDeletedUser = (user) => user.email?.startsWith('deleted_')
 
 export const UsersPage = () => {
   const { user: _user } = useAuth()
-  
+
   // 로컬 상태 (UI 전용) - 먼저 선언
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [_selectedUser, _setSelectedUser] = useState(null)
-  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false)
+  const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
+    useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [actionUser, setActionUser] = useState(null)
   const [isHardDeleteDialogOpen, setIsHardDeleteDialogOpen] = useState(false)
@@ -91,20 +97,20 @@ export const UsersPage = () => {
     error: statsError,
     refetch: refetchStats,
   } = useGetUserStatsQuery()
-  
+
   // API 쿼리 파라미터 구성
   const queryParams = {
     page: currentPage,
     size: pageSize,
     include_deleted: true,
   }
-  
+
   // 검색어가 있을 때만 추가
   if (searchTerm) {
     queryParams.email = searchTerm
     queryParams.nickname = searchTerm
   }
-  
+
   // 상태 필터 적용
   if (statusFilter === 'active') {
     queryParams.is_active = true
@@ -113,7 +119,7 @@ export const UsersPage = () => {
   } else if (statusFilter === 'deleted') {
     queryParams.only_deleted = true
   }
-  
+
   const {
     data: usersData,
     isLoading: usersLoading,
@@ -168,7 +174,7 @@ export const UsersPage = () => {
       console.error('Failed to load data:', error)
     }
   }, [error])
-  
+
   // 필터 변경 시 첫 페이지로 이동
   useEffect(() => {
     setCurrentPage(1)
@@ -179,12 +185,12 @@ export const UsersPage = () => {
     refetchStats()
     refetchUsers()
   }
-  
+
   // 페이지 변경 핸들러
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
-  
+
   // 페이지 크기 변경 핸들러
   const handlePageSizeChange = (newSize) => {
     setPageSize(parseInt(newSize))
@@ -303,7 +309,7 @@ export const UsersPage = () => {
       {/* 상단 요약 카드 */}
       {displayStats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card
+          <StyledCard
             className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'all' ? 'ring-primary ring-2' : ''
             }`}
@@ -316,8 +322,8 @@ export const UsersPage = () => {
             <span className="text-foreground text-2xl font-bold">
               {displayStats.total}명
             </span>
-          </Card>
-          <Card
+          </StyledCard>
+          <StyledCard
             className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'active' ? 'ring-2 ring-green-600' : ''
             }`}
@@ -330,8 +336,8 @@ export const UsersPage = () => {
             <span className="text-2xl font-bold text-green-600">
               {displayStats.active}명
             </span>
-          </Card>
-          <Card
+          </StyledCard>
+          <StyledCard
             className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'inactive' ? 'ring-2 ring-gray-600' : ''
             }`}
@@ -344,8 +350,8 @@ export const UsersPage = () => {
             <span className="text-muted-foreground text-2xl font-bold">
               {displayStats.inactive}명
             </span>
-          </Card>
-          <Card
+          </StyledCard>
+          <StyledCard
             className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
               statusFilter === 'deleted' ? 'ring-2 ring-red-600' : ''
             }`}
@@ -358,7 +364,7 @@ export const UsersPage = () => {
             <span className="text-2xl font-bold text-red-600">
               {displayStats.deleted}명
             </span>
-          </Card>
+          </StyledCard>
         </div>
       )}
 
@@ -394,8 +400,8 @@ export const UsersPage = () => {
         {loading ? (
           <LoadingState message="사용자 목록을 불러오는 중..." />
         ) : error ? (
-          <ErrorState 
-            error={error} 
+          <ErrorState
+            error={error}
             onRetry={() => {
               refetchStats()
               refetchUsers()
@@ -403,10 +409,18 @@ export const UsersPage = () => {
             message="사용자 목록을 불러올 수 없습니다"
           />
         ) : filteredUsers.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             type="search"
-            message={searchTerm || statusFilter !== 'all' ? "검색 결과가 없습니다" : "등록된 사용자가 없습니다"}
-            description={searchTerm || statusFilter !== 'all' ? "다른 검색어나 필터로 시도해보세요" : "새로운 사용자가 가입하면 여기에 표시됩니다"}
+            message={
+              searchTerm || statusFilter !== 'all'
+                ? '검색 결과가 없습니다'
+                : '등록된 사용자가 없습니다'
+            }
+            description={
+              searchTerm || statusFilter !== 'all'
+                ? '다른 검색어나 필터로 시도해보세요'
+                : '새로운 사용자가 가입하면 여기에 표시됩니다'
+            }
           />
         ) : (
           <Table>
@@ -421,220 +435,239 @@ export const UsersPage = () => {
             </TableHeader>
             <TableBody>
               {filteredUsers.map((item) => {
-              const isDeleted = isDeletedUser(item)
-              return (
-                <TableRow
-                  key={item.user_id}
-                  className={`transition hover:bg-gray-50 ${isDeleted ? 'opacity-60' : ''}`}
-                >
-                  <TableCell>{item.email}</TableCell>
-                  <TableCell>{item.nickname || item.name}</TableCell>
-                  <TableCell>
-                    {isDeleted ? (
-                      <Badge variant="destructive">탈퇴</Badge>
-                    ) : (
+                const isDeleted = isDeletedUser(item)
+                return (
+                  <TableRow
+                    key={item.user_id}
+                    className={`transition hover:bg-gray-50 ${isDeleted ? 'opacity-60' : ''}`}
+                  >
+                    <TableCell>{item.email}</TableCell>
+                    <TableCell>{item.nickname || item.name}</TableCell>
+                    <TableCell>
+                      {isDeleted ? (
+                        <Badge variant="destructive">탈퇴</Badge>
+                      ) : (
+                        <Badge
+                          variant={item.is_active ? 'success' : 'destructive'}
+                        >
+                          {item.is_active ? '활성' : '비활성'}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <Badge
-                        variant={item.is_active ? 'success' : 'destructive'}
+                        variant={item.is_superuser ? 'success' : 'outline'}
                       >
-                        {item.is_active ? '활성' : '비활성'}
+                        {item.is_superuser ? '슈퍼유저' : '일반'}
                       </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={item.is_superuser ? 'success' : 'outline'}>
-                      {item.is_superuser ? '슈퍼유저' : '일반'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {isDeleted ? (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="ml-2 text-white"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setActionUser(item)
-                          setTimeout(() => setIsHardDeleteDialogOpen(true), 0)
-                        }}
-                      >
-                        영구 삭제
-                      </Button>
-                    ) : (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              console.log('드롭다운 버튼 클릭됨', item)
-                              e.stopPropagation()
-                            }}
-                          >
-                            <span className="sr-only">메뉴 열기</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              console.log('상세보기 클릭됨', item)
-                              e.stopPropagation()
-                              _setSelectedUser(item)
-                            }}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            상세보기
-                          </DropdownMenuItem>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isDeleted ? (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="ml-2 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActionUser(item)
+                            setTimeout(() => setIsHardDeleteDialogOpen(true), 0)
+                          }}
+                        >
+                          영구 삭제
+                        </Button>
+                      ) : (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                console.log('드롭다운 버튼 클릭됨', item)
+                                e.stopPropagation()
+                              }}
+                            >
+                              <span className="sr-only">메뉴 열기</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                console.log('상세보기 클릭됨', item)
+                                e.stopPropagation()
+                                _setSelectedUser(item)
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              상세보기
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              console.log('사용자 비밀번호 초기화 클릭됨', item)
-                              e.stopPropagation()
-                              setActionUser(item)
-                              setTimeout(
-                                () => setIsResetPasswordDialogOpen(true),
-                                0,
-                              )
-                            }}
-                          >
-                            <KeyRound className="mr-2 h-4 w-4" />
-                            비밀번호 초기화
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              console.log('사용자 상태 변경 클릭됨', item)
-                              e.stopPropagation()
-                              handleToggleUserStatus(
-                                item.user_id,
-                                item.is_active,
-                              )
-                            }}
-                          >
-                            {item.is_active ? (
-                              <>
-                                <Lock className="mr-2 h-4 w-4" />
-                                비활성화
-                              </>
-                            ) : (
-                              <>
-                                <Unlock className="mr-2 h-4 w-4" />
-                                활성화
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              console.log('사용자 삭제 클릭됨', item)
-                              e.stopPropagation()
-                              setActionUser(item)
-                              setTimeout(() => setIsDeleteDialogOpen(true), 0)
-                            }}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                console.log(
+                                  '사용자 비밀번호 초기화 클릭됨',
+                                  item,
+                                )
+                                e.stopPropagation()
+                                setActionUser(item)
+                                setTimeout(
+                                  () => setIsResetPasswordDialogOpen(true),
+                                  0,
+                                )
+                              }}
+                            >
+                              <KeyRound className="mr-2 h-4 w-4" />
+                              비밀번호 초기화
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                console.log('사용자 상태 변경 클릭됨', item)
+                                e.stopPropagation()
+                                handleToggleUserStatus(
+                                  item.user_id,
+                                  item.is_active,
+                                )
+                              }}
+                            >
+                              {item.is_active ? (
+                                <>
+                                  <Lock className="mr-2 h-4 w-4" />
+                                  비활성화
+                                </>
+                              ) : (
+                                <>
+                                  <Unlock className="mr-2 h-4 w-4" />
+                                  활성화
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                console.log('사용자 삭제 클릭됨', item)
+                                e.stopPropagation()
+                                setActionUser(item)
+                                setTimeout(() => setIsDeleteDialogOpen(true), 0)
+                              }}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
         )}
-        
+
         {/* 페이지네이션 */}
         {!loading && !error && filteredUsers.length > 0 && (
-        <div className="flex flex-col gap-4 px-2 py-4">
-          {/* 페이지 크기 선택 및 현재 표시 정보 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">페이지당 표시:</span>
-              <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-                <SelectTrigger className="w-[80px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="flex flex-col gap-4 px-2 py-4">
+            {/* 페이지 크기 선택 및 현재 표시 정보 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm">
+                  페이지당 표시:
+                </span>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={handlePageSizeChange}
+                >
+                  <SelectTrigger className="w-[80px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="text-muted-foreground text-sm">
+                총 {totalCount}명 중 {(currentPage - 1) * pageSize + 1}-
+                {Math.min(currentPage * pageSize, totalCount)}명 표시
+              </div>
             </div>
-            
-            <div className="text-sm text-muted-foreground">
-              총 {totalCount}명 중 {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalCount)}명 표시
+
+            {/* 페이지 네비게이션 */}
+            <div className="flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className={
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                    />
+                  </PaginationItem>
+
+                  {/* 페이지 번호 표시 */}
+                  {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                    let pageNum
+                    if (totalPages <= 5) {
+                      pageNum = i + 1
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i
+                    } else {
+                      pageNum = currentPage - 2 + i
+                    }
+
+                    if (pageNum > totalPages) return null
+
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(pageNum)}
+                          isActive={currentPage === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  })}
+
+                  {totalPages > 5 && currentPage < totalPages - 2 && (
+                    <>
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => handlePageChange(totalPages)}
+                          className="cursor-pointer"
+                        >
+                          {totalPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    </>
+                  )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className={
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           </div>
-          
-          {/* 페이지 네비게이션 */}
-          <div className="flex justify-center">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
-                </PaginationItem>
-                
-                {/* 페이지 번호 표시 */}
-                {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  if (pageNum > totalPages) return null;
-                  
-                  return (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => handlePageChange(pageNum)}
-                        isActive={currentPage === pageNum}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
-                
-                {totalPages > 5 && currentPage < totalPages - 2 && (
-                  <>
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink
-                        onClick={() => handlePageChange(totalPages)}
-                        className="cursor-pointer"
-                      >
-                        {totalPages}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
-                )}
-                
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        </div>
         )}
       </ContentSection>
 

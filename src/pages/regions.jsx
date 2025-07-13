@@ -30,7 +30,15 @@ import { toast } from 'sonner'
 import { PageContainer } from '@/layouts/PageContainer'
 import { PageHeader } from '@/layouts/PageHeader'
 import { ContentSection } from '@/layouts/ContentSection'
-import { LoadingState, EmptyState, ErrorState } from '@/components/common'
+import { LoadingState, EmptyState } from '@/components/common'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   useGetRegionsQuery,
   useGetRegionTreeQuery,
@@ -254,10 +262,18 @@ export default function RegionsPage() {
         {isLoading ? (
           <LoadingState message="지역 데이터를 불러오는 중..." />
         ) : !data?.regions || data.regions.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             type="database"
-            message={search || selectedLevel !== 'all' ? "검색 결과가 없습니다" : "등록된 지역이 없습니다"}
-            description={search || selectedLevel !== 'all' ? "다른 검색 조건으로 시도해보세요" : "새로운 지역을 추가해주세요"}
+            message={
+              search || selectedLevel !== 'all'
+                ? '검색 결과가 없습니다'
+                : '등록된 지역이 없습니다'
+            }
+            description={
+              search || selectedLevel !== 'all'
+                ? '다른 검색 조건으로 시도해보세요'
+                : '새로운 지역을 추가해주세요'
+            }
             action={
               !(search || selectedLevel !== 'all') && (
                 <Button onClick={() => setIsCreateOpen(true)}>
@@ -269,32 +285,30 @@ export default function RegionsPage() {
           />
         ) : view === 'list' ? (
           <div className="rounded-md border">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-muted/50 border-b">
-                  <th className="p-3 text-left">지역코드</th>
-                  <th className="p-3 text-left">지역명</th>
-                  <th className="p-3 text-left">상위지역</th>
-                  <th className="p-3 text-left">레벨</th>
-                  <th className="p-3 text-left">위도</th>
-                  <th className="p-3 text-left">경도</th>
-                  <th className="p-3 text-right">작업</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>지역코드</TableHead>
+                  <TableHead>지역명</TableHead>
+                  <TableHead>상위지역</TableHead>
+                  <TableHead>레벨</TableHead>
+                  <TableHead>위도</TableHead>
+                  <TableHead>경도</TableHead>
+                  <TableHead className="text-right">작업</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {data?.regions?.map((region) => (
-                  <tr key={region.region_code} className="border-b">
-                    <td className="p-3">{region.region_code}</td>
-                    <td className="p-3 font-medium">{region.region_name}</td>
-                    <td className="p-3">{region.parent_region_code || '-'}</td>
-                    <td className="p-3">{region.region_level}</td>
-                    <td className="p-3">
-                      {region.latitude?.toFixed(6) || '-'}
-                    </td>
-                    <td className="p-3">
-                      {region.longitude?.toFixed(6) || '-'}
-                    </td>
-                    <td className="p-3 text-right">
+                  <TableRow key={region.region_code}>
+                    <TableCell>{region.region_code}</TableCell>
+                    <TableCell className="font-medium">
+                      {region.region_name}
+                    </TableCell>
+                    <TableCell>{region.parent_region_code || '-'}</TableCell>
+                    <TableCell>{region.region_level}</TableCell>
+                    <TableCell>{region.latitude?.toFixed(6) || '-'}</TableCell>
+                    <TableCell>{region.longitude?.toFixed(6) || '-'}</TableCell>
+                    <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -315,11 +329,11 @@ export default function RegionsPage() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         ) : (
           <div className="rounded-md border p-4">

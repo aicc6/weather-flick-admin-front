@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { authHttp } from '@/lib/http'
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
+  StyledCard,
+  StyledCardHeader,
+  StyledCardContent,
+  FormField,
+  StandardInput,
+  StandardSelect,
+  StandardButton,
+} from '@/components/common'
+import { CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 
 const emptyForm = {
   content_id: '',
@@ -129,79 +131,59 @@ export default function TouristAttractionForm({ contentId, onDone }) {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-2">
-      <Card className="w-full max-w-3xl">
+      <StyledCard className="w-full max-w-3xl">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
+          <StyledCardHeader>
             <CardTitle>{contentId ? '관광지 수정' : '관광지 등록'}</CardTitle>
             <CardDescription>
               {contentId
                 ? '관광지 정보를 수정합니다.'
                 : '새로운 관광지 정보를 등록합니다.'}
             </CardDescription>
-          </CardHeader>
-          <CardContent>
+          </StyledCardHeader>
+          <StyledCardContent>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Object.keys(emptyForm).map((key) =>
                 key === 'region_code' ? (
-                  <div key={key} className="flex flex-col gap-2">
-                    <label
-                      htmlFor={key}
-                      className="text-sm font-medium text-gray-600"
-                    >
-                      {fieldLabels[key]}
-                    </label>
-                    <select
-                      id={key}
-                      name={key}
-                      value={form[key] || ''}
-                      onChange={handleChange}
-                      className="rounded border px-3 py-2 text-base focus:outline-blue-500"
-                    >
-                      <option value="">지역 선택</option>
-                      {Object.entries(REGION_MAP).map(([code, name]) => (
-                        <option key={code} value={code}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <div key={key} className="flex flex-col gap-2">
-                    <label
-                      htmlFor={key}
-                      className="text-sm font-medium text-gray-600"
-                    >
-                      {fieldLabels[key]}
-                    </label>
-                    <input
-                      id={key}
-                      name={key}
-                      value={form[key] || ''}
-                      onChange={handleChange}
-                      className="rounded border px-3 py-2 text-base focus:outline-blue-500"
+                  <FormField key={key} label={fieldLabels[key]}>
+                    <StandardSelect
+                      value={form[key] || 'none'}
+                      onValueChange={(value) =>
+                        setForm({ ...form, [key]: value === 'none' ? '' : value })
+                      }
+                      placeholder="지역 선택"
+                      options={[
+                        { value: 'none', label: '지역 선택' },
+                        ...Object.entries(REGION_MAP).map(([code, name]) => ({
+                          value: code,
+                          label: name,
+                        })),
+                      ]}
                     />
-                  </div>
+                  </FormField>
+                ) : (
+                  <FormField key={key} label={fieldLabels[key]}>
+                    <StandardInput
+                      id={key}
+                      name={key}
+                      value={form[key] || ''}
+                      onChange={handleChange}
+                    />
+                  </FormField>
                 ),
               )}
             </div>
-          </CardContent>
+          </StyledCardContent>
           <CardFooter className="mt-4 justify-end gap-2">
-            <button
-              type="button"
-              className="btn btn-secondary rounded border border-blue-600 px-5 py-2 text-base text-blue-600"
-              onClick={onDone}
-            >
+            <StandardButton type="button" variant="outline" onClick={onDone}>
               취소
-            </button>
-            <button
-              type="submit"
-              className="btn btn-primary rounded bg-blue-600 px-5 py-2 text-base text-white"
-            >
+            </StandardButton>
+            <StandardButton type="submit" variant="primary">
               저장
-            </button>
+            </StandardButton>
           </CardFooter>
         </form>
-      </Card>
+      </StyledCard>
     </div>
   )
 }

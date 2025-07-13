@@ -2,9 +2,9 @@ import { Loader2 } from 'lucide-react'
 
 export function LoadingState({ message = '데이터를 불러오는 중...' }) {
   return (
-    <div className="flex-col-center animate-in fade-in duration-300 py-8">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <span className="mt-2 text-sm text-muted-foreground">{message}</span>
+    <div className="flex-col-center animate-in fade-in py-8 duration-300">
+      <Loader2 className="text-primary h-8 w-8 animate-spin" />
+      <span className="text-muted-foreground mt-2 text-sm">{message}</span>
     </div>
   )
 }
@@ -17,18 +17,18 @@ export function LoadingSpinner({ size = 'default', className = '' }) {
   }
 
   return (
-    <Loader2 
-      className={`animate-spin text-primary ${sizeClasses[size]} ${className}`} 
+    <Loader2
+      className={`text-primary animate-spin ${sizeClasses[size]} ${className}`}
     />
   )
 }
 
 export function LoadingOverlay({ message = '처리 중...' }) {
   return (
-    <div className="absolute inset-0 z-50 flex-center bg-background/80 backdrop-blur-sm">
+    <div className="flex-center bg-background/80 absolute inset-0 z-50 backdrop-blur-sm">
       <div className="flex-col-center gap-2">
         <LoadingSpinner size="lg" />
-        <span className="text-sm text-muted-foreground">{message}</span>
+        <span className="text-muted-foreground text-sm">{message}</span>
       </div>
     </div>
   )

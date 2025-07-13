@@ -10,13 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+// Card components are imported as Styled versions from common
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Search, Edit, Trash2, Shield, User } from 'lucide-react'
@@ -41,7 +35,14 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { ContentSection, PageContainer, PageHeader } from '@/layouts'
-import { LoadingState, EmptyState, ErrorState } from '@/components/common'
+import {
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  StyledCard,
+  StyledCardHeader,
+  StyledCardContent,
+} from '@/components/common'
 
 export const AdminsPage = () => {
   const { user } = useAuth()
@@ -132,7 +133,7 @@ export const AdminsPage = () => {
       <PageContainer>
         <ErrorState
           message="접근 권한이 없습니다"
-          error={{ message: "이 페이지는 슈퍼유저만 접근할 수 있습니다." }}
+          error={{ message: '이 페이지는 슈퍼유저만 접근할 수 있습니다.' }}
         />
       </PageContainer>
     )
@@ -226,16 +227,22 @@ export const AdminsPage = () => {
         {loading ? (
           <LoadingState message="관리자 목록을 불러오는 중..." />
         ) : error ? (
-          <ErrorState 
-            error={error} 
+          <ErrorState
+            error={error}
             onRetry={() => _refetchAdmins()}
             message="관리자 목록을 불러올 수 없습니다"
           />
         ) : filteredAdmins.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             type="search"
-            message={searchTerm ? "검색 결과가 없습니다" : "등록된 관리자가 없습니다"}
-            description={searchTerm ? "다른 검색어로 시도해보세요" : "새로운 관리자를 추가해주세요"}
+            message={
+              searchTerm ? '검색 결과가 없습니다' : '등록된 관리자가 없습니다'
+            }
+            description={
+              searchTerm
+                ? '다른 검색어로 시도해보세요'
+                : '새로운 관리자를 추가해주세요'
+            }
             action={
               !searchTerm && (
                 <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -247,167 +254,177 @@ export const AdminsPage = () => {
         ) : (
           <div className="grid gap-4">
             {filteredAdmins.map((admin) => (
-            <Card key={admin.admin_id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {admin.is_superuser ? (
-                      <Shield className="h-5 w-5 text-yellow-600" />
-                    ) : (
-                      <User className="h-5 w-5 text-gray-600" />
-                    )}
-                    <div>
-                      <CardTitle className="text-lg">
-                        {admin.username}
-                      </CardTitle>
-                      <CardDescription>{admin.email}</CardDescription>
+              <StyledCard key={admin.admin_id}>
+                <StyledCardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {admin.is_superuser ? (
+                        <Shield className="h-5 w-5 text-yellow-600" />
+                      ) : (
+                        <User className="h-5 w-5 text-gray-600" />
+                      )}
+                      <div>
+                        <h3 className="text-lg leading-none font-semibold tracking-tight">
+                          {admin.username}
+                        </h3>
+                        <p className="text-muted-foreground text-sm">
+                          {admin.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge
+                        variant={admin.is_active ? 'default' : 'secondary'}
+                      >
+                        {admin.is_active ? '활성' : '비활성'}
+                      </Badge>
+                      {admin.is_superuser && (
+                        <Badge variant="outline">슈퍼유저</Badge>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={admin.is_active ? 'default' : 'secondary'}>
-                      {admin.is_active ? '활성' : '비활성'}
-                    </Badge>
-                    {admin.is_superuser && (
-                      <Badge variant="outline">슈퍼유저</Badge>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm">
-                    생성일: {new Date(admin.created_at).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Dialog
-                      open={isEditDialogOpen}
-                      onOpenChange={setIsEditDialogOpen}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedAdmin(admin)
-                            setFormData({
-                              email: admin.email,
-                              username: admin.username,
-                              password: '',
-                            })
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>관리자 수정</DialogTitle>
-                          <DialogDescription>
-                            관리자 정보를 수정합니다.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="edit-email">이메일</Label>
-                            <Input
-                              id="edit-email"
-                              type="email"
-                              value={formData.email}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  email: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-username">사용자명</Label>
-                            <Input
-                              id="edit-username"
-                              value={formData.username}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  username: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="edit-password">
-                              새 비밀번호 (선택사항)
-                            </Label>
-                            <Input
-                              id="edit-password"
-                              type="password"
-                              value={formData.password}
-                              onChange={(e) =>
-                                setFormData({
-                                  ...formData,
-                                  password: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button onClick={handleUpdateAdmin}>수정</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-
-                    {!admin.is_superuser && (
-                      <>
-                        {admin.is_active ? (
+                </StyledCardHeader>
+                <StyledCardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="text-muted-foreground text-sm">
+                      생성일: {new Date(admin.created_at).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Dialog
+                        open={isEditDialogOpen}
+                        onOpenChange={setIsEditDialogOpen}
+                      >
+                        <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleStatusChange(admin.admin_id, 'INACTIVE')}
+                            onClick={() => {
+                              setSelectedAdmin(admin)
+                              setFormData({
+                                email: admin.email,
+                                username: admin.username,
+                                password: '',
+                              })
+                            }}
                           >
-                            비활성화
+                            <Edit className="h-4 w-4" />
                           </Button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleStatusChange(admin.admin_id, 'ACTIVE')}
-                          >
-                            활성화
-                          </Button>
-                        )}
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>관리자 수정</DialogTitle>
+                            <DialogDescription>
+                              관리자 정보를 수정합니다.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="edit-email">이메일</Label>
+                              <Input
+                                id="edit-email"
+                                type="email"
+                                value={formData.email}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    email: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="edit-username">사용자명</Label>
+                              <Input
+                                id="edit-username"
+                                value={formData.username}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="edit-password">
+                                새 비밀번호 (선택사항)
+                              </Label>
+                              <Input
+                                id="edit-password"
+                                type="password"
+                                value={formData.password}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    password: e.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={handleUpdateAdmin}>수정</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
 
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm">
-                              <Trash2 className="h-4 w-4" />
+                      {!admin.is_superuser && (
+                        <>
+                          {admin.is_active ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleStatusChange(admin.admin_id, 'INACTIVE')
+                              }
+                            >
+                              비활성화
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                정말로 이 관리자를 삭제하시겠습니까? 이 작업은
-                                되돌릴 수 없습니다.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>취소</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteAdmin(admin.admin_id)}
-                              >
-                                삭제
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </>
-                    )}
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleStatusChange(admin.admin_id, 'ACTIVE')
+                              }
+                            >
+                              활성화
+                            </Button>
+                          )}
+
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  정말로 이 관리자를 삭제하시겠습니까? 이 작업은
+                                  되돌릴 수 없습니다.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>취소</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleDeleteAdmin(admin.admin_id)
+                                  }
+                                >
+                                  삭제
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </StyledCardContent>
+              </StyledCard>
+            ))}
           </div>
         )}
       </ContentSection>
