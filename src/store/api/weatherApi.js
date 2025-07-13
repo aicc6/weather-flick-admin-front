@@ -60,10 +60,11 @@ export const weatherApi = createApi({
 
     // weather_forecasts 테이블에서 예보 데이터 조회
     getForecastWeatherData: builder.query({
-      query: (limit = 20) => `/api/weather/database/forecast-data?limit=${limit}`,
+      query: (limit = 20) =>
+        `/api/weather/database/forecast-data?limit=${limit}`,
       transformResponse: (response) => {
         // 백엔드에서 배열로 직접 반환하므로 response.data가 아닌 response 자체를 사용
-        return response.data || response || [];
+        return response.data || response || []
       },
       providesTags: ['Weather'],
       keepUnusedDataFor: 60, // 1분

@@ -149,7 +149,10 @@ export default function TouristAttractionForm({ contentId, onDone }) {
                     <StandardSelect
                       value={form[key] || 'none'}
                       onValueChange={(value) =>
-                        setForm({ ...form, [key]: value === 'none' ? '' : value })
+                        setForm({
+                          ...form,
+                          [key]: value === 'none' ? '' : value,
+                        })
                       }
                       placeholder="지역 선택"
                       options={[

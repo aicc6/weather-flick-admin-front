@@ -11,8 +11,6 @@ import {
   useCreateLeisureSportMutation,
   useUpdateLeisureSportMutation,
   useDeleteLeisureSportMutation,
-  useGetFestivalEventNamesQuery,
-  useGetLeisureFacilityNamesQuery,
 } from '@/store/api/contentApi'
 import {
   useGetTravelPlansQuery,
@@ -67,7 +65,14 @@ import {
 import { Link } from 'react-router-dom'
 import { REGION_MAP } from '@/constants/region'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, RefreshCw, Trash2, Edit2, MoreHorizontal, Plus, Search } from 'lucide-react'
+import {
+  AlertCircle,
+  Trash2,
+  Edit2,
+  MoreHorizontal,
+  Plus,
+  Search,
+} from 'lucide-react'
 import {
   Pagination,
   PaginationContent,
@@ -79,7 +84,13 @@ import {
 } from '@/components/ui/pagination'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { PageContainer, PageHeader } from '@/layouts'
-import { LoadingState, EmptyState, ErrorState, StyledCard, StyledCardContent } from '@/components/common'
+import {
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  StyledCard,
+  StyledCardContent,
+} from '@/components/common'
 
 const REGION_OPTIONS = Object.entries(REGION_MAP)
 
@@ -101,15 +112,15 @@ export const ContentPage = () => {
 
       {/* 탭 네비게이션 */}
       <div className="mb-6">
-        <div className="border-b border-border">
+        <div className="border-border border-b">
           <nav className="-mb-px flex space-x-8">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
-                className={`whitespace-nowrap border-b-2 py-2 px-1 text-sm font-medium transition-colors ${
+                className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab.key
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:border-gray-300 hover:text-foreground'
+                    : 'text-muted-foreground hover:text-foreground border-transparent hover:border-gray-300'
                 }`}
                 onClick={() => setActiveTab(tab.key)}
                 type="button"
@@ -158,8 +169,10 @@ function TravelCoursesSection() {
     course_name: searchCourseName,
     region: searchRegion,
   })
-  const [createTravelCourse, { isLoading: isCreating }] = useCreateTravelCourseMutation()
-  const [deleteTravelCourse, { isLoading: isDeleting }] = useDeleteTravelCourseMutation()
+  const [createTravelCourse, { isLoading: isCreating }] =
+    useCreateTravelCourseMutation()
+  const [deleteTravelCourse, { isLoading: isDeleting }] =
+    useDeleteTravelCourseMutation()
   const [errorMsg, setErrorMsg] = useState(null)
 
   useEffect(() => {
@@ -202,77 +215,86 @@ function TravelCoursesSection() {
     const pageItems = []
     let start = Math.max(1, page - 2)
     let end = Math.min(totalPages, page + 2)
-    
+
     if (page <= 3) {
       end = Math.min(5, totalPages)
     } else if (page >= totalPages - 2) {
       start = Math.max(1, totalPages - 4)
     }
-    
+
     pageItems.push(
       <PaginationItem key="prev">
         <PaginationPrevious
           onClick={() => setPage(page > 1 ? page - 1 : 1)}
           aria-disabled={page === 1}
-          className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     if (start > 1) {
       pageItems.push(
         <PaginationItem key={1}>
           <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
             1
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
       if (start > 2) {
         pageItems.push(
           <PaginationItem key="start-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
     }
-    
+
     for (let i = start; i <= end; i++) {
       pageItems.push(
         <PaginationItem key={i}>
           <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     if (end < totalPages) {
       if (end < totalPages - 1) {
         pageItems.push(
           <PaginationItem key="end-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
       pageItems.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink onClick={() => setPage(totalPages)} isActive={page === totalPages}>
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     pageItems.push(
       <PaginationItem key="next">
         <PaginationNext
           onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
           aria-disabled={page === totalPages}
-          className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === totalPages
+              ? 'pointer-events-none opacity-50'
+              : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     return (
       <Pagination className="justify-center">
         <PaginationContent>{pageItems}</PaginationContent>
@@ -293,7 +315,10 @@ function TravelCoursesSection() {
       <StyledCard>
         <StyledCardContent className="p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form onSubmit={handleSearch} className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-4 lg:flex-row lg:items-end"
+            >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <label htmlFor="search-name" className="text-sm font-medium">
@@ -307,7 +332,10 @@ function TravelCoursesSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="search-region" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-region"
+                    className="text-sm font-medium"
+                  >
                     지역
                   </label>
                   <Select value={searchRegion} onValueChange={setSearchRegion}>
@@ -332,7 +360,7 @@ function TravelCoursesSection() {
                 </div>
               </div>
             </form>
-            
+
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -346,24 +374,34 @@ function TravelCoursesSection() {
                 </DialogHeader>
                 <form onSubmit={handleAdd} className="space-y-4">
                   <div className="space-y-2">
-                    <label htmlFor="course-name" className="text-sm font-medium">
+                    <label
+                      htmlFor="course-name"
+                      className="text-sm font-medium"
+                    >
                       코스명
                     </label>
                     <Input
                       id="course-name"
                       placeholder="코스명을 입력하세요"
                       value={form.course_name}
-                      onChange={(e) => setForm((f) => ({ ...f, course_name: e.target.value }))}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, course_name: e.target.value }))
+                      }
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="region-code" className="text-sm font-medium">
+                    <label
+                      htmlFor="region-code"
+                      className="text-sm font-medium"
+                    >
                       지역
                     </label>
                     <Select
                       value={form.region_code}
-                      onValueChange={(value) => setForm((f) => ({ ...f, region_code: value }))}
+                      onValueChange={(value) =>
+                        setForm((f) => ({ ...f, region_code: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="지역을 선택하세요" />
@@ -452,7 +490,7 @@ function TravelCoursesSection() {
                             className="h-12 w-12 rounded-lg object-cover"
                           />
                         ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">
+                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
                             이미지 없음
                           </div>
                         )}
@@ -461,16 +499,15 @@ function TravelCoursesSection() {
                         <div className="space-y-1">
                           <Link
                             to={`/content/${course.content_id}`}
-                            className="font-medium text-primary hover:underline"
+                            className="text-primary font-medium hover:underline"
                           >
                             {course.course_name}
                           </Link>
                           {course.overview && (
-                            <p className="text-xs text-muted-foreground line-clamp-2 max-w-[300px]">
-                              {course.overview.length > 80 
-                                ? `${course.overview.substring(0, 80)}...` 
-                                : course.overview
-                              }
+                            <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
+                              {course.overview.length > 80
+                                ? `${course.overview.substring(0, 80)}...`
+                                : course.overview}
                             </p>
                           )}
                         </div>
@@ -491,17 +528,27 @@ function TravelCoursesSection() {
                       </TableCell>
                       <TableCell className="text-sm">
                         {course.difficulty_level ? (
-                          <Badge variant={
-                            course.difficulty_level === '쉬움' ? 'default' :
-                            course.difficulty_level === '보통' ? 'secondary' :
-                            course.difficulty_level === '어려움' ? 'destructive' : 'outline'
-                          }>
+                          <Badge
+                            variant={
+                              course.difficulty_level === '쉬움'
+                                ? 'default'
+                                : course.difficulty_level === '보통'
+                                  ? 'secondary'
+                                  : course.difficulty_level === '어려움'
+                                    ? 'destructive'
+                                    : 'outline'
+                            }
+                          >
                             {course.difficulty_level}
                           </Badge>
-                        ) : '-'}
+                        ) : (
+                          '-'
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {course.created_at ? course.created_at.split('T')[0] : '-'}
+                        {course.created_at
+                          ? course.created_at.split('T')[0]
+                          : '-'}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -525,12 +572,13 @@ function TravelCoursesSection() {
                   ))}
                 </TableBody>
               </Table>
-              
+
               {/* 페이지네이션 */}
-              <div className="p-4 border-t">
+              <div className="border-t p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    총 {data?.total || 0}개 중 {Math.min(offset + 1, data?.total || 0)}-
+                  <div className="text-muted-foreground text-sm">
+                    총 {data?.total || 0}개 중{' '}
+                    {Math.min(offset + 1, data?.total || 0)}-
                     {Math.min(offset + limit, data?.total || 0)}개 표시
                   </div>
                   {renderPagination()}
@@ -542,7 +590,10 @@ function TravelCoursesSection() {
       </StyledCard>
 
       {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
@@ -568,8 +619,13 @@ function TravelPlansSection() {
   const [searchStatus, setSearchStatus] = useState('')
   const limit = 12
   const skip = (page - 1) * limit
-  
-  const { data: plans = [], isLoading, error, refetch } = useGetTravelPlansQuery({ skip, limit })
+
+  const {
+    data: plans = [],
+    isLoading,
+    error,
+    refetch,
+  } = useGetTravelPlansQuery({ skip, limit })
   const [createTravelPlan] = useCreateTravelPlanMutation()
   const [updateTravelPlan] = useUpdateTravelPlanMutation()
   const [deleteTravelPlan] = useDeleteTravelPlanMutation()
@@ -589,8 +645,10 @@ function TravelPlansSection() {
   })
 
   // 검색 필터링
-  const filteredPlans = plans.filter(plan => {
-    const matchesTitle = !searchTitle || plan.title.toLowerCase().includes(searchTitle.toLowerCase())
+  const filteredPlans = plans.filter((plan) => {
+    const matchesTitle =
+      !searchTitle ||
+      plan.title.toLowerCase().includes(searchTitle.toLowerCase())
     const matchesStatus = !searchStatus || plan.status === searchStatus
     return matchesTitle && matchesStatus
   })
@@ -616,7 +674,7 @@ function TravelPlansSection() {
     })
     setModalOpen(true)
   }
-  
+
   const handleOpenEdit = (plan) => {
     setEditData(plan)
     setForm({
@@ -628,18 +686,18 @@ function TravelPlansSection() {
     })
     setModalOpen(true)
   }
-  
+
   const handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)
   }
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((f) => ({ ...f, [name]: value }))
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -657,7 +715,7 @@ function TravelPlansSection() {
       setErrorMsg(err.message || '저장 실패')
     }
   }
-  
+
   const handleDelete = async (plan_id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
     try {
@@ -670,21 +728,31 @@ function TravelPlansSection() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PLANNING': return 'bg-blue-100 text-blue-800'
-      case 'CONFIRMED': return 'bg-green-100 text-green-800'
-      case 'COMPLETED': return 'bg-gray-100 text-gray-800'
-      case 'CANCELLED': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'PLANNING':
+        return 'bg-blue-100 text-blue-800'
+      case 'CONFIRMED':
+        return 'bg-green-100 text-green-800'
+      case 'COMPLETED':
+        return 'bg-gray-100 text-gray-800'
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
     }
   }
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'PLANNING': return '계획중'
-      case 'CONFIRMED': return '확정'
-      case 'COMPLETED': return '완료'
-      case 'CANCELLED': return '취소'
-      default: return status
+      case 'PLANNING':
+        return '계획중'
+      case 'CONFIRMED':
+        return '확정'
+      case 'COMPLETED':
+        return '완료'
+      case 'CANCELLED':
+        return '취소'
+      default:
+        return status
     }
   }
 
@@ -701,7 +769,10 @@ function TravelPlansSection() {
       <StyledCard>
         <StyledCardContent className="p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form onSubmit={handleSearch} className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-4 lg:flex-row lg:items-end"
+            >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <label htmlFor="search-title" className="text-sm font-medium">
@@ -715,7 +786,10 @@ function TravelPlansSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="search-status" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-status"
+                    className="text-sm font-medium"
+                  >
                     상태
                   </label>
                   <Select value={searchStatus} onValueChange={setSearchStatus}>
@@ -739,7 +813,7 @@ function TravelPlansSection() {
                 </div>
               </div>
             </form>
-            
+
             <Button onClick={handleOpenCreate}>
               <Plus className="mr-2 h-4 w-4" />
               계획 등록
@@ -798,7 +872,7 @@ function TravelPlansSection() {
                       <div className="space-y-1">
                         <div className="font-medium">{plan.title}</div>
                         {plan.description && (
-                          <div className="text-sm text-muted-foreground line-clamp-2">
+                          <div className="text-muted-foreground line-clamp-2 text-sm">
                             {plan.description}
                           </div>
                         )}
@@ -826,7 +900,9 @@ function TravelPlansSection() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleOpenEdit(plan)}>
+                          <DropdownMenuItem
+                            onClick={() => handleOpenEdit(plan)}
+                          >
                             <Edit2 className="mr-2 h-4 w-4" />
                             수정
                           </DropdownMenuItem>
@@ -877,7 +953,9 @@ function TravelPlansSection() {
                 </label>
                 <Select
                   value={form.status}
-                  onValueChange={(value) => setForm(f => ({ ...f, status: value }))}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, status: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -953,7 +1031,7 @@ function TravelPlansSection() {
                 value={form.description}
                 onChange={handleChange}
                 placeholder="여행 계획에 대한 설명을 입력하세요"
-                className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[100px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               />
             </div>
             <DialogFooter>
@@ -962,9 +1040,7 @@ function TravelPlansSection() {
                   취소
                 </Button>
               </DialogClose>
-              <Button type="submit">
-                {editData ? '수정' : '등록'}
-              </Button>
+              <Button type="submit">{editData ? '수정' : '등록'}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -979,14 +1055,14 @@ function FestivalEventSection() {
   const offset = (page - 1) * limit
   const [searchName, setSearchName] = useState('')
   const [searchRegion, setSearchRegion] = useState('')
-  
+
   const { data, isLoading, error, refetch } = useGetFestivalEventsQuery({
     skip: offset,
     limit,
     event_name: searchName,
     region_code: searchRegion,
   })
-  
+
   const [createFestivalEvent] = useCreateFestivalEventMutation()
   const [updateFestivalEvent] = useUpdateFestivalEventMutation()
   const [deleteFestivalEvent] = useDeleteFestivalEventMutation()
@@ -1026,24 +1102,24 @@ function FestivalEventSection() {
     })
     setModalOpen(true)
   }
-  
+
   const handleOpenEdit = (row) => {
     setEditData(row)
     setForm({ ...row })
     setModalOpen(true)
   }
-  
+
   const handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)
   }
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((f) => ({ ...f, [name]: value }))
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -1061,7 +1137,7 @@ function FestivalEventSection() {
       setErrorMsg(err.message || '저장 실패')
     }
   }
-  
+
   const handleDelete = async (content_id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
     try {
@@ -1077,77 +1153,86 @@ function FestivalEventSection() {
     const pageItems = []
     let start = Math.max(1, page - 2)
     let end = Math.min(totalPages, page + 2)
-    
+
     if (page <= 3) {
       end = Math.min(5, totalPages)
     } else if (page >= totalPages - 2) {
       start = Math.max(1, totalPages - 4)
     }
-    
+
     pageItems.push(
       <PaginationItem key="prev">
         <PaginationPrevious
           onClick={() => setPage(page > 1 ? page - 1 : 1)}
           aria-disabled={page === 1}
-          className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     if (start > 1) {
       pageItems.push(
         <PaginationItem key={1}>
           <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
             1
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
       if (start > 2) {
         pageItems.push(
           <PaginationItem key="start-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
     }
-    
+
     for (let i = start; i <= end; i++) {
       pageItems.push(
         <PaginationItem key={i}>
           <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     if (end < totalPages) {
       if (end < totalPages - 1) {
         pageItems.push(
           <PaginationItem key="end-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
       pageItems.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink onClick={() => setPage(totalPages)} isActive={page === totalPages}>
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     pageItems.push(
       <PaginationItem key="next">
         <PaginationNext
           onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
           aria-disabled={page === totalPages}
-          className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === totalPages
+              ? 'pointer-events-none opacity-50'
+              : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     return (
       <Pagination className="justify-center">
         <PaginationContent>{pageItems}</PaginationContent>
@@ -1168,10 +1253,16 @@ function FestivalEventSection() {
       <StyledCard>
         <StyledCardContent className="p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form onSubmit={handleSearch} className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-4 lg:flex-row lg:items-end"
+            >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <label htmlFor="search-event-name" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-event-name"
+                    className="text-sm font-medium"
+                  >
                     축제명
                   </label>
                   <Input
@@ -1182,7 +1273,10 @@ function FestivalEventSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="search-region" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-region"
+                    className="text-sm font-medium"
+                  >
                     지역
                   </label>
                   <Select value={searchRegion} onValueChange={setSearchRegion}>
@@ -1207,7 +1301,7 @@ function FestivalEventSection() {
                 </div>
               </div>
             </form>
-            
+
             <Button onClick={handleOpenCreate}>
               <Plus className="mr-2 h-4 w-4" />
               축제 등록
@@ -1272,7 +1366,7 @@ function FestivalEventSection() {
                             className="h-12 w-12 rounded-lg object-cover"
                           />
                         ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">
+                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
                             이미지 없음
                           </div>
                         )}
@@ -1304,7 +1398,9 @@ function FestivalEventSection() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleOpenEdit(row)}>
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEdit(row)}
+                            >
                               <Edit2 className="mr-2 h-4 w-4" />
                               수정
                             </DropdownMenuItem>
@@ -1322,11 +1418,11 @@ function FestivalEventSection() {
                   ))}
                 </TableBody>
               </Table>
-              
+
               {/* 페이지네이션 */}
-              <div className="p-4 border-t">
+              <div className="border-t p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     총 {total}개 중 {Math.min(offset + 1, total)}-
                     {Math.min(offset + limit, total)}개 표시
                   </div>
@@ -1367,7 +1463,9 @@ function FestivalEventSection() {
                 </label>
                 <Select
                   value={form.region_code}
-                  onValueChange={(value) => setForm(f => ({ ...f, region_code: value }))}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, region_code: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="지역 선택" />
@@ -1382,7 +1480,10 @@ function FestivalEventSection() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <label htmlFor="event_start_date" className="text-sm font-medium">
+                <label
+                  htmlFor="event_start_date"
+                  className="text-sm font-medium"
+                >
                   시작일
                 </label>
                 <Input
@@ -1448,9 +1549,7 @@ function FestivalEventSection() {
                   취소
                 </Button>
               </DialogClose>
-              <Button type="submit">
-                {editData ? '수정' : '등록'}
-              </Button>
+              <Button type="submit">{editData ? '수정' : '등록'}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1465,14 +1564,14 @@ function LeisureSportsSection() {
   const offset = (page - 1) * limit
   const [searchName, setSearchName] = useState('')
   const [searchRegion, setSearchRegion] = useState('')
-  
+
   const { data, isLoading, error, refetch } = useGetLeisureSportsQuery({
     skip: offset,
     limit,
     facility_name: searchName,
     region_code: searchRegion,
   })
-  
+
   const [createLeisureSport] = useCreateLeisureSportMutation()
   const [updateLeisureSport] = useUpdateLeisureSportMutation()
   const [deleteLeisureSport] = useDeleteLeisureSportMutation()
@@ -1511,24 +1610,24 @@ function LeisureSportsSection() {
     })
     setModalOpen(true)
   }
-  
+
   const handleOpenEdit = (row) => {
     setEditData(row)
     setForm({ ...row })
     setModalOpen(true)
   }
-  
+
   const handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)
   }
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm((f) => ({ ...f, [name]: value }))
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -1546,7 +1645,7 @@ function LeisureSportsSection() {
       setErrorMsg(err.message || '저장 실패')
     }
   }
-  
+
   const handleDelete = async (content_id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return
     try {
@@ -1562,77 +1661,86 @@ function LeisureSportsSection() {
     const pageItems = []
     let start = Math.max(1, page - 2)
     let end = Math.min(totalPages, page + 2)
-    
+
     if (page <= 3) {
       end = Math.min(5, totalPages)
     } else if (page >= totalPages - 2) {
       start = Math.max(1, totalPages - 4)
     }
-    
+
     pageItems.push(
       <PaginationItem key="prev">
         <PaginationPrevious
           onClick={() => setPage(page > 1 ? page - 1 : 1)}
           aria-disabled={page === 1}
-          className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     if (start > 1) {
       pageItems.push(
         <PaginationItem key={1}>
           <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
             1
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
       if (start > 2) {
         pageItems.push(
           <PaginationItem key="start-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
     }
-    
+
     for (let i = start; i <= end; i++) {
       pageItems.push(
         <PaginationItem key={i}>
           <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     if (end < totalPages) {
       if (end < totalPages - 1) {
         pageItems.push(
           <PaginationItem key="end-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
       pageItems.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink onClick={() => setPage(totalPages)} isActive={page === totalPages}>
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
-    
+
     pageItems.push(
       <PaginationItem key="next">
         <PaginationNext
           onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
           aria-disabled={page === totalPages}
-          className={page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+          className={
+            page === totalPages
+              ? 'pointer-events-none opacity-50'
+              : 'cursor-pointer'
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
-    
+
     return (
       <Pagination className="justify-center">
         <PaginationContent>{pageItems}</PaginationContent>
@@ -1653,10 +1761,16 @@ function LeisureSportsSection() {
       <StyledCard>
         <StyledCardContent className="p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form onSubmit={handleSearch} className="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-4 lg:flex-row lg:items-end"
+            >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <label htmlFor="search-facility-name" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-facility-name"
+                    className="text-sm font-medium"
+                  >
                     시설명
                   </label>
                   <Input
@@ -1667,7 +1781,10 @@ function LeisureSportsSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="search-region" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-region"
+                    className="text-sm font-medium"
+                  >
                     지역
                   </label>
                   <Select value={searchRegion} onValueChange={setSearchRegion}>
@@ -1692,7 +1809,7 @@ function LeisureSportsSection() {
                 </div>
               </div>
             </form>
-            
+
             <Button onClick={handleOpenCreate}>
               <Plus className="mr-2 h-4 w-4" />
               시설 등록
@@ -1757,7 +1874,7 @@ function LeisureSportsSection() {
                             className="h-12 w-12 rounded-lg object-cover"
                           />
                         ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">
+                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
                             이미지 없음
                           </div>
                         )}
@@ -1787,7 +1904,9 @@ function LeisureSportsSection() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleOpenEdit(row)}>
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEdit(row)}
+                            >
                               <Edit2 className="mr-2 h-4 w-4" />
                               수정
                             </DropdownMenuItem>
@@ -1805,11 +1924,11 @@ function LeisureSportsSection() {
                   ))}
                 </TableBody>
               </Table>
-              
+
               {/* 페이지네이션 */}
-              <div className="p-4 border-t">
+              <div className="border-t p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     총 {total}개 중 {Math.min(offset + 1, total)}-
                     {Math.min(offset + limit, total)}개 표시
                   </div>
@@ -1850,7 +1969,9 @@ function LeisureSportsSection() {
                 </label>
                 <Select
                   value={form.region_code}
-                  onValueChange={(value) => setForm(f => ({ ...f, region_code: value }))}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, region_code: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="지역 선택" />
@@ -1931,9 +2052,7 @@ function LeisureSportsSection() {
                   취소
                 </Button>
               </DialogClose>
-              <Button type="submit">
-                {editData ? '수정' : '등록'}
-              </Button>
+              <Button type="submit">{editData ? '수정' : '등록'}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

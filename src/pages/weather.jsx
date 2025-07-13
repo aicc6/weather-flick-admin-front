@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import WeatherAlert from './WeatherAlert'
 
 import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
