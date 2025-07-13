@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/pagination'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, Edit2, Trash2 } from 'lucide-react'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 import {
   useGetTouristAttractionsQuery,
   useSearchTouristAttractionsQuery,
@@ -271,15 +272,30 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
           </div>
         </div>
         {/* 카드형 그리드 */}
-        {loading && (!data || data?.results?.length === 0) ? (
-          <div className="flex flex-col items-center gap-2 py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-            <span className="text-gray-500">데이터를 불러오는 중...</span>
-          </div>
-        ) : !loading && (!data || data?.results?.length === 0) ? (
-          <div className="py-8 text-center text-gray-400">
-            {error ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
-          </div>
+        {loading ? (
+          <LoadingState message="관광지 데이터를 불러오는 중..." />
+        ) : error ? (
+          <ErrorState 
+            error={error} 
+            onRetry={handleRetry}
+            message="관광지 데이터를 불러올 수 없습니다"
+          />
+        ) : !data?.results?.length ? (
+          <EmptyState 
+            type="search"
+            message={isSearching ? "검색 결과가 없습니다" : "등록된 관광지가 없습니다"}
+            description={isSearching ? "다른 검색어로 시도해보세요" : "새로운 관광지를 등록해주세요"}
+            action={
+              !isSearching && (
+                <button
+                  onClick={onCreate}
+                  className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  관광지 등록하기
+                </button>
+              )
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {data?.results.map((a) => (

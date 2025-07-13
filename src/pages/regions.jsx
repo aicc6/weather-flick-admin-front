@@ -30,6 +30,7 @@ import { toast } from 'sonner'
 import { PageContainer } from '@/layouts/PageContainer'
 import { PageHeader } from '@/layouts/PageHeader'
 import { ContentSection } from '@/layouts/ContentSection'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 import {
   useGetRegionsQuery,
   useGetRegionTreeQuery,
@@ -251,7 +252,21 @@ export default function RegionsPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-8 text-center">로딩 중...</div>
+          <LoadingState message="지역 데이터를 불러오는 중..." />
+        ) : !data?.regions || data.regions.length === 0 ? (
+          <EmptyState 
+            type="database"
+            message={search || selectedLevel !== 'all' ? "검색 결과가 없습니다" : "등록된 지역이 없습니다"}
+            description={search || selectedLevel !== 'all' ? "다른 검색 조건으로 시도해보세요" : "새로운 지역을 추가해주세요"}
+            action={
+              !(search || selectedLevel !== 'all') && (
+                <Button onClick={() => setIsCreateOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  지역 추가
+                </Button>
+              )
+            }
+          />
         ) : view === 'list' ? (
           <div className="rounded-md border">
             <table className="w-full">

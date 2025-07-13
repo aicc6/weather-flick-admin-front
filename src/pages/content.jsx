@@ -59,6 +59,7 @@ import {
 } from '@/components/ui/pagination'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ContentSection, PageContainer, PageHeader } from '@/layouts'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 
 const TABS = [
   { key: 'course', label: '여행 코스 관리' },
@@ -414,19 +415,30 @@ export const ContentPage = () => {
                   </div>
                 </div>
                 {/* 카드형 그리드 */}
-                {isLoading && (!filtered || filtered.length === 0) ? (
-                  <div className="flex flex-col items-center gap-2 py-8">
-                    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-                    <span className="text-gray-500">
-                      데이터를 불러오는 중...
-                    </span>
-                  </div>
-                ) : !isLoading && (!filtered || filtered.length === 0) ? (
-                  <div className="py-8 text-center text-gray-400">
-                    {errorMsg
-                      ? '데이터를 불러올 수 없습니다.'
-                      : '데이터가 없습니다.'}
-                  </div>
+                {isLoading ? (
+                  <LoadingState message="여행코스 데이터를 불러오는 중..." />
+                ) : error ? (
+                  <ErrorState 
+                    error={error} 
+                    onRetry={refetch}
+                    message="여행코스 데이터를 불러올 수 없습니다"
+                  />
+                ) : filtered.length === 0 ? (
+                  <EmptyState 
+                    type="search"
+                    message={searchCourseName || searchRegion ? "검색 결과가 없습니다" : "등록된 여행코스가 없습니다"}
+                    description={searchCourseName || searchRegion ? "다른 검색어로 시도해보세요" : "새로운 여행코스를 등록해주세요"}
+                    action={
+                      !(searchCourseName || searchRegion) && (
+                        <button
+                          onClick={() => setAddOpen(true)}
+                          className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                        >
+                          여행코스 등록
+                        </button>
+                      )
+                    }
+                  />
                 ) : (
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.slice(0, 15).map((course) => (
@@ -853,15 +865,27 @@ function FestivalEventSection() {
               등록된 축제 이벤트 정보를 확인하세요.
             </div>
           </div>
-          {isLoading && (!data?.items || data.items.length === 0) ? (
-            <div className="flex flex-col items-center gap-2 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-              <span className="text-gray-500">데이터를 불러오는 중...</span>
-            </div>
-          ) : !isLoading && (!data?.items || data.items.length === 0) ? (
-            <div className="py-8 text-center text-gray-400">
-              {errorMsg ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
-            </div>
+          {isLoading ? (
+            <LoadingState message="축제 이벤트 데이터를 불러오는 중..." />
+          ) : error ? (
+            <ErrorState 
+              error={error} 
+              onRetry={refetch}
+              message="축제 이벤트 데이터를 불러올 수 없습니다"
+            />
+          ) : !data?.items || data.items.length === 0 ? (
+            <EmptyState 
+              type="search"
+              message={searchName || searchRegion ? "검색 결과가 없습니다" : "등록된 축제 이벤트가 없습니다"}
+              description={searchName || searchRegion ? "다른 검색어로 시도해보세요" : "새로운 축제 이벤트를 등록해주세요"}
+              action={
+                !(searchName || searchRegion) && (
+                  <Button onClick={handleOpenCreate}>
+                    축제 이벤트 등록
+                  </Button>
+                )
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {data.items.map((row) => (
@@ -1306,15 +1330,27 @@ function LeisureSportsSection() {
               등록된 레저 스포츠 시설 정보를 확인하세요.
             </div>
           </div>
-          {isLoading && (!data?.items || data.items.length === 0) ? (
-            <div className="flex flex-col items-center gap-2 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-              <span className="text-gray-500">데이터를 불러오는 중...</span>
-            </div>
-          ) : !isLoading && (!data?.items || data.items.length === 0) ? (
-            <div className="py-8 text-center text-gray-400">
-              {errorMsg ? '데이터를 불러올 수 없습니다.' : '데이터가 없습니다.'}
-            </div>
+          {isLoading ? (
+            <LoadingState message="레저 스포츠 데이터를 불러오는 중..." />
+          ) : error ? (
+            <ErrorState 
+              error={error} 
+              onRetry={refetch}
+              message="레저 스포츠 데이터를 불러올 수 없습니다"
+            />
+          ) : !data?.items || data.items.length === 0 ? (
+            <EmptyState 
+              type="search"
+              message={searchName || searchRegion ? "검색 결과가 없습니다" : "등록된 레저 스포츠 시설이 없습니다"}
+              description={searchName || searchRegion ? "다른 검색어로 시도해보세요" : "새로운 레저 스포츠 시설을 등록해주세요"}
+              action={
+                !(searchName || searchRegion) && (
+                  <Button onClick={handleOpenCreate}>
+                    레저 스포츠 시설 등록
+                  </Button>
+                )
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {data.items.map((row) => (
@@ -1568,14 +1604,24 @@ function TravelPlansSection() {
       <Card className="border border-gray-200 shadow-md">
         <CardContent>
           {isLoading ? (
-            <div className="flex flex-col items-center gap-2 py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-              <span className="text-gray-500">데이터를 불러오는 중...</span>
-            </div>
+            <LoadingState message="여행 계획 데이터를 불러오는 중..." />
+          ) : errorMsg ? (
+            <ErrorState 
+              error={{ message: errorMsg }} 
+              onRetry={refetch}
+              message="여행 계획 데이터를 불러올 수 없습니다"
+            />
           ) : !plans.length ? (
-            <div className="py-8 text-center text-gray-400">
-              데이터가 없습니다.
-            </div>
+            <EmptyState 
+              type="default"
+              message="등록된 여행 계획이 없습니다"
+              description="새로운 여행 계획을 추가해보세요"
+              action={
+                <Button onClick={handleOpenCreate}>
+                  여행 계획 추가
+                </Button>
+              }
+            />
           ) : (
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {plans.map((plan) => (

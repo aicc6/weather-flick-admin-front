@@ -48,6 +48,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 import {
   Select,
   SelectContent,
@@ -390,18 +391,36 @@ export const UsersPage = () => {
 
       {/* 사용자 테이블 */}
       <ContentSection noPadding>
-        <Table>
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead>이메일</TableHead>
-              <TableHead>닉네임/이름</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>권한</TableHead>
-              <TableHead className="text-right">액션</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.map((item) => {
+        {loading ? (
+          <LoadingState message="사용자 목록을 불러오는 중..." />
+        ) : error ? (
+          <ErrorState 
+            error={error} 
+            onRetry={() => {
+              refetchStats()
+              refetchUsers()
+            }}
+            message="사용자 목록을 불러올 수 없습니다"
+          />
+        ) : filteredUsers.length === 0 ? (
+          <EmptyState 
+            type="search"
+            message={searchTerm || statusFilter !== 'all' ? "검색 결과가 없습니다" : "등록된 사용자가 없습니다"}
+            description={searchTerm || statusFilter !== 'all' ? "다른 검색어나 필터로 시도해보세요" : "새로운 사용자가 가입하면 여기에 표시됩니다"}
+          />
+        ) : (
+          <Table>
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead>이메일</TableHead>
+                <TableHead>닉네임/이름</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>권한</TableHead>
+                <TableHead className="text-right">액션</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((item) => {
               const isDeleted = isDeletedUser(item)
               return (
                 <TableRow
@@ -524,8 +543,10 @@ export const UsersPage = () => {
             })}
           </TableBody>
         </Table>
+        )}
         
         {/* 페이지네이션 */}
+        {!loading && !error && filteredUsers.length > 0 && (
         <div className="flex flex-col gap-4 px-2 py-4">
           {/* 페이지 크기 선택 및 현재 표시 정보 */}
           <div className="flex items-center justify-between">
@@ -614,6 +635,7 @@ export const UsersPage = () => {
             </Pagination>
           </div>
         </div>
+        )}
       </ContentSection>
 
       {/* 비밀번호 초기화 확인 다이얼로그 */}

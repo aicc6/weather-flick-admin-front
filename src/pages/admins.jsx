@@ -41,6 +41,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { ContentSection, PageContainer, PageHeader } from '@/layouts'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 
 export const AdminsPage = () => {
   const { user } = useAuth()
@@ -128,22 +129,12 @@ export const AdminsPage = () => {
   // 슈퍼유저가 아닌 경우 접근 거부
   if (!user?.is_superuser) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="text-center">
-          <div className="mb-2 text-lg text-red-600">접근 권한이 없습니다</div>
-          <p className="text-muted-foreground">
-            이 페이지는 슈퍼유저만 접근할 수 있습니다.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-gray-900"></div>
-      </div>
+      <PageContainer>
+        <ErrorState
+          message="접근 권한이 없습니다"
+          error={{ message: "이 페이지는 슈퍼유저만 접근할 수 있습니다." }}
+        />
+      </PageContainer>
     )
   }
 
@@ -232,8 +223,30 @@ export const AdminsPage = () => {
 
       {/* 관리자 목록 */}
       <ContentSection transparent>
-        <div className="grid gap-4">
-          {filteredAdmins.map((admin) => (
+        {loading ? (
+          <LoadingState message="관리자 목록을 불러오는 중..." />
+        ) : error ? (
+          <ErrorState 
+            error={error} 
+            onRetry={() => _refetchAdmins()}
+            message="관리자 목록을 불러올 수 없습니다"
+          />
+        ) : filteredAdmins.length === 0 ? (
+          <EmptyState 
+            type="search"
+            message={searchTerm ? "검색 결과가 없습니다" : "등록된 관리자가 없습니다"}
+            description={searchTerm ? "다른 검색어로 시도해보세요" : "새로운 관리자를 추가해주세요"}
+            action={
+              !searchTerm && (
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />새 관리자 추가
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <div className="grid gap-4">
+            {filteredAdmins.map((admin) => (
             <Card key={admin.admin_id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -395,11 +408,6 @@ export const AdminsPage = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {filteredAdmins.length === 0 && (
-          <div className="py-8 text-center">
-            <p className="text-muted-foreground">관리자가 없습니다.</p>
           </div>
         )}
       </ContentSection>
