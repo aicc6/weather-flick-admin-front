@@ -131,7 +131,7 @@ export const LoginPage = () => {
         </Card>
 
         <p className="text-muted-foreground text-center text-sm">
-          © 2024 Weather Flick. All rights reserved.
+          © 2025 Weather Flick. All rights reserved.
         </p>
       </div>
     </div>

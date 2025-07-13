@@ -3,26 +3,18 @@ import WeatherAlert from './WeatherAlert'
 
 import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
 import { getWeatherIcon } from '@/utils/weatherUtils'
-import { useGetLatestWeatherDataQuery } from '@/store/api/weatherApi'
+import { useGetForecastWeatherDataQuery } from '@/store/api/weatherApi'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 
 function WeatherRealtimePage() {
-  // RTK Query로 데이터 가져오기 (1분마다 자동 갱신)
+  // RTK Query로 weather_forecasts 테이블에서 데이터 가져오기 (1분마다 자동 갱신)
   const {
     data: weatherList = [],
     isLoading: loading,
     error,
-  } = useGetLatestWeatherDataQuery(20, {
+  } = useGetForecastWeatherDataQuery(20, {
     pollingInterval: 60000, // 60초마다 자동 새로고침
   })
-
-  // weatherData 형식으로 변환
-  const weatherDataMap = useMemo(() => {
-    return weatherList.reduce((acc, cur) => {
-      acc[cur.city_name] = cur
-      return acc
-    }, {})
-  }, [weatherList])
 
   return (
     <PageContainer>
@@ -33,7 +25,7 @@ function WeatherRealtimePage() {
 
       {/* 요약 통계 카드 (대시보드 스타일) */}
       <ContentSection transparent>
-        <WeatherStatsCard weatherData={weatherDataMap} />
+        <WeatherStatsCard weatherData={weatherList} />
       </ContentSection>
 
       {/* 날씨 알림 카드 */}

@@ -23,11 +23,19 @@ export function getWeatherDescription(skyCondition) {
 }
 
 export function calculateWeatherStats(weatherData) {
-  const validData = Object.values(weatherData).filter(
+  // weatherData가 배열인지 객체인지 확인
+  let dataArray = []
+  if (Array.isArray(weatherData)) {
+    dataArray = weatherData
+  } else if (weatherData && typeof weatherData === 'object') {
+    dataArray = Object.values(weatherData)
+  }
+
+  const validData = dataArray.filter(
     (data) => data.temperature !== undefined && data.temperature !== null,
   )
 
-  const temperatures = validData.map((data) => parseInt(data.temperature))
+  const temperatures = validData.map((data) => parseFloat(data.temperature))
 
   if (temperatures.length === 0) {
     return null
@@ -41,11 +49,11 @@ export function calculateWeatherStats(weatherData) {
   const minTemp = Math.min(...temperatures)
 
   const maxTempRegion = validData.find(
-    (data) => parseInt(data.temperature) === maxTemp,
+    (data) => parseFloat(data.temperature) === maxTemp,
   )
 
   const minTempRegion = validData.find(
-    (data) => parseInt(data.temperature) === minTemp,
+    (data) => parseFloat(data.temperature) === minTemp,
   )
 
   return {

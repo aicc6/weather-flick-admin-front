@@ -6,9 +6,9 @@ export const dashboardApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Dashboard'],
   endpoints: (builder) => ({
-    // 날씨 요약 데이터
+    // 날씨 요약 데이터 (weather_forecasts 테이블 사용)
     getWeatherSummary: builder.query({
-      query: () => '/api/weather/summary-db',
+      query: () => '/api/weather/summary-forecast',
       transformResponse: (response) => {
         // regions 배열을 객체 형태로 변환
         const regionMap = {}

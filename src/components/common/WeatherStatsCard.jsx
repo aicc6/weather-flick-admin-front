@@ -38,7 +38,7 @@ export function WeatherStatsCard({ weatherData }) {
                   {stats.maxTemp}°C
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {stats.maxTempRegion?.region_name}
+                  {stats.maxTempRegion?.city_name || stats.maxTempRegion?.region_name}
                 </span>
               </div>
               <div className="flex flex-col items-center justify-center p-2">
@@ -48,7 +48,7 @@ export function WeatherStatsCard({ weatherData }) {
                   {stats.minTemp}°C
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {stats.minTempRegion?.region_name}
+                  {stats.minTempRegion?.city_name || stats.minTempRegion?.region_name}
                 </span>
               </div>
               <div className="flex flex-col items-center justify-center p-2">

@@ -50,10 +50,21 @@ export const weatherApi = createApi({
       keepUnusedDataFor: 3600, // 1시간
     }),
 
-    // 데이터베이스에서 최신 날씨 데이터 조회
+    // 데이터베이스에서 최신 날씨 데이터 조회 (기존 city_weather_data 테이블)
     getLatestWeatherData: builder.query({
       query: (limit = 20) => `/api/weather/database/data?limit=${limit}`,
       transformResponse: (response) => response.data || [],
+      providesTags: ['Weather'],
+      keepUnusedDataFor: 60, // 1분
+    }),
+
+    // weather_forecasts 테이블에서 예보 데이터 조회
+    getForecastWeatherData: builder.query({
+      query: (limit = 20) => `/api/weather/database/forecast-data?limit=${limit}`,
+      transformResponse: (response) => {
+        // 백엔드에서 배열로 직접 반환하므로 response.data가 아닌 response 자체를 사용
+        return response.data || response || [];
+      },
       providesTags: ['Weather'],
       keepUnusedDataFor: 60, // 1분
     }),
@@ -66,4 +77,5 @@ export const {
   useGetWeatherSummaryQuery,
   useGetAvailableRegionsQuery,
   useGetLatestWeatherDataQuery,
+  useGetForecastWeatherDataQuery,
 } = weatherApi
