@@ -41,7 +41,6 @@ import {
   ErrorState,
   StandardButton,
   StandardInput,
-  StandardSelect,
 } from '@/components/common'
 import { Input } from '@/components/ui/input'
 import {
@@ -143,12 +142,14 @@ export function UsersPage() {
   const totalPages = Math.ceil(filteredUsers.length / pageSize)
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   )
 
   // 통계 계산
   const activeCount = users.filter((u) => u.is_active).length
-  const inactiveCount = users.filter((u) => !u.is_active && !u.is_withdrawn).length
+  const inactiveCount = users.filter(
+    (u) => !u.is_active && !u.is_withdrawn,
+  ).length
   const withdrawnCount = users.filter((u) => u.is_withdrawn).length
 
   if (!isAuthenticated) {
@@ -177,38 +178,52 @@ export function UsersPage() {
       {/* 통계 카드 */}
       <ContentSection title="사용자 통계">
         <div className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">총 사용자</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  총 사용자
+                </p>
                 <p className="text-2xl font-bold">{users.length}명</p>
               </div>
-              <Users className="h-8 w-8 text-muted-foreground" />
+              <Users className="text-muted-foreground h-8 w-8" />
             </div>
           </div>
-          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">활성 사용자</p>
-                <p className="text-2xl font-bold text-green-600">{activeCount}명</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  활성 사용자
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {activeCount}명
+                </p>
               </div>
               <UserCheck className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">비활성 사용자</p>
-                <p className="text-2xl font-bold text-yellow-600">{inactiveCount}명</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  비활성 사용자
+                </p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {inactiveCount}명
+                </p>
               </div>
               <UserX className="h-8 w-8 text-yellow-600" />
             </div>
           </div>
-          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <div className="bg-card text-card-foreground rounded-lg border p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">탈퇴 사용자</p>
-                <p className="text-2xl font-bold text-red-600">{withdrawnCount}명</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  탈퇴 사용자
+                </p>
+                <p className="text-2xl font-bold text-red-600">
+                  {withdrawnCount}명
+                </p>
               </div>
               <UserMinus className="h-8 w-8 text-red-600" />
             </div>
@@ -240,8 +255,7 @@ export function UsersPage() {
             </Select>
           </div>
           <Button onClick={() => setIsCreateUserDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            새 사용자 추가
+            <Plus className="mr-2 h-4 w-4" />새 사용자 추가
           </Button>
         </div>
 
@@ -269,8 +283,7 @@ export function UsersPage() {
             action={
               !(searchTerm || statusFilter !== 'all') && (
                 <Button onClick={() => setIsCreateUserDialogOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  새 사용자 추가
+                  <Plus className="mr-2 h-4 w-4" />새 사용자 추가
                 </Button>
               )
             }
@@ -292,22 +305,24 @@ export function UsersPage() {
                   {paginatedUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.username || user.full_name || '-'}</TableCell>
+                      <TableCell>
+                        {user.username || user.full_name || '-'}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
                             user.is_active
                               ? 'default'
                               : user.is_withdrawn
-                              ? 'destructive'
-                              : 'secondary'
+                                ? 'destructive'
+                                : 'secondary'
                           }
                         >
                           {user.is_active
                             ? '활성'
                             : user.is_withdrawn
-                            ? '탈퇴'
-                            : '비활성'}
+                              ? '탈퇴'
+                              : '비활성'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -340,7 +355,9 @@ export function UsersPage() {
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">페이지당 표시:</span>
+                    <span className="text-sm text-gray-600">
+                      페이지당 표시:
+                    </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => {
@@ -359,8 +376,10 @@ export function UsersPage() {
                     </Select>
                   </div>
                   <span className="text-sm text-gray-600">
-                    총 {filteredUsers.length}명 중 {(currentPage - 1) * pageSize + 1}-
-                    {Math.min(currentPage * pageSize, filteredUsers.length)}명 표시
+                    총 {filteredUsers.length}명 중{' '}
+                    {(currentPage - 1) * pageSize + 1}-
+                    {Math.min(currentPage * pageSize, filteredUsers.length)}명
+                    표시
                   </span>
                 </div>
                 <Pagination
@@ -424,7 +443,10 @@ export function UsersPage() {
                 id="full_name"
                 value={userFormData.full_name}
                 onChange={(e) =>
-                  setUserFormData({ ...userFormData, full_name: e.target.value })
+                  setUserFormData({
+                    ...userFormData,
+                    full_name: e.target.value,
+                  })
                 }
                 className="col-span-3"
               />

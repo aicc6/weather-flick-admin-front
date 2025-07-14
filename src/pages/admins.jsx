@@ -136,19 +136,19 @@ export const AdminsPage = () => {
 
   const filteredAdmins = (Array.isArray(admins) ? admins : []).filter(
     (admin) => {
-      const matchesSearch = 
+      const matchesSearch =
         admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         admin.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         admin.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesStatus = 
+
+      const matchesStatus =
         statusFilter === 'all' ||
         (statusFilter === 'active' && admin.is_active) ||
         (statusFilter === 'inactive' && !admin.is_active) ||
         (statusFilter === 'superuser' && admin.is_superuser)
-      
+
       return matchesSearch && matchesStatus
-    }
+    },
   )
 
   // 슈퍼유저가 아닌 경우 접근 거부
@@ -200,8 +200,7 @@ export const AdminsPage = () => {
             </Select>
           </div>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            새 관리자 추가
+            <Plus className="mr-2 h-4 w-4" />새 관리자 추가
           </Button>
         </div>
 
@@ -217,8 +216,8 @@ export const AdminsPage = () => {
           <EmptyState
             type="search"
             message={
-              searchTerm || statusFilter !== 'all' 
-                ? '검색 결과가 없습니다' 
+              searchTerm || statusFilter !== 'all'
+                ? '검색 결과가 없습니다'
                 : '등록된 관리자가 없습니다'
             }
             description={
@@ -229,8 +228,7 @@ export const AdminsPage = () => {
             action={
               !(searchTerm || statusFilter !== 'all') && (
                 <Button onClick={() => setIsCreateDialogOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  새 관리자 추가
+                  <Plus className="mr-2 h-4 w-4" />새 관리자 추가
                 </Button>
               )
             }
@@ -300,7 +298,10 @@ export const AdminsPage = () => {
                           setSelectedAdmin(admin)
                           setIsDeleteDialogOpen(true)
                         }}
-                        disabled={admin.is_superuser && admin.admin_id === user?.admin_id}
+                        disabled={
+                          admin.is_superuser &&
+                          admin.admin_id === user?.admin_id
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -448,12 +449,16 @@ export const AdminsPage = () => {
       </Dialog>
 
       {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedAdmin?.username} 관리자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+              {selectedAdmin?.username} 관리자를 삭제하시겠습니까? 이 작업은
+              되돌릴 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

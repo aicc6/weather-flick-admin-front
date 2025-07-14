@@ -29,17 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  AlertCircle,
-  Edit2,
-  Trash2,
-  Plus,
-} from 'lucide-react'
-import {
-  LoadingState,
-  EmptyState,
-  ErrorState,
-} from '@/components/common'
+import { AlertCircle, Edit2, Trash2, Plus } from 'lucide-react'
+import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 import { ContentSection } from '@/layouts/ContentSection'
 import {
   useGetTouristAttractionsQuery,
@@ -273,9 +264,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
           <EmptyState
             type="search"
             message={
-              isSearching
-                ? '검색 결과가 없습니다'
-                : '등록된 관광지가 없습니다'
+              isSearching ? '검색 결과가 없습니다' : '등록된 관광지가 없습니다'
             }
             description={
               isSearching

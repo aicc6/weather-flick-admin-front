@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { ContentSection, PageContainer, PageHeader } from '@/layouts'
 import {
   LoadingState,
@@ -7,11 +6,7 @@ import {
   StandardTable,
   SearchForm,
   StandardButton,
-  StandardInput,
-  StandardSelect,
 } from '@/components/common'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,12 +33,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { MoreHorizontal, Plus } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 
 /**
  * CRUD 페이지 공통 템플릿
- * 
+ *
  * @param {Object} props
  * @param {string} props.title - 페이지 제목
  * @param {string} props.description - 페이지 설명
@@ -140,7 +136,7 @@ export function CrudPageTemplate({
                       데이터 렌더링 함수가 필요합니다
                     </td>
                   </tr>
-                )
+                ),
               )}
             </tbody>
           </StandardTable>
@@ -157,7 +153,9 @@ export function CrudPageTemplate({
             <DialogHeader>
               <DialogTitle>{dialogConfig.title}</DialogTitle>
               {dialogConfig.description && (
-                <DialogDescription>{dialogConfig.description}</DialogDescription>
+                <DialogDescription>
+                  {dialogConfig.description}
+                </DialogDescription>
               )}
             </DialogHeader>
             {dialogConfig.content}
@@ -197,7 +195,7 @@ export function TableActionMenu({ actions = [] }) {
           if (action.separator) {
             return <DropdownMenuSeparator key={index} />
           }
-          
+
           if (action.confirmDialog) {
             return (
               <AlertDialog key={index}>

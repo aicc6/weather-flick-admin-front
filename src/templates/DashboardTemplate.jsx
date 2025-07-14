@@ -3,7 +3,7 @@ import { LoadingState, ErrorState, StatsGrid } from '@/components/common'
 
 /**
  * 대시보드 페이지 공통 템플릿
- * 
+ *
  * @param {Object} props
  * @param {string} props.title - 페이지 제목
  * @param {string} props.description - 페이지 설명
@@ -75,7 +75,7 @@ export function DashboardSection({ title, description, children, className }) {
         <div className="mb-4">
           {title && <h2 className="text-xl font-semibold">{title}</h2>}
           {description && (
-            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            <p className="text-muted-foreground mt-1 text-sm">{description}</p>
           )}
         </div>
       )}
