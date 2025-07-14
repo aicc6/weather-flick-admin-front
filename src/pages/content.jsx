@@ -83,12 +83,13 @@ import {
   PaginationEllipsis,
 } from '@/components/ui/pagination'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { PageContainer, PageHeader } from '@/layouts'
+import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 import {
   LoadingState,
   EmptyState,
   ErrorState,
   StyledCard,
+  StyledCardHeader,
   StyledCardContent,
 } from '@/components/common'
 

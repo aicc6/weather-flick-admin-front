@@ -1,14 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -24,20 +17,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
-
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Users,
-  Search,
-  Filter,
   UserCheck,
-  Mail,
-  Calendar,
+  UserX,
+  UserMinus,
   Plus,
-  Loader2,
   Trash2,
-  AlertCircle,
+  Edit,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -45,15 +34,34 @@ import {
   useCreateUserMutation,
   useDeleteUserMutation,
 } from '@/store/api/usersApi'
+import { ContentSection, PageContainer, PageHeader } from '@/layouts'
+import {
+  LoadingState,
+  EmptyState,
+  ErrorState,
+  StandardButton,
+  StandardInput,
+  StandardSelect,
+} from '@/components/common'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Pagination } from '@/components/ui/pagination'
 
 /**
  * URL: '/users'
  */
 export function UsersPage() {
-  const { user, isAuthenticated } = useAuth()
-  const [_activeTab, _setActiveTab] = useState('users')
+  const { isAuthenticated } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   // RTK Query 훅들
   const {
@@ -90,7 +98,6 @@ export function UsersPage() {
     }
 
     try {
-      console.log('Creating user:', userFormData)
       await createUserMutation(userFormData).unwrap()
       setIsCreateUserDialogOpen(false)
       setUserFormData({
@@ -126,329 +133,197 @@ export function UsersPage() {
     const matchesStatus =
       statusFilter === 'all' ||
       (statusFilter === 'active' && user.is_active) ||
-      (statusFilter === 'inactive' && !user.is_active)
+      (statusFilter === 'inactive' && !user.is_active) ||
+      (statusFilter === 'withdrawn' && user.is_withdrawn)
 
     return matchesSearch && matchesStatus
   })
 
-  const getStatusColor = (isActive) => {
-    return isActive
-      ? 'bg-green-100 text-green-800'
-      : 'bg-gray-100 text-gray-800'
-  }
+  // 페이지네이션
+  const totalPages = Math.ceil(filteredUsers.length / pageSize)
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  )
+
+  // 통계 계산
+  const activeCount = users.filter((u) => u.is_active).length
+  const inactiveCount = users.filter((u) => !u.is_active && !u.is_withdrawn).length
+  const withdrawnCount = users.filter((u) => u.is_withdrawn).length
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            로그인이 필요합니다
-          </h2>
-          <p className="mb-4 text-gray-600">
-            사용자 관리 페이지에 접근하려면 로그인해주세요.
-          </p>
-          <Button onClick={() => (window.location.href = '/login')}>
-            로그인 페이지로 이동
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>사용자 목록을 불러오는 중...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <p className="mb-4 text-red-600">{error.message || error}</p>
-          <div className="space-x-2">
-            <Button onClick={() => refetchUsers()}>다시 시도</Button>
-            <Button
-              variant="outline"
-              onClick={() => (window.location.href = '/login')}
-            >
+      <PageContainer>
+        <ErrorState
+          message="로그인이 필요합니다"
+          error={{ message: '사용자 관리 페이지에 접근하려면 로그인해주세요.' }}
+          action={
+            <StandardButton onClick={() => (window.location.href = '/login')}>
               로그인 페이지로 이동
-            </Button>
-          </div>
-        </div>
-      </div>
+            </StandardButton>
+          }
+        />
+      </PageContainer>
     )
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-6 py-8">
-        {/* 헤더 */}
-        <div className="mb-8">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-100 p-2">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
+    <PageContainer>
+      <PageHeader
+        title="사용자 관리"
+        description="전체 사용자를 효율적으로 관리할 수 있습니다."
+      />
+
+      {/* 통계 카드 */}
+      <ContentSection title="사용자 통계">
+        <div className="grid gap-4 md:grid-cols-4">
+          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  사용자 관리
-                </h1>
-                <p className="text-gray-600">
-                  시스템의 모든 사용자와 관리자를 관리합니다.
-                </p>
-                {user && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    현재 로그인: {user.email} (
-                    {user.is_superuser ? '슈퍼유저' : '관리자'})
-                  </p>
-                )}
+                <p className="text-sm font-medium text-muted-foreground">총 사용자</p>
+                <p className="text-2xl font-bold">{users.length}명</p>
               </div>
+              <Users className="h-8 w-8 text-muted-foreground" />
             </div>
           </div>
-
-          {/* 통계 카드 */}
-          <div className="mx-auto mb-6 grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">총 사용자</p>
-                    <p className="text-2xl font-bold">{users.length}</p>
-                  </div>
-                  <Users className="h-8 w-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">활성 사용자</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {users.filter((u) => u.is_active).length}
-                    </p>
-                  </div>
-                  <UserCheck className="h-8 w-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
+          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">활성 사용자</p>
+                <p className="text-2xl font-bold text-green-600">{activeCount}명</p>
+              </div>
+              <UserCheck className="h-8 w-8 text-green-600" />
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">비활성 사용자</p>
+                <p className="text-2xl font-bold text-yellow-600">{inactiveCount}명</p>
+              </div>
+              <UserX className="h-8 w-8 text-yellow-600" />
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">탈퇴 사용자</p>
+                <p className="text-2xl font-bold text-red-600">{withdrawnCount}명</p>
+              </div>
+              <UserMinus className="h-8 w-8 text-red-600" />
+            </div>
           </div>
         </div>
+      </ContentSection>
 
+      {/* 사용자 목록 */}
+      <ContentSection title="사용자 목록">
         {/* 검색 및 필터 */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="relative">
-                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                <Input
-                  placeholder="사용자 검색..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="상태 필터" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">모든 상태</SelectItem>
-                  <SelectItem value="active">활성</SelectItem>
-                  <SelectItem value="inactive">비활성</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                필터 적용
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 사용자 목록 */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">일반 사용자 목록</h2>
-            <Dialog
-              open={isCreateUserDialogOpen}
-              onOpenChange={setIsCreateUserDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />새 사용자
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>새 사용자 생성</DialogTitle>
-                  <DialogDescription>
-                    새로운 일반 사용자를 생성합니다.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">이름</label>
-                    <Input
-                      value={userFormData.full_name}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          full_name: e.target.value,
-                        })
-                      }
-                      placeholder="전체 이름"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">이메일</label>
-                    <Input
-                      type="email"
-                      value={userFormData.email}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          email: e.target.value,
-                        })
-                      }
-                      placeholder="이메일 주소"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">사용자명</label>
-                    <Input
-                      value={userFormData.username}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          username: e.target.value,
-                        })
-                      }
-                      placeholder="사용자명"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">비밀번호</label>
-                    <Input
-                      type="password"
-                      value={userFormData.password}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          password: e.target.value,
-                        })
-                      }
-                      placeholder="비밀번호"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="user_is_active"
-                      checked={userFormData.is_active}
-                      onChange={(e) =>
-                        setUserFormData({
-                          ...userFormData,
-                          is_active: e.target.checked,
-                        })
-                      }
-                    />
-                    <label
-                      htmlFor="user_is_active"
-                      className="text-sm font-medium"
-                    >
-                      활성 상태
-                    </label>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsCreateUserDialogOpen(false)}
-                  >
-                    취소
-                  </Button>
-                  <Button onClick={handleCreateUser}>생성</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Input
+              placeholder="이메일 또는 닉네임으로 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-64"
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="active">활성</SelectItem>
+                <SelectItem value="inactive">비활성</SelectItem>
+                <SelectItem value="withdrawn">탈퇴</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <Button onClick={() => setIsCreateUserDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            새 사용자 추가
+          </Button>
+        </div>
 
-          <Card>
-            <CardContent className="p-0">
+        {loading ? (
+          <LoadingState message="사용자 목록을 불러오는 중..." />
+        ) : error ? (
+          <ErrorState
+            error={error}
+            onRetry={() => refetchUsers()}
+            message="사용자 목록을 불러올 수 없습니다"
+          />
+        ) : filteredUsers.length === 0 ? (
+          <EmptyState
+            type="search"
+            message={
+              searchTerm || statusFilter !== 'all'
+                ? '검색 결과가 없습니다'
+                : '등록된 사용자가 없습니다'
+            }
+            description={
+              searchTerm || statusFilter !== 'all'
+                ? '다른 검색 조건으로 시도해보세요'
+                : '새로운 사용자를 추가해주세요'
+            }
+            action={
+              !(searchTerm || statusFilter !== 'all') && (
+                <Button onClick={() => setIsCreateUserDialogOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  새 사용자 추가
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <>
+            <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>사용자</TableHead>
                     <TableHead>이메일</TableHead>
-                    <TableHead>사용자명</TableHead>
+                    <TableHead>닉네임/이름</TableHead>
                     <TableHead>상태</TableHead>
-                    <TableHead>가입일</TableHead>
-                    <TableHead>액션</TableHead>
+                    <TableHead>권한</TableHead>
+                    <TableHead className="text-right">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((user) => (
+                  {paginatedUsers.map((user) => (
                     <TableRow key={user.id}>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.username || user.full_name || '-'}</TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                            <span className="text-sm font-semibold text-blue-600">
-                              {user.full_name?.charAt(0) ||
-                                user.username?.charAt(0) ||
-                                'U'}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="font-medium">
-                              {user.full_name || '이름 없음'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              ID: {user.id}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          <span>{user.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">{user.username}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(user.is_active)}`}
+                        <Badge
+                          variant={
+                            user.is_active
+                              ? 'default'
+                              : user.is_withdrawn
+                              ? 'destructive'
+                              : 'secondary'
+                          }
                         >
-                          {user.is_active ? '활성' : '비활성'}
-                        </span>
+                          {user.is_active
+                            ? '활성'
+                            : user.is_withdrawn
+                            ? '탈퇴'
+                            : '비활성'}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>
-                            {user.created_at
-                              ? new Date(user.created_at).toLocaleDateString()
-                              : 'N/A'}
-                          </span>
-                        </div>
+                        <Badge variant="secondary">일반</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-right">
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
+                          onClick={() => console.log('Edit user:', user.id)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleDeleteUser(user.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -458,10 +333,145 @@ export function UsersPage() {
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+            </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">페이지당 표시:</span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => {
+                        setPageSize(Number(value))
+                        setCurrentPage(1)
+                      }}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    총 {filteredUsers.length}명 중 {(currentPage - 1) * pageSize + 1}-
+                    {Math.min(currentPage * pageSize, filteredUsers.length)}명 표시
+                  </span>
+                </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </ContentSection>
+
+      {/* 사용자 생성 다이얼로그 */}
+      <Dialog
+        open={isCreateUserDialogOpen}
+        onOpenChange={setIsCreateUserDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>새 사용자 생성</DialogTitle>
+            <DialogDescription>
+              새로운 일반 사용자를 생성합니다.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                이메일
+              </Label>
+              <StandardInput
+                id="email"
+                type="email"
+                value={userFormData.email}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, email: e.target.value })
+                }
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="username" className="text-right">
+                사용자명
+              </Label>
+              <StandardInput
+                id="username"
+                value={userFormData.username}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, username: e.target.value })
+                }
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="full_name" className="text-right">
+                전체 이름
+              </Label>
+              <StandardInput
+                id="full_name"
+                value={userFormData.full_name}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, full_name: e.target.value })
+                }
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                비밀번호
+              </Label>
+              <StandardInput
+                id="password"
+                type="password"
+                value={userFormData.password}
+                onChange={(e) =>
+                  setUserFormData({ ...userFormData, password: e.target.value })
+                }
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="is_active" className="text-right">
+                활성 상태
+              </Label>
+              <div className="col-span-3">
+                <Checkbox
+                  id="is_active"
+                  checked={userFormData.is_active}
+                  onCheckedChange={(checked) =>
+                    setUserFormData({ ...userFormData, is_active: checked })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateUserDialogOpen(false)}
+            >
+              취소
+            </Button>
+            <Button onClick={handleCreateUser}>생성</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </PageContainer>
   )
 }
+
+export default UsersPage

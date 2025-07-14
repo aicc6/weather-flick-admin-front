@@ -20,12 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -39,17 +33,14 @@ import {
   AlertCircle,
   Edit2,
   Trash2,
-  MoreHorizontal,
-  Search,
   Plus,
 } from 'lucide-react'
 import {
   LoadingState,
   EmptyState,
   ErrorState,
-  StyledCard,
-  StyledCardContent,
 } from '@/components/common'
+import { ContentSection } from '@/layouts/ContentSection'
 import {
   useGetTouristAttractionsQuery,
   useSearchTouristAttractionsQuery,
@@ -224,108 +215,84 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
         </Alert>
       )}
 
-      {/* 검색 및 액션 바 */}
-      <StyledCard>
-        <StyledCardContent className="p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                setSearchName(searchNameInput)
-                setSearchRegion(searchRegionInput)
+      <ContentSection title="관광지 목록">
+        {/* 검색 및 액션 바 */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Input
+              placeholder="관광지명 검색..."
+              value={searchNameInput}
+              onChange={(e) => setSearchNameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  setSearchName(searchNameInput)
+                  setSearchRegion(searchRegionInput)
+                  setPage(1)
+                }
+              }}
+              className="w-64"
+            />
+            <Select
+              value={searchRegionInput}
+              onValueChange={(value) => {
+                setSearchRegionInput(value)
+                setSearchRegion(value)
                 setPage(1)
               }}
-              className="flex flex-col gap-4 lg:flex-row lg:items-end"
             >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div className="space-y-2">
-                  <label htmlFor="search-name" className="text-sm font-medium">
-                    관광지명
-                  </label>
-                  <Input
-                    id="search-name"
-                    placeholder="관광지명 검색..."
-                    value={searchNameInput}
-                    onChange={(e) => setSearchNameInput(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="search-region"
-                    className="text-sm font-medium"
-                  >
-                    지역
-                  </label>
-                  <Select
-                    value={searchRegionInput}
-                    onValueChange={setSearchRegionInput}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="전체 지역" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">전체</SelectItem>
-                      {Object.entries(REGION_MAP).map(([code, name]) => (
-                        <SelectItem key={code} value={name}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-2 lg:items-end">
-                  <Button type="submit" disabled={loading}>
-                    <Search className="mr-2 h-4 w-4" />
-                    검색
-                  </Button>
-                </div>
-              </div>
-            </form>
-
-            <Button onClick={onCreate}>
-              <Plus className="mr-2 h-4 w-4" />
-              관광지 등록
-            </Button>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="전체 지역" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체</SelectItem>
+                {Object.entries(REGION_MAP).map(([code, name]) => (
+                  <SelectItem key={code} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </StyledCardContent>
-      </StyledCard>
+          <Button onClick={onCreate}>
+            <Plus className="mr-2 h-4 w-4" />
+            관광지 등록
+          </Button>
+        </div>
 
-      {/* 관광지 테이블 */}
-      <StyledCard>
-        <StyledCardContent className="p-6">
-          {loading ? (
-            <LoadingState message="관광지 데이터를 불러오는 중..." />
-          ) : error ? (
-            <ErrorState
-              error={error}
-              onRetry={handleRetry}
-              message="관광지 데이터를 불러올 수 없습니다"
-            />
-          ) : !data?.results?.length ? (
-            <EmptyState
-              type="search"
-              message={
-                isSearching
-                  ? '검색 결과가 없습니다'
-                  : '등록된 관광지가 없습니다'
-              }
-              description={
-                isSearching
-                  ? '다른 검색어로 시도해보세요'
-                  : '새로운 관광지를 등록해주세요'
-              }
-              action={
-                !isSearching && (
-                  <button
-                    onClick={onCreate}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded px-4 py-2 text-sm font-medium transition-colors"
-                  >
-                    관광지 등록하기
-                  </button>
-                )
-              }
-            />
-          ) : (
+        {/* 관광지 테이블 */}
+        {loading ? (
+          <LoadingState message="관광지 데이터를 불러오는 중..." />
+        ) : error ? (
+          <ErrorState
+            error={error}
+            onRetry={handleRetry}
+            message="관광지 데이터를 불러올 수 없습니다"
+          />
+        ) : !data?.results?.length ? (
+          <EmptyState
+            type="search"
+            message={
+              isSearching
+                ? '검색 결과가 없습니다'
+                : '등록된 관광지가 없습니다'
+            }
+            description={
+              isSearching
+                ? '다른 검색어로 시도해보세요'
+                : '새로운 관광지를 등록해주세요'
+            }
+            action={
+              !isSearching && (
+                <Button onClick={onCreate}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  관광지 등록
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -333,7 +300,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                   <TableHead className="min-w-[200px]">관광지명</TableHead>
                   <TableHead>지역</TableHead>
                   <TableHead>등록일</TableHead>
-                  <TableHead className="w-[100px]">액션</TableHead>
+                  <TableHead className="text-right">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -368,40 +335,32 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                     <TableCell>
                       {a.created_at ? a.created_at.split('T')[0] : '-'}
                     </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => onEdit(a.content_id)}
-                          >
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            수정
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDelete(a.content_id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(a.content_id)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(a.content_id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          )}
+          </div>
+        )}
 
-          {/* 페이지네이션 */}
-          {renderPagination()}
-        </StyledCardContent>
-      </StyledCard>
+        {/* 페이지네이션 */}
+        {renderPagination()}
+      </ContentSection>
     </div>
   )
 }
