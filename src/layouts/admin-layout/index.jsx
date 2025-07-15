@@ -238,7 +238,7 @@ export function AdminLayout({ children }) {
 
         {/* Page Content */}
         <main className="bg-background flex-1 overflow-auto">
-          <div className="container mx-auto p-6">{children}</div>
+          <div className="mx-auto p-6">{children}</div>
         </main>
       </div>
     </div>
