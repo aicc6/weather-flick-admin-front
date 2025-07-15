@@ -1372,7 +1372,12 @@ function FestivalEventSection() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{row.event_name}</div>
+                        <Link
+                          to={`/content/festival/${row.content_id}`}
+                          className="text-primary font-medium hover:underline"
+                        >
+                          {row.event_name}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">

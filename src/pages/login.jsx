@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -56,14 +56,16 @@ export const LoginPage = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mb-6 flex items-center justify-center gap-3">
-            <img
-              src="/newicon.jpg"
-              alt="Weather Flick Logo"
-              className="h-12 w-12 rounded-lg shadow-lg"
-            />
-            <h1 className="text-foreground text-3xl font-bold">
-              Weather Flick
-            </h1>
+            <Link to="/" className="flex items-center gap-3">
+              <img
+                src="/newicon.jpg"
+                alt="Weather Flick Logo"
+                className="h-12 w-12 rounded-lg shadow-lg"
+              />
+              <h1 className="text-foreground text-3xl font-bold">
+                Weather Flick
+              </h1>
+            </Link>
           </div>
           <p className="text-muted-foreground">관리자 대시보드</p>
         </div>

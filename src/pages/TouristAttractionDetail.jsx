@@ -11,6 +11,7 @@ import { Accordion, AccordionItem } from '@/components/ui/accordion'
 // MapComponent는 실제 지도 컴포넌트로 교체 필요
 // import MapComponent from '@/components/common/MapComponent';
 import { authHttp } from '@/lib/http'
+import { REGION_MAP } from '@/constants/region'
 
 export default function TouristAttractionDetail({
   contentId,
@@ -46,25 +47,9 @@ export default function TouristAttractionDetail({
     return <div className="py-16 text-center text-red-500">{error}</div>
   if (!data) return null
 
-  const REGION_MAP = {
-    11: '서울',
-    26: '부산',
-    27: '대구',
-    28: '인천',
-    29: '광주',
-    30: '대전',
-    31: '울산',
-    36: '세종',
-    41: '경기',
-    42: '강원',
-    43: '충북',
-    44: '충남',
-    45: '전북',
-    46: '전남',
-    47: '경북',
-    48: '경남',
-    50: '제주',
-  }
+  // 진단용 콘솔 출력
+  console.log('region_code:', data.region_code, typeof data.region_code)
+  console.log('REGION_MAP keys:', Object.keys(REGION_MAP))
 
   return (
     <Card className="mx-auto mt-8 max-w-4xl p-6">
@@ -75,7 +60,9 @@ export default function TouristAttractionDetail({
         <CardDescription className="mt-1 flex gap-2 text-sm text-gray-500">
           <span>{data.category_name}</span>
           <span>|</span>
-          <span>{REGION_MAP[data.region_code] || data.region_code}</span>
+          <span>
+            {REGION_MAP[String(data.region_code)] || data.region_code}
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent>

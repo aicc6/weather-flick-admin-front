@@ -65,15 +65,17 @@ export const DefaultLayout = ({ children }) => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
-              <img
-                src="/newicon.jpg"
-                alt="Weather Flick Logo"
-                className="mr-2 h-8 w-8 rounded"
-                loading="lazy"
-              />
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                Weather Flick Admin
-              </h1>
+              <Link to="/" className="flex items-center">
+                <img
+                  src="/newicon.jpg"
+                  alt="Weather Flick Logo"
+                  className="mr-2 h-8 w-8 rounded"
+                  loading="lazy"
+                />
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Weather Flick Admin
+                </h1>
+              </Link>
             </div>
 
             <div className="flex items-center space-x-4">

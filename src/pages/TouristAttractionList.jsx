@@ -62,7 +62,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
     limit: pageSize,
     offset: (page - 1) * pageSize,
     ...(searchName && { name: searchName }),
-    ...(regionCode && { region: regionCode }),
+    ...(regionCode && { region_code: regionCode }), // region → region_code로 변경
   }
 
   // 일반 목록 조회

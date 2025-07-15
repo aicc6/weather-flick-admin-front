@@ -57,6 +57,11 @@ const RegionsPage = lazy(() =>
     default: module.default,
   })),
 )
+const FestivalEventDetailPage = lazy(() =>
+  import('../pages/FestivalEventDetailPage').then((module) => ({
+    default: module.default,
+  })),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -185,6 +190,20 @@ export const router = createBrowserRouter([
     meta: {
       title: '코스 상세',
       breadcrumb: ['대시보드', '콘텐츠 관리', '상세'],
+    },
+  },
+  {
+    path: '/content/festival/:contentId',
+    element: (
+      <ProtectedLayout>
+        <SuspenseWrapper>
+          <FestivalEventDetailPage />
+        </SuspenseWrapper>
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '축제 이벤트 상세',
+      breadcrumb: ['대시보드', '콘텐츠 관리', '축제 이벤트 상세'],
     },
   },
   {
