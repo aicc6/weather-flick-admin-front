@@ -86,7 +86,7 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   })
 
   // 삭제 mutation
-  const [deleteTouristAttraction, { isLoading: deleting }] =
+  const [deleteTouristAttraction, { isLoading: _deleting }] =
     useDeleteTouristAttractionMutation()
 
   // 현재 사용할 데이터 선택

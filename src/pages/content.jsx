@@ -687,7 +687,7 @@ function TravelPlansSection() {
     setModalOpen(true)
   }
 
-  const handleCloseModal = () => {
+  const _handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)
@@ -1109,7 +1109,7 @@ function FestivalEventSection() {
     setModalOpen(true)
   }
 
-  const handleCloseModal = () => {
+  const _handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)
@@ -1617,7 +1617,7 @@ function LeisureSportsSection() {
     setModalOpen(true)
   }
 
-  const handleCloseModal = () => {
+  const _handleCloseModal = () => {
     setModalOpen(false)
     setEditData(null)
     setErrorMsg(null)

@@ -19,7 +19,7 @@ function getWindDirText(deg) {
 }
 
 // 시간대별/내일 변화 예고 추출 (forecast는 현재 미사용)
-function getForecastSummary(forecast) {
+function _getForecastSummary(forecast) {
   if (!forecast || forecast.length === 0) return '예보 정보 없음'
   const now = new Date()
   const tonight = forecast.find((f) => {
@@ -67,8 +67,8 @@ export default function WeatherAlert({ weather }) {
   if (precipitation >= 30) alerts.push({ icon: '🌧️', text: '호우 경보' })
 
   // 강수/강풍
-  const isHeavyRain = precipitation_type !== '없음' && precipitation > 5
-  const isStrongWind = wind_speed > 10
+  const _isHeavyRain = precipitation_type !== '없음' && precipitation > 5
+  const _isStrongWind = wind_speed > 10
 
   // 생활 팁
   const tips = []

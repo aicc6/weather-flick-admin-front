@@ -441,7 +441,7 @@ function RegionFormDialog({
     }
 
     if (isEdit) {
-      const { region_code, ...updateData } = submitData
+      const { region_code: _region_code, ...updateData } = submitData
       onSubmit(updateData)
     } else {
       onSubmit(submitData)

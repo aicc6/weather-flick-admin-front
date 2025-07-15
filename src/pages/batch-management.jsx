@@ -25,6 +25,7 @@ import {
   Square,
   MoreVertical,
   RefreshCw,
+  FileText,
 } from 'lucide-react'
 import {
   useGetBatchJobsQuery,
@@ -37,6 +38,7 @@ import {
   BATCH_JOB_STATUS_COLORS,
 } from '@/store/api/batchApi'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
+import BatchLogViewer from '@/components/batch/BatchLogViewer'
 
 const BatchManagement = () => {
   const [jobTypeFilter, setJobTypeFilter] = useState('all')
@@ -45,6 +47,7 @@ const BatchManagement = () => {
   const [selectedJobType, setSelectedJobType] = useState('')
   const [jobParameters, setJobParameters] = useState('')
   const [executeDialogOpen, setExecuteDialogOpen] = useState(false)
+  const [selectedJobForLogs, setSelectedJobForLogs] = useState(null)
 
   // API 호출
   const {
@@ -298,6 +301,14 @@ const BatchManagement = () => {
                           )}
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedJobForLogs(job.id)}
+                          >
+                            <FileText className="mr-1 h-4 w-4" />
+                            로그
+                          </Button>
                           {job.status === BATCH_JOB_STATUS.RUNNING && (
                             <Button
                               variant="outline"
@@ -451,6 +462,27 @@ const BatchManagement = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* 로그 뷰어 다이얼로그 */}
+        <Dialog
+          open={!!selectedJobForLogs}
+          onOpenChange={(open) => !open && setSelectedJobForLogs(null)}
+        >
+          <DialogContent className="max-w-[90vw] max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>
+                배치 작업 로그 - {selectedJobForLogs}
+              </DialogTitle>
+            </DialogHeader>
+            {selectedJobForLogs && (
+              <BatchLogViewer
+                jobId={selectedJobForLogs}
+                embedded={true}
+                onClose={() => setSelectedJobForLogs(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </ContentSection>
     </PageContainer>
   )

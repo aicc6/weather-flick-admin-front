@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-export function Accordion({ children, type = 'single', collapsible = true }) {
+export function Accordion({ children, _type = 'single', _collapsible = true }) {
   // type: 'single'만 지원, collapsible: true만 지원
   return <div className="divide-y rounded border bg-white">{children}</div>
 }
 
-export function AccordionItem({ value, title, children }) {
+export function AccordionItem({ _value, title, children }) {
   const [open, setOpen] = useState(false)
   return (
     <div>

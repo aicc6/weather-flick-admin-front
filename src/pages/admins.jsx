@@ -5,6 +5,7 @@ import {
   useCreateAdminMutation,
   useUpdateAdminMutation,
   useDeleteAdminMutation,
+  useDeleteAdminPermanentlyMutation,
   useUpdateAdminStatusMutation,
 } from '@/store/api/adminsApi'
 import { Button } from '@/components/ui/button'
@@ -68,6 +69,7 @@ export const AdminsPage = () => {
   const [createAdminMutation] = useCreateAdminMutation()
   const [updateAdminMutation] = useUpdateAdminMutation()
   const [deleteAdminMutation] = useDeleteAdminMutation()
+  const [deleteAdminPermanentlyMutation] = useDeleteAdminPermanentlyMutation()
   const [updateAdminStatusMutation] = useUpdateAdminStatusMutation()
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -111,15 +113,24 @@ export const AdminsPage = () => {
 
   const handleDeleteAdmin = async () => {
     try {
-      await deleteAdminMutation(selectedAdmin.admin_id).unwrap()
+      // 슈퍼관리자는 영구 삭제, 일반 관리자는 비활성화
+      if (user?.is_superuser) {
+        await deleteAdminPermanentlyMutation(selectedAdmin.admin_id).unwrap()
+      } else {
+        await deleteAdminMutation(selectedAdmin.admin_id).unwrap()
+      }
       setIsDeleteDialogOpen(false)
       setSelectedAdmin(null)
     } catch (error) {
       console.error('관리자 삭제에 실패했습니다:', error)
+      // 에러 메시지가 있으면 표시
+      if (error?.data?.detail) {
+        alert(error.data.detail)
+      }
     }
   }
 
-  const handleStatusChange = async (adminId, newStatus) => {
+  const _handleStatusChange = async (adminId, newStatus) => {
     try {
       await updateAdminStatusMutation({
         adminId,
@@ -455,16 +466,25 @@ export const AdminsPage = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>관리자 삭제</AlertDialogTitle>
+            <AlertDialogTitle>
+              관리자 {user?.is_superuser ? '영구 삭제' : '비활성화'}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedAdmin?.username} 관리자를 삭제하시겠습니까? 이 작업은
-              되돌릴 수 없습니다.
+              {selectedAdmin?.username || selectedAdmin?.email} 관리자를{' '}
+              {user?.is_superuser
+                ? '영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 관련 데이터가 삭제됩니다.'
+                : '비활성화하시겠습니까? 비활성화된 관리자는 로그인할 수 없습니다.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAdmin}>
-              삭제
+            <AlertDialogAction
+              onClick={handleDeleteAdmin}
+              className={
+                user?.is_superuser ? 'bg-red-600 hover:bg-red-700' : ''
+              }
+            >
+              {user?.is_superuser ? '영구 삭제' : '비활성화'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
