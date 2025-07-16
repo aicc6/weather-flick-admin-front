@@ -302,6 +302,7 @@ export default function RegionsPage() {
                   <TableHead>전체 지역명</TableHead>
                   <TableHead>상위지역</TableHead>
                   <TableHead>레벨</TableHead>
+                  <TableHead>API코드</TableHead>
                   <TableHead>위도</TableHead>
                   <TableHead>경도</TableHead>
                   <TableHead>활성화</TableHead>
@@ -318,6 +319,11 @@ export default function RegionsPage() {
                     <TableCell>{region.region_name_full || '-'}</TableCell>
                     <TableCell>{region.parent_region_code || '-'}</TableCell>
                     <TableCell>{region.region_level}</TableCell>
+                    <TableCell>
+                      <Badge variant={region.tour_api_area_code ? 'default' : 'secondary'}>
+                        {region.tour_api_area_code || '-'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{region.latitude?.toFixed(6) || '-'}</TableCell>
                     <TableCell>{region.longitude?.toFixed(6) || '-'}</TableCell>
                     <TableCell>
