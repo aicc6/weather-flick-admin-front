@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import {
   useGetUserStatsQuery,
   useGetUsersQuery,
@@ -71,19 +72,22 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
+import { UserDetailModal } from '@/components/users/UserDetailModal'
 
 // 헬퍼 함수 선언
 const isDeletedUser = (user) => user.email?.startsWith('deleted_')
 
 export const UsersPage = () => {
   const { user: _user } = useAuth()
+  const navigate = useNavigate()
 
   // 로컬 상태 (UI 전용) - 먼저 선언
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [_selectedUser, _setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -495,7 +499,8 @@ export const UsersPage = () => {
                               onClick={(e) => {
                                 console.log('상세보기 클릭됨', item)
                                 e.stopPropagation()
-                                _setSelectedUser(item)
+                                setSelectedUser(item)
+                                setIsDetailModalOpen(true)
                               }}
                             >
                               <Eye className="mr-2 h-4 w-4" />
@@ -753,6 +758,16 @@ export const UsersPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* 사용자 상세 정보 모달 */}
+      <UserDetailModal
+        user={selectedUser}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false)
+          setSelectedUser(null)
+        }}
+      />
     </PageContainer>
   )
 }
