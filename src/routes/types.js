@@ -13,6 +13,13 @@ export const ROUTE_META = {
     icon: 'Shield',
     requiredRole: 'super_admin',
   },
+  PERMISSIONS: {
+    path: '/permissions',
+    title: '권한 관리',
+    breadcrumb: ['대시보드', '권한 관리'],
+    icon: 'Shield',
+    requiredRole: 'super_admin',
+  },
   USERS: {
     path: '/users',
     title: '사용자',
@@ -62,6 +69,7 @@ export const NAVIGATION_ITEMS = [
   ROUTE_META.DASHBOARD,
   ROUTE_META.USERS,
   ROUTE_META.ADMINS,
+  ROUTE_META.PERMISSIONS,
   ROUTE_META.CONTENT,
   ROUTE_META.WEATHER,
   ROUTE_META.REGIONS,

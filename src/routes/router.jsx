@@ -21,6 +21,11 @@ const AdminsPage = lazy(() =>
     default: module.AdminsPage,
   })),
 )
+const PermissionsPage = lazy(() =>
+  import('../pages/permissions').then((module) => ({
+    default: module.PermissionsPage,
+  })),
+)
 const UsersPage = lazy(() =>
   import('../pages/users').then((module) => ({
     default: module.UsersPage,
@@ -109,6 +114,19 @@ export const router = createBrowserRouter([
     meta: {
       title: '관리자 관리',
       breadcrumb: ['대시보드', '관리자 관리'],
+      requiredRole: 'super_admin',
+    },
+  },
+  {
+    path: '/permissions',
+    element: (
+      <ProtectedLayout>
+        <PermissionsPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '권한 관리',
+      breadcrumb: ['대시보드', '권한 관리'],
       requiredRole: 'super_admin',
     },
   },

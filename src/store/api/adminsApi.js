@@ -99,6 +99,51 @@ export const adminsApi = createApi({
       query: () => '/api/admins/roles',
       providesTags: ['Role'],
     }),
+
+    getPermissionsMatrix: builder.query({
+      query: () => '/api/admins/permissions/matrix',
+      providesTags: ['Role'],
+    }),
+
+    createRole: builder.mutation({
+      query: (roleData) => ({
+        url: '/api/admins/roles',
+        method: 'POST',
+        body: roleData,
+      }),
+      invalidatesTags: ['Role'],
+    }),
+
+    updateRole: builder.mutation({
+      query: ({ roleId, data }) => ({
+        url: `/api/admins/roles/${roleId}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Role'],
+    }),
+
+    deleteRole: builder.mutation({
+      query: (roleId) => ({
+        url: `/api/admins/roles/${roleId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Role'],
+    }),
+
+    updateAdminRoles: builder.mutation({
+      query: ({ adminId, roleData }) => ({
+        url: `/api/admins/${adminId}/roles`,
+        method: 'PUT',
+        body: roleData,
+      }),
+      invalidatesTags: ['Admin'],
+    }),
+
+    getPermissions: builder.query({
+      query: () => '/api/admins/permissions',
+      providesTags: ['Role'],
+    }),
   }),
 })
 
@@ -114,4 +159,10 @@ export const {
   useResetAdminPasswordMutation,
   useUpdateAdminStatusMutation,
   useGetRolesQuery,
+  useGetPermissionsMatrixQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
+  useUpdateAdminRolesMutation,
+  useGetPermissionsQuery,
 } = adminsApi
