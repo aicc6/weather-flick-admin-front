@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/table'
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -60,7 +59,6 @@ import {
   Search,
   MapPin,
   Image,
-  Calendar,
 } from 'lucide-react'
 import {
   Pagination,
@@ -106,7 +104,8 @@ function TouristAttractionSection() {
     limit,
     offset,
     ...(searchName && { name: searchName }),
-    ...(searchRegion && searchRegion !== 'all' && { region_code: searchRegion }),
+    ...(searchRegion &&
+      searchRegion !== 'all' && { region_code: searchRegion }),
   }
 
   // 일반 목록 조회
@@ -132,7 +131,7 @@ function TouristAttractionSection() {
   const [createTouristAttraction] = useCreateTouristAttractionMutation()
   const [updateTouristAttraction] = useUpdateTouristAttractionMutation()
   const [deleteTouristAttraction] = useDeleteTouristAttractionMutation()
-  
+
   const [modalOpen, setModalOpen] = useState(false)
   const [editData, setEditData] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
@@ -303,7 +302,7 @@ function TouristAttractionSection() {
           onClick={() => setPage(page > 1 ? page - 1 : 1)}
           className={page === 1 ? 'pointer-events-none opacity-50' : ''}
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
 
     // First page and ellipsis
@@ -313,13 +312,13 @@ function TouristAttractionSection() {
           <PaginationLink isActive={page === 1} onClick={() => setPage(1)}>
             1
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
       if (start > 2) {
         pageItems.push(
           <PaginationItem key="start-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
     }
@@ -331,7 +330,7 @@ function TouristAttractionSection() {
           <PaginationLink isActive={i === page} onClick={() => setPage(i)}>
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -341,7 +340,7 @@ function TouristAttractionSection() {
         pageItems.push(
           <PaginationItem key="end-ellipsis">
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem>,
         )
       }
       pageItems.push(
@@ -352,7 +351,7 @@ function TouristAttractionSection() {
           >
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       )
     }
 
@@ -361,9 +360,11 @@ function TouristAttractionSection() {
       <PaginationItem key="next">
         <PaginationNext
           onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
-          className={page === totalPages ? 'pointer-events-none opacity-50' : ''}
+          className={
+            page === totalPages ? 'pointer-events-none opacity-50' : ''
+          }
         />
-      </PaginationItem>
+      </PaginationItem>,
     )
 
     return (
@@ -403,7 +404,10 @@ function TouristAttractionSection() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="search-region" className="text-sm font-medium">
+                  <label
+                    htmlFor="search-region"
+                    className="text-sm font-medium"
+                  >
                     지역
                   </label>
                   <Select value={searchRegion} onValueChange={setSearchRegion}>
@@ -470,7 +474,9 @@ function TouristAttractionSection() {
                       <TableHead className="min-w-[200px]">주소</TableHead>
                       <TableHead className="text-center">이미지</TableHead>
                       <TableHead className="text-center">조회수</TableHead>
-                      <TableHead className="text-center w-[100px]">액션</TableHead>
+                      <TableHead className="w-[100px] text-center">
+                        액션
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -482,7 +488,7 @@ function TouristAttractionSection() {
                         <TableCell>
                           <Badge variant="outline">
                             {CATEGORY_OPTIONS.find(
-                              (cat) => cat.value === item.category
+                              (cat) => cat.value === item.category,
                             )?.label || item.category}
                           </Badge>
                         </TableCell>
@@ -491,7 +497,7 @@ function TouristAttractionSection() {
                             {REGION_MAP[item.region_code] || item.region_code}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-muted-foreground text-sm">
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {item.address}
@@ -499,7 +505,7 @@ function TouristAttractionSection() {
                         </TableCell>
                         <TableCell className="text-center">
                           {item.first_image || item.image_url ? (
-                            <Image className="h-4 w-4 mx-auto text-green-600" />
+                            <Image className="mx-auto h-4 w-4 text-green-600" />
                           ) : (
                             <span className="text-muted-foreground">-</span>
                           )}
@@ -515,7 +521,9 @@ function TouristAttractionSection() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleOpenEdit(item)}>
+                              <DropdownMenuItem
+                                onClick={() => handleOpenEdit(item)}
+                              >
                                 <Edit2 className="mr-2 h-4 w-4" />
                                 수정
                               </DropdownMenuItem>
@@ -542,7 +550,7 @@ function TouristAttractionSection() {
 
       {/* 추가/수정 모달 */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editData ? '관광지 수정' : '관광지 추가'}
@@ -714,9 +722,7 @@ function TouristAttractionSection() {
                   취소
                 </Button>
               </DialogClose>
-              <Button type="submit">
-                {editData ? '수정' : '추가'}
-              </Button>
+              <Button type="submit">{editData ? '수정' : '추가'}</Button>
             </DialogFooter>
           </form>
         </DialogContent>

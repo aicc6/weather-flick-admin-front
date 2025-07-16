@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { contactApi } from '@/api/contact';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { contactApi } from '@/api/contact'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -15,114 +15,124 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Calendar } from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { toast } from 'react-hot-toast';
+} from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { toast } from 'react-hot-toast'
 
 const ContactList = () => {
-  const navigate = useNavigate();
-  const [contacts, setContacts] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [statsLoading, setStatsLoading] = useState(true);
-  
+  const navigate = useNavigate()
+  const [contacts, setContacts] = useState([])
+  const [stats, setStats] = useState(null)
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [statsLoading, setStatsLoading] = useState(true)
+
   const [filters, setFilters] = useState({
     search: '',
     category: '',
     status: '',
     skip: 0,
     limit: 20,
-  });
+  })
 
   // 통계 데이터는 최초 1회만 로드
   useEffect(() => {
-    loadStats();
-  }, []);
+    loadStats()
+  }, [])
 
   // 문의 목록은 필터 변경 시마다 로드
   useEffect(() => {
-    loadContacts();
-  }, [filters]);
+    loadContacts()
+  }, [filters])
 
   const loadStats = async () => {
     try {
-      setStatsLoading(true);
+      setStatsLoading(true)
       const [statsData, categoriesData] = await Promise.all([
         contactApi.getContactStats(),
         contactApi.getCategories(),
-      ]);
-      
-      setStats(statsData);
-      setCategories(categoriesData || []);
+      ])
+
+      setStats(statsData)
+      setCategories(categoriesData || [])
     } catch (error) {
-      console.error('Failed to load stats:', error);
-      toast.error('통계 데이터를 불러오는데 실패했습니다.');
+      console.error('Failed to load stats:', error)
+      toast.error('통계 데이터를 불러오는데 실패했습니다.')
     } finally {
-      setStatsLoading(false);
+      setStatsLoading(false)
     }
-  };
+  }
 
   const loadContacts = async () => {
     try {
-      setLoading(true);
-      const contactsData = await contactApi.getContacts(filters);
-      setContacts(contactsData || []);
+      setLoading(true)
+      const contactsData = await contactApi.getContacts(filters)
+      setContacts(contactsData || [])
     } catch (error) {
-      console.error('Failed to load contacts:', error);
-      toast.error('문의 목록을 불러오는데 실패했습니다.');
+      console.error('Failed to load contacts:', error)
+      toast.error('문의 목록을 불러오는데 실패했습니다.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSearch = (value) => {
-    setFilters(prev => ({ ...prev, search: value, skip: 0 }));
-  };
+    setFilters((prev) => ({ ...prev, search: value, skip: 0 }))
+  }
 
   const handleCategoryChange = (value) => {
-    setFilters(prev => ({ ...prev, category: value === 'all' ? '' : value, skip: 0 }));
-  };
+    setFilters((prev) => ({
+      ...prev,
+      category: value === 'all' ? '' : value,
+      skip: 0,
+    }))
+  }
 
   const handleStatusChange = (value) => {
-    setFilters(prev => ({ ...prev, status: value === 'all' ? '' : value, skip: 0 }));
-  };
+    setFilters((prev) => ({
+      ...prev,
+      status: value === 'all' ? '' : value,
+      skip: 0,
+    }))
+  }
 
   const getStatusBadge = (status) => {
     switch (status) {
       case 'PENDING':
-        return <Badge variant="secondary">대기중</Badge>;
+        return <Badge variant="secondary">대기중</Badge>
       case 'PROCESSING':
-        return <Badge variant="outline">처리중</Badge>;
+        return <Badge variant="outline">처리중</Badge>
       case 'COMPLETE':
-        return <Badge variant="default">완료</Badge>;
+        return <Badge variant="default">완료</Badge>
       default:
-        return <Badge>{status}</Badge>;
+        return <Badge>{status}</Badge>
     }
-  };
+  }
 
   const handleContactClick = (id) => {
-    navigate(`/contact/${id}`);
-  };
+    navigate(`/contact/${id}`)
+  }
 
   const handlePageChange = (direction) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      skip: direction === 'next' ? prev.skip + prev.limit : Math.max(0, prev.skip - prev.limit),
-    }));
-  };
+      skip:
+        direction === 'next'
+          ? prev.skip + prev.limit
+          : Math.max(0, prev.skip - prev.limit),
+    }))
+  }
 
   // 로딩 상태를 페이지 전체가 아닌 테이블에만 적용
 
@@ -130,7 +140,7 @@ const ContactList = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">문의 관리</h2>
+          <h2 className="text-3xl font-bold tracking-tight">문의</h2>
           <p className="text-muted-foreground">
             고객 문의사항을 확인하고 답변을 관리합니다.
           </p>
@@ -140,9 +150,9 @@ const ContactList = () => {
       {/* 통계 카드 */}
       {!statsLoading && stats && (
         <div className="grid gap-4 md:grid-cols-4">
-          <Card 
+          <Card
             className={`cursor-pointer transition-all hover:shadow-md ${
-              !filters.status ? 'ring-2 ring-primary' : ''
+              !filters.status ? 'ring-primary ring-2' : ''
             }`}
             onClick={() => handleStatusChange('all')}
           >
@@ -151,14 +161,14 @@ const ContactList = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total_count}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 오늘 +{stats.today_count}
               </p>
             </CardContent>
           </Card>
-          <Card 
+          <Card
             className={`cursor-pointer transition-all hover:shadow-md ${
-              filters.status === 'PENDING' ? 'ring-2 ring-primary' : ''
+              filters.status === 'PENDING' ? 'ring-primary ring-2' : ''
             }`}
             onClick={() => handleStatusChange('PENDING')}
           >
@@ -169,14 +179,12 @@ const ContactList = () => {
               <div className="text-2xl font-bold text-yellow-600">
                 {stats.pending_count}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                답변 대기 중
-              </p>
+              <p className="text-muted-foreground mt-1 text-xs">답변 대기 중</p>
             </CardContent>
           </Card>
-          <Card 
+          <Card
             className={`cursor-pointer transition-all hover:shadow-md ${
-              filters.status === 'PROCESSING' ? 'ring-2 ring-primary' : ''
+              filters.status === 'PROCESSING' ? 'ring-primary ring-2' : ''
             }`}
             onClick={() => handleStatusChange('PROCESSING')}
           >
@@ -187,14 +195,12 @@ const ContactList = () => {
               <div className="text-2xl font-bold text-blue-600">
                 {stats.processing_count}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                답변 작성 중
-              </p>
+              <p className="text-muted-foreground mt-1 text-xs">답변 작성 중</p>
             </CardContent>
           </Card>
-          <Card 
+          <Card
             className={`cursor-pointer transition-all hover:shadow-md ${
-              filters.status === 'COMPLETE' ? 'ring-2 ring-primary' : ''
+              filters.status === 'COMPLETE' ? 'ring-primary ring-2' : ''
             }`}
             onClick={() => handleStatusChange('COMPLETE')}
           >
@@ -205,9 +211,7 @@ const ContactList = () => {
               <div className="text-2xl font-bold text-green-600">
                 {stats.complete_count}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                답변 완료
-              </p>
+              <p className="text-muted-foreground mt-1 text-xs">답변 완료</p>
             </CardContent>
           </Card>
         </div>
@@ -222,14 +226,17 @@ const ContactList = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <Input
               placeholder="제목, 이름, 이메일로 검색..."
               value={filters.search}
               onChange={(e) => handleSearch(e.target.value)}
               className="max-w-sm"
             />
-            <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
+            <Select
+              value={filters.category || 'all'}
+              onValueChange={handleCategoryChange}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="분류 선택" />
               </SelectTrigger>
@@ -259,7 +266,7 @@ const ContactList = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="py-8 text-center">
                     <div className="flex items-center justify-center">
                       <div className="text-lg">로딩중...</div>
                     </div>
@@ -267,7 +274,7 @@ const ContactList = () => {
                 </TableRow>
               ) : contacts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={7} className="py-8 text-center">
                     문의사항이 없습니다.
                   </TableCell>
                 </TableRow>
@@ -275,7 +282,7 @@ const ContactList = () => {
                 contacts.map((contact) => (
                   <TableRow
                     key={contact.id}
-                    className="cursor-pointer hover:bg-muted/50"
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleContactClick(contact.id)}
                   >
                     <TableCell>{contact.id}</TableCell>
@@ -293,12 +300,14 @@ const ContactList = () => {
                     <TableCell>
                       <div>
                         <div className="font-medium">{contact.name}</div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-muted-foreground text-sm">
                           {contact.email}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(contact.approval_status)}</TableCell>
+                    <TableCell>
+                      {getStatusBadge(contact.approval_status)}
+                    </TableCell>
                     <TableCell>
                       {contact.has_answer ? (
                         <Badge variant="outline">답변완료</Badge>
@@ -307,7 +316,9 @@ const ContactList = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {format(new Date(contact.created_at), 'PPP', { locale: ko })}
+                      {format(new Date(contact.created_at), 'PPP', {
+                        locale: ko,
+                      })}
                     </TableCell>
                   </TableRow>
                 ))
@@ -315,8 +326,8 @@ const ContactList = () => {
             </TableBody>
           </Table>
 
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-muted-foreground">
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-muted-foreground text-sm">
               총 {contacts.length}개 항목
             </div>
             <div className="flex gap-2">
@@ -341,7 +352,7 @@ const ContactList = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default ContactList;
+export default ContactList

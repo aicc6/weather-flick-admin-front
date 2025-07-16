@@ -214,8 +214,8 @@ export const router = createBrowserRouter([
       </ProtectedLayout>
     ),
     meta: {
-      title: '문의 관리',
-      breadcrumb: ['대시보드', '문의 관리'],
+      title: '문의',
+      breadcrumb: ['대시보드', '문의'],
     },
   },
   {
@@ -227,7 +227,7 @@ export const router = createBrowserRouter([
     ),
     meta: {
       title: '문의 상세',
-      breadcrumb: ['대시보드', '문의 관리', '상세'],
+      breadcrumb: ['대시보드', '문의', '상세'],
     },
   },
   {

@@ -51,8 +51,8 @@ export const ROUTE_META = {
   },
   CONTACT: {
     path: '/contact',
-    title: '문의 관리',
-    breadcrumb: ['대시보드', '문의 관리'],
+    title: '문의',
+    breadcrumb: ['대시보드', '문의'],
     icon: 'MessageSquare',
   },
 }
