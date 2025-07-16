@@ -37,6 +37,7 @@ const ContactList = () => {
   const [stats, setStats] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   
   const [filters, setFilters] = useState({
     search: '',
@@ -46,25 +47,42 @@ const ContactList = () => {
     limit: 20,
   });
 
+  // 통계 데이터는 최초 1회만 로드
   useEffect(() => {
-    loadData();
+    loadStats();
+  }, []);
+
+  // 문의 목록은 필터 변경 시마다 로드
+  useEffect(() => {
+    loadContacts();
   }, [filters]);
 
-  const loadData = async () => {
+  const loadStats = async () => {
     try {
-      setLoading(true);
-      const [contactsData, statsData, categoriesData] = await Promise.all([
-        contactApi.getContacts(filters),
+      setStatsLoading(true);
+      const [statsData, categoriesData] = await Promise.all([
         contactApi.getContactStats(),
         contactApi.getCategories(),
       ]);
       
-      setContacts(contactsData || []);
       setStats(statsData);
       setCategories(categoriesData || []);
     } catch (error) {
-      console.error('Failed to load data:', error);
-      toast.error('데이터를 불러오는데 실패했습니다.');
+      console.error('Failed to load stats:', error);
+      toast.error('통계 데이터를 불러오는데 실패했습니다.');
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const loadContacts = async () => {
+    try {
+      setLoading(true);
+      const contactsData = await contactApi.getContacts(filters);
+      setContacts(contactsData || []);
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
+      toast.error('문의 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -106,13 +124,7 @@ const ContactList = () => {
     }));
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-lg">로딩중...</div>
-      </div>
-    );
-  }
+  // 로딩 상태를 페이지 전체가 아닌 테이블에만 적용
 
   return (
     <div className="space-y-6">
@@ -126,38 +138,76 @@ const ContactList = () => {
       </div>
 
       {/* 통계 카드 */}
-      {stats && (
+      {!statsLoading && stats && (
         <div className="grid gap-4 md:grid-cols-4">
-          <Card>
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              !filters.status ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => handleStatusChange('all')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">전체 문의</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-2xl font-bold">{stats.total_count}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                오늘 +{stats.today_count}
+              </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              filters.status === 'PENDING' ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => handleStatusChange('PENDING')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">대기중</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pending}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {stats.pending_count}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                답변 대기 중
+              </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              filters.status === 'PROCESSING' ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => handleStatusChange('PROCESSING')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">처리중</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.processing}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.processing_count}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                답변 작성 중
+              </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              filters.status === 'COMPLETE' ? 'ring-2 ring-primary' : ''
+            }`}
+            onClick={() => handleStatusChange('COMPLETE')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">완료</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.complete}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.complete_count}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                답변 완료
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -192,17 +242,6 @@ const ContactList = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="상태 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="PENDING">대기중</SelectItem>
-                <SelectItem value="PROCESSING">처리중</SelectItem>
-                <SelectItem value="COMPLETE">완료</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <Table>
@@ -218,7 +257,15 @@ const ContactList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contacts.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <div className="flex items-center justify-center">
+                      <div className="text-lg">로딩중...</div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : contacts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
                     문의사항이 없습니다.
