@@ -36,16 +36,18 @@ export const baseQueryWithAuth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
   // 401 에러 처리
-  if (result.error && result.error.status === 401) {
-    handle401Error()
-  }
+  // if (result.error && result.error.status === 401) {
+  //   handle401Error()
+  // }
 
   // 백엔드 응답 형식이 { success: true, data: {...} } 인 경우
   // data만 추출하여 반환 (weather-flick-front 패턴 참고)
+  // Admin 백엔드는 직접 데이터를 반환하므로 이 변환을 건너뜀
   if (
     result.data &&
     typeof result.data === 'object' &&
-    'success' in result.data
+    'success' in result.data &&
+    typeof result.data.success === 'boolean'
   ) {
     if (result.data.success && result.data.data !== undefined) {
       result.data = result.data.data
@@ -71,7 +73,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
 
     if (!refreshToken) {
-      handle401Error()
+      // handle401Error()
       return result
     }
 
@@ -103,18 +105,20 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
         // 원래 요청 재시도
         result = await baseQuery(args, api, extraOptions)
       } else {
-        handle401Error()
+        // handle401Error()
       }
     } else {
-      handle401Error()
+      // handle401Error()
     }
   }
 
   // 응답 데이터 변환
+  // Admin 백엔드는 직접 데이터를 반환하므로 success 필드 타입 체크 추가
   if (
     result.data &&
     typeof result.data === 'object' &&
-    'success' in result.data
+    'success' in result.data &&
+    typeof result.data.success === 'boolean'
   ) {
     if (result.data.success && result.data.data !== undefined) {
       result.data = result.data.data

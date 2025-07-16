@@ -18,6 +18,7 @@ import {
   useUpdateTravelPlanMutation,
   useDeleteTravelPlanMutation,
 } from '@/store/api/travelPlansApi'
+import TouristAttractionSection from './TouristAttractionSection'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -140,12 +141,16 @@ export const ContentPage = () => {
           <TabsList>
             <TabsTrigger value="event">축제 이벤트</TabsTrigger>
             <TabsTrigger value="leisure">레저 스포츠</TabsTrigger>
+            <TabsTrigger value="attraction">관광지</TabsTrigger>
           </TabsList>
           <TabsContent value="event">
             <FestivalEventSection />
           </TabsContent>
           <TabsContent value="leisure">
             <LeisureSportsSection />
+          </TabsContent>
+          <TabsContent value="attraction">
+            <TouristAttractionSection />
           </TabsContent>
         </Tabs>
       )}

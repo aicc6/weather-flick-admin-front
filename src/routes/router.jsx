@@ -36,16 +36,6 @@ const WeatherPage = lazy(() =>
     default: module.WeatherPage,
   })),
 )
-const TouristAttractionAdminPage = lazy(() =>
-  import('../pages/TouristAttractionAdminPage').then((module) => ({
-    default: module.default,
-  })),
-)
-const TouristAttractionDetailWrapper = lazy(() =>
-  import('../pages/TouristAttractionDetailWrapper').then((module) => ({
-    default: module.default,
-  })),
-)
 const ContentDetailPage = lazy(() => import('../pages/ContentDetailPage'))
 const BatchManagementPage = lazy(() =>
   import('../pages/batch-management').then((module) => ({
@@ -62,6 +52,8 @@ const FestivalEventDetailPage = lazy(() =>
     default: module.default,
   })),
 )
+const ContactList = lazy(() => import('../pages/Contact/ContactList'))
+const ContactDetail = lazy(() => import('../pages/Contact/ContactDetail'))
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -158,27 +150,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/attractions',
-    element: (
-      <ProtectedLayout>
-        <TouristAttractionAdminPage />
-      </ProtectedLayout>
-    ),
-    meta: {
-      title: '관광지 관리',
-      breadcrumb: ['대시보드', '관광지 관리'],
-    },
+    element: <Navigate to="/content" replace />,
   },
   {
     path: '/attractions/:contentId',
-    element: (
-      <ProtectedLayout>
-        <TouristAttractionDetailWrapper />
-      </ProtectedLayout>
-    ),
-    meta: {
-      title: '관광지 상세',
-      breadcrumb: ['대시보드', '관광지 관리', '상세'],
-    },
+    element: <Navigate to="/content" replace />,
   },
   {
     path: '/content/:contentId',
@@ -228,6 +204,30 @@ export const router = createBrowserRouter([
     meta: {
       title: '지역 관리',
       breadcrumb: ['대시보드', '지역 관리'],
+    },
+  },
+  {
+    path: '/contact',
+    element: (
+      <ProtectedLayout>
+        <ContactList />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '문의 관리',
+      breadcrumb: ['대시보드', '문의 관리'],
+    },
+  },
+  {
+    path: '/contact/:id',
+    element: (
+      <ProtectedLayout>
+        <ContactDetail />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '문의 상세',
+      breadcrumb: ['대시보드', '문의 관리', '상세'],
     },
   },
   {

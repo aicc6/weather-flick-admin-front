@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     skip: true,
   })
 
-  // 초기화 시 Redux store 초기화
+  // 앱 시작 시 인증 상태 초기화
   useEffect(() => {
     dispatch(initializeAuth())
   }, [dispatch])
@@ -64,6 +64,8 @@ export const AuthProvider = ({ children }) => {
         const { data: userData } = await getCurrentUser()
         dispatch(setUser(userData))
       }
+
+      // 사용자 정보를 localStorage에 저장하는 로직은 authSlice에서 처리하므로 제거
 
       return { success: true }
     } catch (error) {

@@ -27,10 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  useGetBatchJobLogsQuery,
-  BATCH_LOG_LEVELS,
-} from '@/store/api/batchApi'
+import { useGetBatchJobLogsQuery, BATCH_LOG_LEVELS } from '@/store/api/batchApi'
 import { cn } from '@/lib/utils'
 
 const LOG_LEVEL_COLORS = {
@@ -72,7 +69,9 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
   // 자동 스크롤
   useEffect(() => {
     if (autoScroll && scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        '[data-radix-scroll-area-viewport]',
+      )
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight
       }
@@ -88,18 +87,25 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
     return () => clearInterval(interval)
   }, [refetch])
 
-  const filteredLogs = logsData?.logs?.filter((log) => {
-    if (searchTerm && !log.message.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false
-    }
-    return true
-  }) || []
+  const filteredLogs =
+    logsData?.logs?.filter((log) => {
+      if (
+        searchTerm &&
+        !log.message.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return false
+      }
+      return true
+    }) || []
 
   const handleExportLogs = () => {
     const logText = filteredLogs
-      .map((log) => `[${new Date(log.timestamp).toLocaleString('ko-KR')}] [${log.level}] ${log.message}`)
+      .map(
+        (log) =>
+          `[${new Date(log.timestamp).toLocaleString('ko-KR')}] [${log.level}] ${log.message}`,
+      )
       .join('\n')
-    
+
     const blob = new Blob([logText], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -125,9 +131,9 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
     <div className="space-y-4">
       {/* 컨트롤 바 */}
       <div className="flex flex-wrap gap-2">
-        <div className="flex-1 min-w-[200px]">
+        <div className="min-w-[200px] flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               placeholder="로그 검색..."
               value={searchTerm}
@@ -169,7 +175,9 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
           )}
         </Button>
         <Button variant="outline" size="sm" onClick={refetch}>
-          <RefreshCw className={cn('mr-1 h-4 w-4', isFetching && 'animate-spin')} />
+          <RefreshCw
+            className={cn('mr-1 h-4 w-4', isFetching && 'animate-spin')}
+          />
           새로고침
         </Button>
         <Button variant="outline" size="sm" onClick={handleExportLogs}>
@@ -195,37 +203,43 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
             ref={scrollAreaRef}
             className={cn(
               'w-full',
-              embedded && !isExpanded ? 'h-[400px]' : 'h-[600px]'
+              embedded && !isExpanded ? 'h-[400px]' : 'h-[600px]',
             )}
           >
             <div className="p-4 font-mono text-sm">
               {isLoading ? (
-                <div className="text-center text-gray-500">로그를 불러오는 중...</div>
+                <div className="text-center text-gray-500">
+                  로그를 불러오는 중...
+                </div>
               ) : filteredLogs.length === 0 ? (
-                <div className="text-center text-gray-500">로그가 없습니다.</div>
+                <div className="text-center text-gray-500">
+                  로그가 없습니다.
+                </div>
               ) : (
                 <div className="space-y-1">
                   {filteredLogs.map((log, index) => (
                     <div
                       key={index}
                       className={cn(
-                        'flex items-start gap-2 p-2 rounded',
-                        LOG_LEVEL_BG_COLORS[log.level] || 'bg-gray-50'
+                        'flex items-start gap-2 rounded p-2',
+                        LOG_LEVEL_BG_COLORS[log.level] || 'bg-gray-50',
                       )}
                     >
-                      <span className="text-gray-500 text-xs whitespace-nowrap">
+                      <span className="text-xs whitespace-nowrap text-gray-500">
                         {formatLogTime(log.timestamp)}
                       </span>
                       <Badge
                         variant="outline"
                         className={cn(
-                          'text-xs px-1.5 py-0',
-                          LOG_LEVEL_COLORS[log.level]
+                          'px-1.5 py-0 text-xs',
+                          LOG_LEVEL_COLORS[log.level],
                         )}
                       >
                         {log.level}
                       </Badge>
-                      <span className={cn('flex-1', LOG_LEVEL_COLORS[log.level])}>
+                      <span
+                        className={cn('flex-1', LOG_LEVEL_COLORS[log.level])}
+                      >
                         {log.message}
                         {log.details && (
                           <pre className="mt-1 text-xs text-gray-600">
@@ -276,7 +290,7 @@ const BatchLogViewer = ({ jobId, embedded = false, onClose }) => {
   if (isExpanded) {
     return (
       <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh]">
+        <DialogContent className="max-h-[90vh] max-w-[90vw]">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>배치 작업 로그 - {jobId}</span>

@@ -468,11 +468,9 @@ const BatchManagement = () => {
           open={!!selectedJobForLogs}
           onOpenChange={(open) => !open && setSelectedJobForLogs(null)}
         >
-          <DialogContent className="max-w-[90vw] max-h-[90vh]">
+          <DialogContent className="max-h-[90vh] max-w-[90vw]">
             <DialogHeader>
-              <DialogTitle>
-                배치 작업 로그 - {selectedJobForLogs}
-              </DialogTitle>
+              <DialogTitle>배치 작업 로그 - {selectedJobForLogs}</DialogTitle>
             </DialogHeader>
             {selectedJobForLogs && (
               <BatchLogViewer

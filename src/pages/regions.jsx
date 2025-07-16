@@ -7,6 +7,8 @@ import {
   ChevronDown,
   MapPin,
   Navigation,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +28,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { PageContainer } from '@/layouts/PageContainer'
 import { PageHeader } from '@/layouts/PageHeader'
@@ -164,6 +168,11 @@ export default function RegionsPage() {
             <span className="text-muted-foreground text-sm">
               ({node.region_code})
             </span>
+            {!node.is_active && (
+              <Badge variant="secondary" className="ml-2">
+                비활성
+              </Badge>
+            )}
             <div className="ml-auto flex gap-2">
               <Button
                 variant="ghost"
@@ -290,10 +299,12 @@ export default function RegionsPage() {
                 <TableRow>
                   <TableHead>지역코드</TableHead>
                   <TableHead>지역명</TableHead>
+                  <TableHead>전체 지역명</TableHead>
                   <TableHead>상위지역</TableHead>
                   <TableHead>레벨</TableHead>
                   <TableHead>위도</TableHead>
                   <TableHead>경도</TableHead>
+                  <TableHead>활성화</TableHead>
                   <TableHead className="text-right">작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -304,10 +315,28 @@ export default function RegionsPage() {
                     <TableCell className="font-medium">
                       {region.region_name}
                     </TableCell>
+                    <TableCell>{region.region_name_full || '-'}</TableCell>
                     <TableCell>{region.parent_region_code || '-'}</TableCell>
                     <TableCell>{region.region_level}</TableCell>
                     <TableCell>{region.latitude?.toFixed(6) || '-'}</TableCell>
                     <TableCell>{region.longitude?.toFixed(6) || '-'}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={region.is_active ? 'success' : 'secondary'}
+                      >
+                        {region.is_active ? (
+                          <>
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            활성
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="mr-1 h-3 w-3" />
+                            비활성
+                          </>
+                        )}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -399,10 +428,12 @@ function RegionFormDialog({
   const [formData, setFormData] = useState({
     region_code: '',
     region_name: '',
+    region_name_full: '',
     parent_region_code: '',
     region_level: '1',
     latitude: '',
     longitude: '',
+    is_active: true,
   })
 
   // 초기 데이터 설정
@@ -412,19 +443,23 @@ function RegionFormDialog({
         setFormData({
           region_code: initialData.region_code || '',
           region_name: initialData.region_name || '',
+          region_name_full: initialData.region_name_full || '',
           parent_region_code: initialData.parent_region_code || '',
           region_level: initialData.region_level?.toString() || '1',
           latitude: initialData.latitude?.toString() || '',
           longitude: initialData.longitude?.toString() || '',
+          is_active: initialData.is_active ?? true,
         })
       } else {
         setFormData({
           region_code: '',
           region_name: '',
+          region_name_full: '',
           parent_region_code: '',
           region_level: '1',
           latitude: '',
           longitude: '',
+          is_active: true,
         })
       }
     }
@@ -483,6 +518,20 @@ function RegionFormDialog({
                 }
                 className="col-span-3"
                 required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="region_name_full" className="text-right">
+                전체 지역명
+              </Label>
+              <Input
+                id="region_name_full"
+                value={formData.region_name_full}
+                onChange={(e) =>
+                  setFormData({ ...formData, region_name_full: e.target.value })
+                }
+                className="col-span-3"
+                placeholder="서울특별시 강남구"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -566,6 +615,23 @@ function RegionFormDialog({
                 className="col-span-3"
                 placeholder="127.123456"
               />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="is_active" className="text-right">
+                활성화 상태
+              </Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Switch
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_active: checked })
+                  }
+                />
+                <Label htmlFor="is_active" className="font-normal">
+                  {formData.is_active ? '활성' : '비활성'}
+                </Label>
+              </div>
             </div>
           </div>
           <DialogFooter>

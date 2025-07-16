@@ -49,6 +49,12 @@ export const ROUTE_META = {
     breadcrumb: ['대시보드', '지역'],
     icon: 'Map',
   },
+  CONTACT: {
+    path: '/contact',
+    title: '문의 관리',
+    breadcrumb: ['대시보드', '문의 관리'],
+    icon: 'MessageSquare',
+  },
 }
 
 // 네비게이션 메뉴 구성
@@ -58,7 +64,7 @@ export const NAVIGATION_ITEMS = [
   ROUTE_META.ADMINS,
   ROUTE_META.CONTENT,
   ROUTE_META.WEATHER,
-  ROUTE_META.TOURIST_ATTRACTIONS,
   ROUTE_META.REGIONS,
+  ROUTE_META.CONTACT,
   ROUTE_META.BATCH_MANAGEMENT,
 ]
