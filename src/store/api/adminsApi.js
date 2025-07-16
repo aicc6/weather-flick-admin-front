@@ -4,7 +4,7 @@ import { baseQueryWithReauth } from './baseQuery'
 export const adminsApi = createApi({
   reducerPath: 'adminsApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Admin'],
+  tagTypes: ['Admin', 'Role'],
   endpoints: (builder) => ({
     getAdmins: builder.query({
       query: (params) => {
@@ -94,6 +94,11 @@ export const adminsApi = createApi({
         { type: 'Admin', id: adminId },
       ],
     }),
+
+    getRoles: builder.query({
+      query: () => '/api/admins/roles',
+      providesTags: ['Role'],
+    }),
   }),
 })
 
@@ -108,4 +113,5 @@ export const {
   useDeleteAdminPermanentlyMutation,
   useResetAdminPasswordMutation,
   useUpdateAdminStatusMutation,
+  useGetRolesQuery,
 } = adminsApi

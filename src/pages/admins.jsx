@@ -7,6 +7,7 @@ import {
   useDeleteAdminMutation,
   useDeleteAdminPermanentlyMutation,
   useUpdateAdminStatusMutation,
+  useGetRolesQuery,
 } from '@/store/api/adminsApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +30,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2, Shield, User } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -66,6 +68,8 @@ export const AdminsPage = () => {
     refetch: _refetchAdmins,
   } = useGetAdminsQuery({ page: 1, size: 50 })
 
+  const { data: rolesData } = useGetRolesQuery()
+
   const [createAdminMutation] = useCreateAdminMutation()
   const [updateAdminMutation] = useUpdateAdminMutation()
   const [deleteAdminMutation] = useDeleteAdminMutation()
@@ -80,18 +84,21 @@ export const AdminsPage = () => {
   const [selectedAdmin, setSelectedAdmin] = useState(null)
   const [formData, setFormData] = useState({
     email: '',
-    username: '',
+    name: '',
     password: '',
+    is_superuser: false,
+    role_ids: [],
   })
 
   // 관리자 목록 (RTK Query 데이터에서 가져오기)
   const admins = adminsData?.admins || []
+  const roles = rolesData?.roles || []
 
   const handleCreateAdmin = async () => {
     try {
       await createAdminMutation(formData).unwrap()
       setIsCreateDialogOpen(false)
-      setFormData({ email: '', username: '', password: '' })
+      setFormData({ email: '', name: '', password: '', is_superuser: false, role_ids: [] })
     } catch (error) {
       console.error('관리자 생성에 실패했습니다:', error)
     }
@@ -105,7 +112,7 @@ export const AdminsPage = () => {
       }).unwrap()
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
-      setFormData({ email: '', username: '', password: '' })
+      setFormData({ email: '', name: '', password: '', is_superuser: false, role_ids: [] })
     } catch (error) {
       console.error('관리자 수정에 실패했습니다:', error)
     }
@@ -149,8 +156,8 @@ export const AdminsPage = () => {
     (admin) => {
       const matchesSearch =
         admin.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        admin.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        admin.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        admin.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        admin.username?.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesStatus =
         statusFilter === 'all' ||
@@ -268,7 +275,7 @@ export const AdminsPage = () => {
                         ) : (
                           <User className="h-4 w-4 text-gray-600" />
                         )}
-                        <span>{admin.username}</span>
+                        <span>{admin.name || admin.username}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -294,8 +301,10 @@ export const AdminsPage = () => {
                           setSelectedAdmin(admin)
                           setFormData({
                             email: admin.email,
-                            username: admin.username,
+                            name: admin.name || admin.username,
                             password: '',
+                            is_superuser: admin.is_superuser,
+                            role_ids: [],
                           })
                           setIsEditDialogOpen(true)
                         }}
@@ -351,14 +360,14 @@ export const AdminsPage = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
+              <Label htmlFor="name" className="text-right">
                 사용자명
               </Label>
               <StandardInput
-                id="username"
-                value={formData.username}
+                id="name"
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
                 className="col-span-3"
                 required
@@ -378,6 +387,71 @@ export const AdminsPage = () => {
                 className="col-span-3"
                 required
               />
+            </div>
+            
+            {/* 권한 선택 */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                권한
+              </Label>
+              <div className="col-span-3 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="is_superuser"
+                    checked={formData.is_superuser}
+                    onCheckedChange={(checked) =>
+                      setFormData({ 
+                        ...formData, 
+                        is_superuser: checked,
+                        role_ids: checked ? [] : formData.role_ids
+                      })
+                    }
+                  />
+                  <Label htmlFor="is_superuser" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    슈퍼관리자 권한
+                  </Label>
+                </div>
+                
+                {!formData.is_superuser && (
+                  <div className="space-y-2">
+                    <Label className="text-sm text-gray-600">일반 관리자 역할 선택:</Label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto border rounded p-2">
+                      {roles.map((role) => (
+                        <div key={role.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`role_${role.id}`}
+                            checked={formData.role_ids.includes(role.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  role_ids: [...formData.role_ids, role.id]
+                                })
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  role_ids: formData.role_ids.filter(id => id !== role.id)
+                                })
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`role_${role.id}`} className="text-sm">
+                            {role.display_name}
+                            {role.description && (
+                              <span className="text-gray-500 text-xs block">
+                                {role.description}
+                              </span>
+                            )}
+                          </Label>
+                        </div>
+                      ))}
+                      {roles.length === 0 && (
+                        <p className="text-sm text-gray-500">사용 가능한 역할이 없습니다.</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -418,14 +492,14 @@ export const AdminsPage = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-username" className="text-right">
+              <Label htmlFor="edit-name" className="text-right">
                 사용자명
               </Label>
               <StandardInput
-                id="edit-username"
-                value={formData.username}
+                id="edit-name"
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
                 className="col-span-3"
                 required
@@ -470,7 +544,7 @@ export const AdminsPage = () => {
               관리자 {user?.is_superuser ? '영구 삭제' : '비활성화'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedAdmin?.username || selectedAdmin?.email} 관리자를{' '}
+              {selectedAdmin?.name || selectedAdmin?.username || selectedAdmin?.email} 관리자를{' '}
               {user?.is_superuser
                 ? '영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 관련 데이터가 삭제됩니다.'
                 : '비활성화하시겠습니까? 비활성화된 관리자는 로그인할 수 없습니다.'}
