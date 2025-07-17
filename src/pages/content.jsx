@@ -19,6 +19,8 @@ import {
   useDeleteTravelPlanMutation,
 } from '@/store/api/travelPlansApi'
 import TouristAttractionSection from './TouristAttractionSection'
+import AccommodationSection from './AccommodationSection'
+import RestaurantSection from './RestaurantSection'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -145,6 +147,8 @@ export const ContentPage = () => {
             <TabsTrigger value="event">축제 이벤트</TabsTrigger>
             <TabsTrigger value="leisure">레저 스포츠</TabsTrigger>
             <TabsTrigger value="attraction">관광지</TabsTrigger>
+            <TabsTrigger value="accommodation">숙박시설</TabsTrigger>
+            <TabsTrigger value="restaurant">음식점</TabsTrigger>
           </TabsList>
           <TabsContent value="event">
             <FestivalEventSection />
@@ -154,6 +158,12 @@ export const ContentPage = () => {
           </TabsContent>
           <TabsContent value="attraction">
             <TouristAttractionSection />
+          </TabsContent>
+          <TabsContent value="accommodation">
+            <AccommodationSection />
+          </TabsContent>
+          <TabsContent value="restaurant">
+            <RestaurantSection />
           </TabsContent>
         </Tabs>
       )}

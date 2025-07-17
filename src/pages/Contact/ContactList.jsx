@@ -25,10 +25,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import { toast } from 'react-hot-toast'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 
 const ContactList = () => {
   const navigate = useNavigate()
@@ -37,13 +44,16 @@ const ContactList = () => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [statsLoading, setStatsLoading] = useState(true)
+  const [totalCount, setTotalCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const [filters, setFilters] = useState({
     search: '',
     category: '',
     status: '',
     skip: 0,
-    limit: 20,
+    limit: 10,
   })
 
   // 통계 데이터는 최초 1회만 로드
@@ -79,6 +89,14 @@ const ContactList = () => {
       setLoading(true)
       const contactsData = await contactApi.getContacts(filters)
       setContacts(contactsData || [])
+
+      // API가 전체 카운트를 반환하지 않으므로 추정값 사용
+      // 전체 페이지가 있다고 가정 (다음 페이지가 있는지로 판단)
+      if (contactsData && contactsData.length >= filters.limit) {
+        setTotalCount((currentPage + 1) * filters.limit)
+      } else {
+        setTotalCount(filters.skip + (contactsData?.length || 0))
+      }
     } catch (error) {
       console.error('Failed to load contacts:', error)
       toast.error('문의 목록을 불러오는데 실패했습니다.')
@@ -88,10 +106,12 @@ const ContactList = () => {
   }
 
   const handleSearch = (value) => {
+    setCurrentPage(1)
     setFilters((prev) => ({ ...prev, search: value, skip: 0 }))
   }
 
   const handleCategoryChange = (value) => {
+    setCurrentPage(1)
     setFilters((prev) => ({
       ...prev,
       category: value === 'all' ? '' : value,
@@ -100,9 +120,21 @@ const ContactList = () => {
   }
 
   const handleStatusChange = (value) => {
+    setCurrentPage(1)
     setFilters((prev) => ({
       ...prev,
       status: value === 'all' ? '' : value,
+      skip: 0,
+    }))
+  }
+
+  const handlePageSizeChange = (newSize) => {
+    const newPageSize = parseInt(newSize)
+    setPageSize(newPageSize)
+    setCurrentPage(1)
+    setFilters((prev) => ({
+      ...prev,
+      limit: newPageSize,
       skip: 0,
     }))
   }
@@ -124,13 +156,11 @@ const ContactList = () => {
     navigate(`/contact/${id}`)
   }
 
-  const handlePageChange = (direction) => {
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
     setFilters((prev) => ({
       ...prev,
-      skip:
-        direction === 'next'
-          ? prev.skip + prev.limit
-          : Math.max(0, prev.skip - prev.limit),
+      skip: (page - 1) * prev.limit,
     }))
   }
 
@@ -326,29 +356,78 @@ const ContactList = () => {
             </TableBody>
           </Table>
 
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-muted-foreground text-sm">
-              총 {contacts.length}개 항목
+          {/* 페이지네이션 */}
+          {!loading && contacts.length > 0 && (
+            <div className="mt-4 flex flex-col gap-4">
+              {/* 페이지 크기 선택 및 현재 표시 정보 */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground text-sm">
+                    페이지당 표시:
+                  </span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={handlePageSizeChange}
+                  >
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="text-muted-foreground text-sm">
+                  {contacts.length > 0 &&
+                    `${filters.skip + 1}-${filters.skip + contacts.length}개 표시`}
+                </div>
+              </div>
+
+              {/* 페이지 네비게이션 */}
+              <div className="flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className={
+                          currentPage === 1
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+
+                    {/* 페이지 번호 표시 - 간단한 로직 */}
+                    <PaginationItem>
+                      <PaginationLink
+                        onClick={() => handlePageChange(currentPage)}
+                        isActive={true}
+                        className="cursor-pointer"
+                      >
+                        {currentPage}
+                      </PaginationLink>
+                    </PaginationItem>
+
+                    {/* 다음 페이지가 있을 때만 다음 버튼 활성화 */}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className={
+                          contacts.length < pageSize
+                            ? 'pointer-events-none opacity-50'
+                            : 'cursor-pointer'
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange('prev')}
-                disabled={filters.skip === 0}
-              >
-                이전
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange('next')}
-                disabled={contacts.length < filters.limit}
-              >
-                다음
-              </Button>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>

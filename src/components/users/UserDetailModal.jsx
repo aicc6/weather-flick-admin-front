@@ -38,19 +38,19 @@ export const UserDetailModal = ({ user, isOpen, onClose }) => {
             <h3 className="mb-3 text-lg font-semibold">기본 정보</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">이메일</p>
+                <p className="text-muted-foreground text-sm">이메일</p>
                 <p className="font-medium">{user.email}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">닉네임</p>
+                <p className="text-muted-foreground text-sm">닉네임</p>
                 <p className="font-medium">{user.nickname || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">이름</p>
+                <p className="text-muted-foreground text-sm">이름</p>
                 <p className="font-medium">{user.name || '-'}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">전화번호</p>
+                <p className="text-muted-foreground text-sm">전화번호</p>
                 <p className="font-medium">{user.phone || '-'}</p>
               </div>
             </div>
@@ -63,7 +63,7 @@ export const UserDetailModal = ({ user, isOpen, onClose }) => {
             <h3 className="mb-3 text-lg font-semibold">계정 상태</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">상태</p>
+                <p className="text-muted-foreground text-sm">상태</p>
                 <div className="mt-1">
                   <Badge variant={user.is_active ? 'success' : 'destructive'}>
                     {user.is_active ? '활성' : '비활성'}
@@ -71,7 +71,7 @@ export const UserDetailModal = ({ user, isOpen, onClose }) => {
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">권한</p>
+                <p className="text-muted-foreground text-sm">권한</p>
                 <div className="mt-1">
                   <Badge variant={user.is_superuser ? 'success' : 'outline'}>
                     {user.is_superuser ? '슈퍼유저' : '일반'}
@@ -88,14 +88,12 @@ export const UserDetailModal = ({ user, isOpen, onClose }) => {
             <h3 className="mb-3 text-lg font-semibold">활동 정보</h3>
             <div className="space-y-2">
               <div>
-                <p className="text-sm text-muted-foreground">가입일</p>
+                <p className="text-muted-foreground text-sm">가입일</p>
                 <p className="font-medium">{formatDate(user.created_at)}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">마지막 로그인</p>
-                <p className="font-medium">
-                  {formatDate(user.last_login_at)}
-                </p>
+                <p className="text-muted-foreground text-sm">마지막 로그인</p>
+                <p className="font-medium">{formatDate(user.last_login_at)}</p>
               </div>
             </div>
           </div>

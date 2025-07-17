@@ -73,7 +73,7 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
 
     if (!refreshToken) {
-      // handle401Error()
+      handle401Error()
       return result
     }
 
@@ -105,10 +105,10 @@ export const baseQueryWithReauth = async (args, api, extraOptions) => {
         // 원래 요청 재시도
         result = await baseQuery(args, api, extraOptions)
       } else {
-        // handle401Error()
+        handle401Error()
       }
     } else {
-      // handle401Error()
+      handle401Error()
     }
   }
 

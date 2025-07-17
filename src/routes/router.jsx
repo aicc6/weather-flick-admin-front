@@ -31,6 +31,11 @@ const UsersPage = lazy(() =>
     default: module.UsersPage,
   })),
 )
+const UserDetailPage = lazy(() =>
+  import('../pages/UserDetail').then((module) => ({
+    default: module.UserDetailPage,
+  })),
+)
 const ContentPage = lazy(() =>
   import('../pages/content').then((module) => ({
     default: module.ContentPage,
@@ -146,6 +151,18 @@ export const router = createBrowserRouter([
     meta: {
       title: '사용자 관리',
       breadcrumb: ['대시보드', '사용자 관리'],
+    },
+  },
+  {
+    path: '/users/:userId',
+    element: (
+      <ProtectedLayout>
+        <UserDetailPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '사용자 상세',
+      breadcrumb: ['대시보드', '사용자 관리', '상세'],
     },
   },
   {

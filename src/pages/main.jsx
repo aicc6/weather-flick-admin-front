@@ -3,6 +3,7 @@ import { Users, Shield, BookOpen, Calendar, Dumbbell } from 'lucide-react'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { UserInfoCard } from '@/components/common/UserInfoCard'
 import { StatsCard } from '@/components/common/StatsCard'
+import { StatsCardSkeleton } from '@/components/common/StatsCardSkeleton'
 import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
 import { SystemStatusCard } from '@/components/common/SystemStatusCard'
 import { StatsGrid } from '@/layouts/StatsGrid'
@@ -14,7 +15,12 @@ import { Link } from 'react-router-dom'
 
 export const MainPage = () => {
   const { user } = useAuth()
-  const { userSummary, adminSummary, weatherData } = useDashboardData()
+  const {
+    userSummary,
+    adminSummary,
+    weatherData,
+    isLoading: dashboardLoading,
+  } = useDashboardData()
 
   // 컨텐츠 관리 요약 데이터
   const { data: travelCourseData } = useGetTravelCoursesQuery({
@@ -42,26 +48,35 @@ export const MainPage = () => {
         <h2 className="mb-4 text-lg font-semibold">사용자 및 관리자 현황</h2>
         <StatsGrid>
           <UserInfoCard user={user} />
-          <StatsCard
-            title="사용자 관리"
-            description="총/활성/비활성 사용자"
-            icon={Users}
-            iconColor="text-primary"
-            total={userSummary.total}
-            active={userSummary.active}
-            inactive={userSummary.inactive}
-            totalColor="text-primary"
-          />
-          <StatsCard
-            title="관리자 요약"
-            description="총/활성/비활성 관리자"
-            icon={Shield}
-            iconColor="text-purple-500"
-            total={adminSummary.total}
-            active={adminSummary.active}
-            inactive={adminSummary.inactive}
-            totalColor="text-purple-600"
-          />
+          {dashboardLoading ? (
+            <>
+              <StatsCardSkeleton />
+              <StatsCardSkeleton />
+            </>
+          ) : (
+            <>
+              <StatsCard
+                title="사용자 관리"
+                description="총/활성/비활성 사용자"
+                icon={Users}
+                iconColor="text-primary"
+                total={userSummary.total}
+                active={userSummary.active}
+                inactive={userSummary.inactive}
+                totalColor="text-primary"
+              />
+              <StatsCard
+                title="관리자 요약"
+                description="총/활성/비활성 관리자"
+                icon={Shield}
+                iconColor="text-purple-500"
+                total={adminSummary.total}
+                active={adminSummary.active}
+                inactive={adminSummary.inactive}
+                totalColor="text-purple-600"
+              />
+            </>
+          )}
         </StatsGrid>
       </ContentSection>
 

@@ -4,13 +4,25 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { toast } from '@/components/ui/use-toast'
-import { Search, Plus, Edit, MapPin, Database, Settings } from 'lucide-react'
+import { Search, Edit, MapPin } from 'lucide-react'
 
 /**
  * 지역 관리 컴포넌트
@@ -32,7 +44,7 @@ export default function RegionManagement() {
     try {
       const response = await fetch('/api/admin/regions')
       if (!response.ok) throw new Error('Failed to fetch regions')
-      
+
       const data = await response.json()
       setRegions(data.regions || [])
     } catch (error) {
@@ -52,10 +64,11 @@ export default function RegionManagement() {
   }, [])
 
   // 검색 필터링
-  const filteredRegions = regions.filter(region =>
-    region.region_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    region.region_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    region.region_name_full?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRegions = regions.filter(
+    (region) =>
+      region.region_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      region.region_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      region.region_name_full?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   // 편집 모달 열기
@@ -83,16 +96,21 @@ export default function RegionManagement() {
         longitude: editForm.longitude ? parseFloat(editForm.longitude) : null,
         grid_x: editForm.grid_x ? parseInt(editForm.grid_x) : null,
         grid_y: editForm.grid_y ? parseInt(editForm.grid_y) : null,
-        api_mappings: editForm.api_mappings ? JSON.parse(editForm.api_mappings) : {},
+        api_mappings: editForm.api_mappings
+          ? JSON.parse(editForm.api_mappings)
+          : {},
       }
 
-      const response = await fetch(`/api/admin/regions/${selectedRegion.region_code}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/admin/regions/${selectedRegion.region_code}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData),
         },
-        body: JSON.stringify(updateData),
-      })
+      )
 
       if (!response.ok) throw new Error('Failed to update region')
 
@@ -116,9 +134,12 @@ export default function RegionManagement() {
   // 좌표 일괄 업데이트
   const handleBulkCoordinateUpdate = async () => {
     try {
-      const response = await fetch('/api/admin/regions/coordinates/bulk-update', {
-        method: 'POST',
-      })
+      const response = await fetch(
+        '/api/admin/regions/coordinates/bulk-update',
+        {
+          method: 'POST',
+        },
+      )
 
       if (!response.ok) throw new Error('Failed to bulk update coordinates')
 
@@ -140,10 +161,10 @@ export default function RegionManagement() {
 
   const stats = {
     total: regions.length,
-    active: regions.filter(r => r.is_active).length,
-    provinces: regions.filter(r => r.region_level === 1).length,
-    cities: regions.filter(r => r.region_level === 2).length,
-    withCoordinates: regions.filter(r => r.latitude && r.longitude).length,
+    active: regions.filter((r) => r.is_active).length,
+    provinces: regions.filter((r) => r.region_level === 1).length,
+    cities: regions.filter((r) => r.region_level === 2).length,
+    withCoordinates: regions.filter((r) => r.latitude && r.longitude).length,
   }
 
   return (
@@ -169,31 +190,31 @@ export default function RegionManagement() {
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">총 지역</p>
+            <p className="text-muted-foreground text-xs">총 지역</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">활성 지역</p>
+            <p className="text-muted-foreground text-xs">활성 지역</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold">{stats.provinces}</div>
-            <p className="text-xs text-muted-foreground">광역시도</p>
+            <p className="text-muted-foreground text-xs">광역시도</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold">{stats.cities}</div>
-            <p className="text-xs text-muted-foreground">시군구</p>
+            <p className="text-muted-foreground text-xs">시군구</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold">{stats.withCoordinates}</div>
-            <p className="text-xs text-muted-foreground">좌표 보유</p>
+            <p className="text-muted-foreground text-xs">좌표 보유</p>
           </CardContent>
         </Card>
       </div>
@@ -204,7 +225,7 @@ export default function RegionManagement() {
           <CardTitle>지역 목록</CardTitle>
           <div className="flex items-center space-x-2">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
               <Input
                 placeholder="지역명, 지역코드로 검색..."
                 value={searchTerm}
@@ -250,16 +271,22 @@ export default function RegionManagement() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{region.region_name}</div>
+                          <div className="font-medium">
+                            {region.region_name}
+                          </div>
                           {region.region_name_full && (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               {region.region_name_full}
                             </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={region.region_level === 1 ? 'default' : 'secondary'}>
+                        <Badge
+                          variant={
+                            region.region_level === 1 ? 'default' : 'secondary'
+                          }
+                        >
                           {region.region_level === 1 ? '광역시도' : '시군구'}
                         </Badge>
                       </TableCell>
@@ -276,19 +303,24 @@ export default function RegionManagement() {
                       <TableCell>
                         {region.grid_x && region.grid_y ? (
                           <div className="text-sm">
-                            <span>({region.grid_x}, {region.grid_y})</span>
+                            <span>
+                              ({region.grid_x}, {region.grid_y})
+                            </span>
                           </div>
                         ) : (
                           <span className="text-muted-foreground">없음</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={region.is_active ? 'default' : 'destructive'}>
+                        <Badge
+                          variant={region.is_active ? 'default' : 'destructive'}
+                        >
                           {region.is_active ? '활성' : '비활성'}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {region.api_mappings && Object.keys(region.api_mappings).length > 0 ? (
+                        {region.api_mappings &&
+                        Object.keys(region.api_mappings).length > 0 ? (
                           <Badge variant="outline">
                             {Object.keys(region.api_mappings).length}개
                           </Badge>
@@ -336,7 +368,12 @@ export default function RegionManagement() {
                       <Input
                         id="region_name"
                         value={editForm.region_name}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, region_name: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            region_name: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -344,7 +381,12 @@ export default function RegionManagement() {
                       <Input
                         id="region_name_full"
                         value={editForm.region_name_full}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, region_name_full: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            region_name_full: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -352,7 +394,9 @@ export default function RegionManagement() {
                     <Switch
                       id="is_active"
                       checked={editForm.is_active}
-                      onCheckedChange={(checked) => setEditForm(prev => ({ ...prev, is_active: checked }))}
+                      onCheckedChange={(checked) =>
+                        setEditForm((prev) => ({ ...prev, is_active: checked }))
+                      }
                     />
                     <Label htmlFor="is_active">활성 상태</Label>
                   </div>
@@ -367,7 +411,12 @@ export default function RegionManagement() {
                         type="number"
                         step="0.000001"
                         value={editForm.latitude}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, latitude: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            latitude: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -377,7 +426,12 @@ export default function RegionManagement() {
                         type="number"
                         step="0.000001"
                         value={editForm.longitude}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, longitude: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            longitude: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -388,7 +442,12 @@ export default function RegionManagement() {
                         id="grid_x"
                         type="number"
                         value={editForm.grid_x}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, grid_x: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            grid_x: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -397,7 +456,12 @@ export default function RegionManagement() {
                         id="grid_y"
                         type="number"
                         value={editForm.grid_y}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, grid_y: e.target.value }))}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            grid_y: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -410,10 +474,15 @@ export default function RegionManagement() {
                       id="api_mappings"
                       rows={10}
                       value={editForm.api_mappings}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, api_mappings: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          api_mappings: e.target.value,
+                        }))
+                      }
                       className="font-mono text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       JSON 형식으로 API 매핑 정보를 입력하세요.
                     </p>
                   </div>
@@ -421,12 +490,13 @@ export default function RegionManagement() {
               </Tabs>
 
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
                   취소
                 </Button>
-                <Button onClick={handleSaveRegion}>
-                  저장
-                </Button>
+                <Button onClick={handleSaveRegion}>저장</Button>
               </div>
             </div>
           )}

@@ -36,9 +36,9 @@ export const touristAttractionsApi = createApi({
 
     // 관광지 검색
     searchTouristAttractions: builder.query({
-      query: ({ keyword }) => ({
+      query: (params) => ({
         url: '/api/tourist-attractions/search/',
-        params: { keyword },
+        params,
       }),
       providesTags: ['TouristAttraction'],
       keepUnusedDataFor: 60, // 1분 캐싱
