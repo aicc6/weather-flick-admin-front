@@ -476,33 +476,16 @@ function TravelCoursesSection() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-16">이미지</TableHead>
                     <TableHead className="min-w-[200px]">코스명</TableHead>
                     <TableHead>지역</TableHead>
-                    <TableHead>테마</TableHead>
-                    <TableHead>거리</TableHead>
-                    <TableHead>소요시간</TableHead>
-                    <TableHead>난이도</TableHead>
-                    <TableHead>등록일</TableHead>
+                    <TableHead>카테고리</TableHead>
+                    <TableHead>주소</TableHead>
                     <TableHead className="w-[100px]">액션</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.items.map((course) => (
                     <TableRow key={course.content_id}>
-                      <TableCell className="w-16">
-                        {course.first_image ? (
-                          <img
-                            src={course.first_image}
-                            alt={course.course_name}
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
-                            이미지 없음
-                          </div>
-                        )}
-                      </TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           <Link
@@ -525,38 +508,11 @@ function TravelCoursesSection() {
                           {REGION_MAP[course.region_code] || course.region_code}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {course.course_theme || '-'}
+                      <TableCell className="text-muted-foreground">
+                        {course.category_name || '-'}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {course.course_distance || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {course.required_time || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {course.difficulty_level ? (
-                          <Badge
-                            variant={
-                              course.difficulty_level === '쉬움'
-                                ? 'default'
-                                : course.difficulty_level === '보통'
-                                  ? 'secondary'
-                                  : course.difficulty_level === '어려움'
-                                    ? 'destructive'
-                                    : 'outline'
-                            }
-                          >
-                            {course.difficulty_level}
-                          </Badge>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {course.created_at
-                          ? course.created_at.split('T')[0]
-                          : '-'}
+                      <TableCell className="text-muted-foreground">
+                        {course.address || '-'}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
