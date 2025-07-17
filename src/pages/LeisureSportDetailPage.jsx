@@ -1,61 +1,25 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { authHttp } from '@/lib/http'
-import { REGION_MAP } from '@/constants/region'
+import React from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 
-function InfoRow({ label, value }) {
-  if (!value) return null
-  return (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-      <div
-        style={{ minWidth: 90, fontWeight: 600, color: '#333', fontSize: 16 }}
-      >
-        {label}
-      </div>
-      <div
-        style={{ flex: 1, color: '#444', fontSize: 16, wordBreak: 'break-all' }}
-      >
-        {value}
-      </div>
-    </div>
-  )
-}
-
-export default function TouristAttractionDetail({ contentId, onBack }) {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+function LeisureSportDetailPage() {
+  const { contentId } = useParams()
   const navigate = useNavigate()
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['leisure-sport', contentId],
+    queryFn: () =>
+      fetch(`/api/leisure-sports/${contentId}`).then((res) => res.json()),
+    enabled: !!contentId,
+  })
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await authHttp.GET(`/api/tourist-attractions/${contentId}`)
-        if (!res.ok) throw new Error('데이터를 불러올 수 없습니다.')
-        const result = await res.json()
-        setData(result)
-      } catch (e) {
-        setError(e.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-    if (contentId) fetchData()
-  }, [contentId])
-
-  if (loading)
-    return (
-      <div style={{ padding: 40, textAlign: 'center' }}>불러오는 중...</div>
-    )
-  if (error)
+  if (isLoading)
+    return <div style={{ padding: 40, textAlign: 'center' }}>로딩 중...</div>
+  if (error || data?.error)
     return (
       <div style={{ padding: 40, textAlign: 'center', color: '#d32f2f' }}>
-        {error}
+        데이터를 불러올 수 없습니다.
       </div>
     )
-  if (!data) return null
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 16px' }}>
@@ -67,12 +31,11 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
           gap: 32,
         }}
       >
-        {/* 이미지 + 제목 오버레이 */}
         <div style={{ position: 'relative', width: '100%', maxWidth: 600 }}>
-          {data.image_url ? (
+          {data.first_image && (
             <img
-              src={data.image_url}
-              alt={data.attraction_name}
+              src={data.first_image}
+              alt={data.facility_name}
               style={{
                 width: '100%',
                 borderRadius: 16,
@@ -82,26 +45,8 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
                 maxHeight: 400,
               }}
             />
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                minHeight: 240,
-                maxHeight: 400,
-                borderRadius: 16,
-                background: '#f3f4f6',
-                color: '#aaa',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 20,
-                fontWeight: 500,
-                boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-              }}
-            >
-              이미지 없음
-            </div>
           )}
+          {/* 제목 오버레이 */}
           <div
             style={{
               position: 'absolute',
@@ -120,10 +65,9 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
               textShadow: '0 2px 8px rgba(0,0,0,0.18)',
             }}
           >
-            {data.attraction_name}
+            {data.facility_name}
           </div>
         </div>
-        {/* 정보 카드 */}
         <div
           style={{
             width: '100%',
@@ -137,8 +81,8 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
             gap: 18,
           }}
         >
-          {/* 설명(overview) 섹션 - 맨 위 */}
-          {data.description && (
+          {/* 설명(overview) 섹션 - 맨 위로 이동 */}
+          {data.overview && (
             <div
               style={{
                 marginBottom: 24,
@@ -154,28 +98,28 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
                   color: '#333',
                 }}
               >
-                관광지 소개
+                시설 소개
               </div>
               <div style={{ color: '#555', fontSize: 16, lineHeight: 1.7 }}>
-                {data.description}
+                {data.overview}
               </div>
             </div>
           )}
-          <InfoRow label="카테고리" value={data.category_name} />
           <InfoRow
-            label="지역"
-            value={REGION_MAP[String(data.region_code)] || data.region_code}
+            label="주소"
+            value={`${data.address || ''} ${data.detail_address || ''}`}
           />
-          <InfoRow label="주소" value={data.address} />
-          <InfoRow label="전화" value={data.telname} />
-          <InfoRow label="팩스" value={data.faxno} />
-          <InfoRow label="우편번호" value={data.zipcode} />
-          <InfoRow label="북투어" value={data.booktour} />
-          <InfoRow label="레벨" value={data.mlevel} />
-          {/* 목록으로 돌아가기 버튼 */}
+          <InfoRow label="입장료" value={data.admission_fee} />
+          <InfoRow label="운영시간" value={data.operating_hours} />
+          <InfoRow label="예약" value={data.reservation_info} />
+          <InfoRow label="주차" value={data.parking_info} />
+          <InfoRow label="장비대여" value={data.rental_info} />
+          <InfoRow label="수용인원" value={data.capacity} />
+          <InfoRow label="연락처" value={data.tel} />
+          {/* 홈페이지 InfoRow 제거, 아래에 목록으로 돌아가기 버튼 추가 */}
           <div style={{ marginTop: 32, textAlign: 'center' }}>
             <button
-              onClick={() => (onBack ? onBack() : navigate('/content'))}
+              onClick={() => navigate('/content')}
               style={{
                 background: '#1976d2',
                 color: '#fff',
@@ -201,3 +145,23 @@ export default function TouristAttractionDetail({ contentId, onBack }) {
     </div>
   )
 }
+
+function InfoRow({ label, value }) {
+  if (!value) return null
+  return (
+    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+      <div
+        style={{ minWidth: 90, fontWeight: 600, color: '#333', fontSize: 16 }}
+      >
+        {label}
+      </div>
+      <div
+        style={{ flex: 1, color: '#444', fontSize: 16, wordBreak: 'break-all' }}
+      >
+        {value}
+      </div>
+    </div>
+  )
+}
+
+export default LeisureSportDetailPage

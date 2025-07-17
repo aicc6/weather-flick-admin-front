@@ -106,6 +106,7 @@ export const LoginPage = () => {
                     placeholder="비밀번호를 입력하세요"
                     className="pr-10"
                     required
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"

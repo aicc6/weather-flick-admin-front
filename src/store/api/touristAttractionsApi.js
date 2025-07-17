@@ -78,6 +78,15 @@ export const touristAttractionsApi = createApi({
         { type: 'TouristAttraction', id: 'LIST' },
       ],
     }),
+
+    // 카테고리 목록 조회
+    getCategories: builder.query({
+      query: (params = {}) => ({
+        url: '/admin/categories/',
+        params,
+      }),
+      keepUnusedDataFor: 600,
+    }),
   }),
 })
 
@@ -88,4 +97,5 @@ export const {
   useCreateTouristAttractionMutation,
   useUpdateTouristAttractionMutation,
   useDeleteTouristAttractionMutation,
+  useGetCategoriesQuery, // 추가
 } = touristAttractionsApi

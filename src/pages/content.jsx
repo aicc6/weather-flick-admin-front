@@ -92,6 +92,9 @@ import {
   StyledCard,
   StyledCardContent,
 } from '@/components/common'
+import { QueryClient } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 const REGION_OPTIONS = Object.entries(REGION_MAP)
 
@@ -1890,7 +1893,12 @@ function LeisureSportsSection() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{row.facility_name}</div>
+                        <Link
+                          to={`/leisure-sports/${row.content_id}`}
+                          className="text-primary font-medium hover:underline"
+                        >
+                          {row.facility_name}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">

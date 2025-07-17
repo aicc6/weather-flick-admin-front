@@ -5,6 +5,7 @@ import {
   useCreateTouristAttractionMutation,
   useUpdateTouristAttractionMutation,
   useDeleteTouristAttractionMutation,
+  useGetCategoriesQuery,
 } from '@/store/api/touristAttractionsApi'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,7 +59,6 @@ import {
   Plus,
   Search,
   MapPin,
-  Image,
 } from 'lucide-react'
 import {
   Pagination,
@@ -78,18 +78,9 @@ import {
 } from '@/components/common'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Link } from 'react-router-dom'
 
 const REGION_OPTIONS = Object.entries(REGION_MAP)
-
-const CATEGORY_OPTIONS = [
-  { value: 'A01', label: '자연' },
-  { value: 'A02', label: '문화시설' },
-  { value: 'A03', label: '축제공연행사' },
-  { value: 'A04', label: '여행코스' },
-  { value: 'A05', label: '레포츠' },
-  { value: 'B02', label: '숙박' },
-  { value: 'C01', label: '쇼핑' },
-]
 
 function TouristAttractionSection() {
   const [page, setPage] = useState(1)
@@ -131,6 +122,18 @@ function TouristAttractionSection() {
   const [createTouristAttraction] = useCreateTouristAttractionMutation()
   const [updateTouristAttraction] = useUpdateTouristAttractionMutation()
   const [deleteTouristAttraction] = useDeleteTouristAttractionMutation()
+
+  // 카테고리 API 호출
+  const {
+    data: categoryData,
+    isLoading: categoryLoading,
+    error: categoryError,
+  } = useGetCategoriesQuery({ category_level: 1 })
+  console.log('categoryData:', categoryData)
+  const CATEGORY_OPTIONS = (categoryData?.categories || []).map((cat) => ({
+    value: cat.category_code,
+    label: cat.category_name,
+  }))
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editData, setEditData] = useState(null)
@@ -472,8 +475,6 @@ function TouristAttractionSection() {
                       <TableHead className="min-w-[100px]">카테고리</TableHead>
                       <TableHead className="min-w-[100px]">지역</TableHead>
                       <TableHead className="min-w-[200px]">주소</TableHead>
-                      <TableHead className="text-center">이미지</TableHead>
-                      <TableHead className="text-center">조회수</TableHead>
                       <TableHead className="w-[100px] text-center">
                         액션
                       </TableHead>
@@ -483,13 +484,16 @@ function TouristAttractionSection() {
                     {(data.results || data.items || []).map((item) => (
                       <TableRow key={item.content_id}>
                         <TableCell className="font-medium">
-                          {item.attraction_name}
+                          <Link
+                            to={`/tourist-attractions/${item.content_id}`}
+                            className="text-primary font-medium hover:underline"
+                          >
+                            {item.attraction_name}
+                          </Link>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">
-                            {CATEGORY_OPTIONS.find(
-                              (cat) => cat.value === item.category,
-                            )?.label || item.category}
+                            {item.category_name || item.category_code}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -502,16 +506,6 @@ function TouristAttractionSection() {
                             <MapPin className="h-3 w-3" />
                             {item.address}
                           </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {item.first_image || item.image_url ? (
-                            <Image className="mx-auto h-4 w-4 text-green-600" />
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {item.readcount || 0}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -606,16 +600,33 @@ function TouristAttractionSection() {
                   onValueChange={(value) =>
                     setForm({ ...form, category: value })
                   }
+                  disabled={categoryLoading || !!categoryError}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="카테고리 선택" />
+                    <SelectValue
+                      placeholder={
+                        categoryLoading
+                          ? '카테고리 불러오는 중...'
+                          : categoryError
+                            ? '카테고리 불러오기 실패'
+                            : '카테고리 선택'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORY_OPTIONS.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
+                    {categoryLoading ? (
+                      <div style={{ padding: 8 }}>불러오는 중...</div>
+                    ) : categoryError ? (
+                      <div style={{ padding: 8, color: 'red' }}>
+                        카테고리 불러오기 실패
+                      </div>
+                    ) : (
+                      CATEGORY_OPTIONS.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>

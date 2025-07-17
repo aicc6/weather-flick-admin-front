@@ -59,6 +59,12 @@ const FestivalEventDetailPage = lazy(() =>
 )
 const ContactList = lazy(() => import('../pages/Contact/ContactList'))
 const ContactDetail = lazy(() => import('../pages/Contact/ContactDetail'))
+const LeisureSportDetailPage = lazy(
+  () => import('../pages/LeisureSportDetailPage'),
+)
+const TouristAttractionDetailWrapper = lazy(
+  () => import('../pages/TouristAttractionDetailWrapper'),
+)
 
 // Suspense 래퍼 컴포넌트
 const SuspenseWrapper = ({ children }) => (
@@ -246,6 +252,30 @@ export const router = createBrowserRouter([
     meta: {
       title: '문의 상세',
       breadcrumb: ['대시보드', '문의', '상세'],
+    },
+  },
+  {
+    path: '/leisure-sports/:contentId',
+    element: (
+      <ProtectedLayout>
+        <LeisureSportDetailPage />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '레저스포츠 상세',
+      breadcrumb: ['대시보드', '레저스포츠 관리', '상세'],
+    },
+  },
+  {
+    path: '/tourist-attractions/:contentId',
+    element: (
+      <ProtectedLayout>
+        <TouristAttractionDetailWrapper />
+      </ProtectedLayout>
+    ),
+    meta: {
+      title: '관광지 상세',
+      breadcrumb: ['대시보드', '콘텐츠 관리', '관광지 상세'],
     },
   },
   {
