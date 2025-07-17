@@ -1354,31 +1354,16 @@ function FestivalEventSection() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>이미지</TableHead>
                     <TableHead>축제명</TableHead>
                     <TableHead>지역</TableHead>
                     <TableHead>기간</TableHead>
-                    <TableHead>장소</TableHead>
-                    <TableHead>연락처</TableHead>
+                    <TableHead>주소</TableHead>
                     <TableHead className="w-[100px]">액션</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.items.map((row) => (
                     <TableRow key={row.content_id}>
-                      <TableCell className="w-16">
-                        {row.first_image ? (
-                          <img
-                            src={row.first_image}
-                            alt={row.event_name}
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
-                            이미지 없음
-                          </div>
-                        )}
-                      </TableCell>
                       <TableCell>
                         <Link
                           to={`/content/festival/${row.content_id}`}
@@ -1398,10 +1383,7 @@ function FestivalEventSection() {
                           : '-'}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {row.event_place || '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.tel || '-'}
+                        {row.address || '-'}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -1867,7 +1849,6 @@ function LeisureSportsSection() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>이미지</TableHead>
                     <TableHead>시설명</TableHead>
                     <TableHead>지역</TableHead>
                     <TableHead>스포츠 종류</TableHead>
@@ -1879,19 +1860,6 @@ function LeisureSportsSection() {
                 <TableBody>
                   {data.items.map((row) => (
                     <TableRow key={row.content_id}>
-                      <TableCell className="w-16">
-                        {row.first_image ? (
-                          <img
-                            src={row.first_image}
-                            alt={row.facility_name}
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-lg text-xs">
-                            이미지 없음
-                          </div>
-                        )}
-                      </TableCell>
                       <TableCell>
                         <Link
                           to={`/leisure-sports/${row.content_id}`}

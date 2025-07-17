@@ -31,6 +31,7 @@ function LeisureSportDetailPage() {
           gap: 32,
         }}
       >
+        {/* 이미지 및 제목 오버레이 부분 삭제 */}
         <div style={{ position: 'relative', width: '100%', maxWidth: 600 }}>
           {data.first_image && (
             <img
@@ -67,6 +68,20 @@ function LeisureSportDetailPage() {
           >
             {data.facility_name}
           </div>
+        </div>
+        {/* 대신 제목만 단독으로 표시 */}
+        <div
+          style={{
+            width: '100%',
+            maxWidth: 600,
+            margin: '0 auto',
+            textAlign: 'center',
+            fontSize: 32,
+            fontWeight: 700,
+            marginBottom: 32,
+          }}
+        >
+          {data.facility_name}
         </div>
         <div
           style={{
