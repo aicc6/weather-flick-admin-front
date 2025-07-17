@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
@@ -43,7 +42,6 @@ import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 import BatchLogViewer from '@/components/batch/BatchLogViewer'
 
 const BatchManagement = () => {
-  const [autoRefresh, setAutoRefresh] = useState(true) // 자동 새로고침 설정
   const [jobTypeFilter, setJobTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
@@ -106,17 +104,6 @@ const BatchManagement = () => {
       job.status === BATCH_JOB_STATUS.PENDING,
   )
 
-  // 자동 새로고침 설정 - 실행 중인 작업이 있고 autoRefresh가 true일 때만
-  useEffect(() => {
-    if (hasRunningJobs && autoRefresh) {
-      const interval = setInterval(() => {
-        refetchJobs()
-        refetchStats()
-      }, 5000) // 5초마다 새로고침
-
-      return () => clearInterval(interval)
-    }
-  }, [hasRunningJobs, autoRefresh, refetchJobs, refetchStats])
 
   const [executeBatchJob] = useExecuteBatchJobMutation()
   const [stopBatchJob] = useStopBatchJobMutation()
@@ -232,20 +219,6 @@ const BatchManagement = () => {
         description="시스템의 배치 작업을 관리하고 모니터링합니다."
       >
         <div className="flex items-center gap-4">
-          {/* 자동 새로고침 토글 */}
-          {hasRunningJobs && (
-            <div className="flex items-center gap-2">
-              <Switch
-                id="auto-refresh"
-                checked={autoRefresh}
-                onCheckedChange={setAutoRefresh}
-              />
-              <Label htmlFor="auto-refresh" className="text-sm font-normal">
-                자동 새로고침
-              </Label>
-            </div>
-          )}
-
           <Button
             variant="outline"
             onClick={() => {
@@ -253,9 +226,7 @@ const BatchManagement = () => {
               refetchStats()
             }}
           >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${hasRunningJobs && autoRefresh ? 'animate-spin' : ''}`}
-            />
+            <RefreshCw className="mr-2 h-4 w-4" />
             새로고침
           </Button>
           <Dialog open={executeDialogOpen} onOpenChange={setExecuteDialogOpen}>
@@ -665,9 +636,12 @@ const BatchManagement = () => {
           open={!!selectedJobForLogs}
           onOpenChange={(open) => !open && setSelectedJobForLogs(null)}
         >
-          <DialogContent className="max-h-[90vh] max-w-[90vw] p-0">
+          <DialogContent className="max-h-[90vh] max-w-[80vw] w-full overflow-hidden">
+            <DialogHeader>
+              <DialogTitle>배치 작업 로그</DialogTitle>
+            </DialogHeader>
             {selectedJobForLogs && (
-              <div className="h-[80vh]">
+              <div className="h-[70vh] overflow-hidden">
                 <BatchLogViewer
                   jobId={selectedJobForLogs}
                   jobType={

@@ -49,6 +49,7 @@ export const ROUTE_META = {
     title: '배치 작업',
     breadcrumb: ['대시보드', '배치 작업'],
     icon: 'Settings',
+    requiredRole: 'super_admin',
   },
   REGIONS: {
     path: '/regions',

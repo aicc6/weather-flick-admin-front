@@ -60,9 +60,10 @@ export const regionsApi = createApi({
 
     // 지역 삭제
     deleteRegion: builder.mutation({
-      query: (regionCode) => ({
+      query: ({ regionCode, force = false }) => ({
         url: `/api/regions/${regionCode}`,
         method: 'DELETE',
+        params: force ? { force: true } : {},
       }),
       invalidatesTags: ['Region'],
     }),

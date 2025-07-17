@@ -16,6 +16,7 @@ export { SystemStatusCard } from './SystemStatusCard'
 export { TourismStatsCard } from './TourismStatsCard'
 export { LoadingState, LoadingOverlay } from './LoadingState'
 export { EmptyState, ErrorState } from './EmptyState'
+export { CategoryBadge, CategoryChip, CategoryOption } from './CategoryBadge'
 export {
   StandardButton,
   StyledCard,

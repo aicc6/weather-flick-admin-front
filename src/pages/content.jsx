@@ -93,6 +93,7 @@ import {
   ErrorState,
   StyledCard,
   StyledCardContent,
+  CategoryBadge,
 } from '@/components/common'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -518,8 +519,17 @@ function TravelCoursesSection() {
                           {REGION_MAP[course.region_code] || course.region_code}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {course.category_name || '-'}
+                      <TableCell>
+                        {course.category_info ? (
+                          <CategoryBadge
+                            categoryCode={course.category_info.category_code}
+                            categoryName={course.category_info.category_name}
+                            showIcon={true}
+                            showTooltip={true}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {course.address || '-'}

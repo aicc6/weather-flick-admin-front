@@ -50,6 +50,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { REGION_MAP } from '@/constants/region'
+import { MAIN_CATEGORY_OPTIONS, getCategoryName } from '@/constants/category'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   AlertCircle,
@@ -75,6 +76,8 @@ import {
   ErrorState,
   StyledCard,
   StyledCardContent,
+  CategoryBadge,
+  CategoryOption,
 } from '@/components/common'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -123,17 +126,8 @@ function TouristAttractionSection() {
   const [updateTouristAttraction] = useUpdateTouristAttractionMutation()
   const [deleteTouristAttraction] = useDeleteTouristAttractionMutation()
 
-  // 카테고리 API 호출
-  const {
-    data: categoryData,
-    isLoading: categoryLoading,
-    error: categoryError,
-  } = useGetCategoriesQuery({ category_level: 1 })
-  console.log('categoryData:', categoryData)
-  const CATEGORY_OPTIONS = (categoryData?.categories || []).map((cat) => ({
-    value: cat.category_code,
-    label: cat.category_name,
-  }))
+  // 카테고리 옵션 (상수에서 가져옴)
+  const CATEGORY_OPTIONS = MAIN_CATEGORY_OPTIONS
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editData, setEditData] = useState(null)
@@ -492,9 +486,12 @@ function TouristAttractionSection() {
                           </Link>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">
-                            {item.category_name || item.category_code}
-                          </Badge>
+                          <CategoryBadge
+                            categoryCode={item.category_code}
+                            categoryName={item.category_name}
+                            showIcon={true}
+                            showTooltip={true}
+                          />
                         </TableCell>
                         <TableCell>
                           <Badge variant="secondary">
@@ -600,33 +597,29 @@ function TouristAttractionSection() {
                   onValueChange={(value) =>
                     setForm({ ...form, category: value })
                   }
-                  disabled={categoryLoading || !!categoryError}
                 >
                   <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        categoryLoading
-                          ? '카테고리 불러오는 중...'
-                          : categoryError
-                            ? '카테고리 불러오기 실패'
-                            : '카테고리 선택'
-                      }
-                    />
+                    <SelectValue placeholder="카테고리 선택">
+                      {form.category && (
+                        <CategoryOption
+                          categoryCode={form.category}
+                          showIcon={true}
+                          showDescription={false}
+                        />
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {categoryLoading ? (
-                      <div style={{ padding: 8 }}>불러오는 중...</div>
-                    ) : categoryError ? (
-                      <div style={{ padding: 8, color: 'red' }}>
-                        카테고리 불러오기 실패
-                      </div>
-                    ) : (
-                      CATEGORY_OPTIONS.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </SelectItem>
-                      ))
-                    )}
+                    {CATEGORY_OPTIONS.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        <CategoryOption
+                          categoryCode={cat.value}
+                          categoryName={cat.label}
+                          showIcon={true}
+                          showDescription={false}
+                        />
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -60,7 +60,9 @@ export default function RegionsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isForceDeleteOpen, setIsForceDeleteOpen] = useState(false)
   const [selectedRegion, setSelectedRegion] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
   const [expandedNodes, setExpandedNodes] = useState(new Set())
 
   // API 호출
@@ -115,14 +117,29 @@ export default function RegionsPage() {
   }
 
   // 지역 삭제
-  const handleDelete = async () => {
+  const handleDelete = async (force = false) => {
     try {
-      await deleteRegion(selectedRegion.region_code).unwrap()
-      toast.success('지역이 삭제되었습니다.')
+      await deleteRegion({ 
+        regionCode: selectedRegion.region_code,
+        force: force 
+      }).unwrap()
+      toast.success(force ? '지역이 하위 지역과 함께 삭제되었습니다.' : '지역이 삭제되었습니다.')
       setIsDeleteOpen(false)
+      setIsForceDeleteOpen(false)
+      setDeleteError(null)
       refetch()
     } catch (error) {
-      toast.error(error.data?.detail || '지역 삭제에 실패했습니다.')
+      if (error.data?.detail?.child_count > 0 && !force) {
+        // 하위 지역이 있을 때 강제 삭제 다이얼로그 표시
+        setDeleteError(error.data.detail)
+        setIsDeleteOpen(false)
+        setIsForceDeleteOpen(true)
+      } else if (error.data?.detail?.related_data && !force) {
+        // 관련 데이터가 있을 때
+        toast.error(`이 지역에는 ${error.data.detail.related_data.join(', ')} 데이터가 있어 삭제할 수 없습니다. 하위 지역이 있는 경우에만 강제 삭제가 가능합니다.`)
+      } else {
+        toast.error(error.data?.detail?.message || error.data?.detail || '지역 삭제에 실패했습니다.')
+      }
     }
   }
 
@@ -168,11 +185,6 @@ export default function RegionsPage() {
             <span className="text-muted-foreground text-sm">
               ({node.region_code})
             </span>
-            {!node.is_active && (
-              <Badge variant="secondary" className="ml-2">
-                비활성
-              </Badge>
-            )}
             <div className="ml-auto flex gap-2">
               <Button
                 variant="ghost"
@@ -302,7 +314,6 @@ export default function RegionsPage() {
                   <TableHead>전체 지역명</TableHead>
                   <TableHead>상위지역</TableHead>
                   <TableHead>레벨</TableHead>
-                  <TableHead>API코드</TableHead>
                   <TableHead>위도</TableHead>
                   <TableHead>경도</TableHead>
                   <TableHead>활성화</TableHead>
@@ -319,15 +330,6 @@ export default function RegionsPage() {
                     <TableCell>{region.region_name_full || '-'}</TableCell>
                     <TableCell>{region.parent_region_code || '-'}</TableCell>
                     <TableCell>{region.region_level}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          region.tour_api_area_code ? 'default' : 'secondary'
-                        }
-                      >
-                        {region.tour_api_area_code || '-'}
-                      </Badge>
-                    </TableCell>
                     <TableCell>{region.latitude?.toFixed(6) || '-'}</TableCell>
                     <TableCell>{region.longitude?.toFixed(6) || '-'}</TableCell>
                     <TableCell>
@@ -415,8 +417,64 @@ export default function RegionsPage() {
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
               취소
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={() => handleDelete(false)}>
               삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 강제 삭제 확인 다이얼로그 */}
+      <Dialog open={isForceDeleteOpen} onOpenChange={setIsForceDeleteOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">⚠️ 경고: 하위 지역이 존재합니다</DialogTitle>
+            <DialogDescription className="space-y-4">
+              <div className="text-red-600 font-semibold">
+                {selectedRegion?.region_name}에는 {deleteError?.child_count}개의 하위 지역이 있습니다.
+              </div>
+              
+              {deleteError?.child_regions && (
+                <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-md space-y-1">
+                  <p className="font-medium text-sm">삭제될 하위 지역:</p>
+                  <ul className="text-sm space-y-1">
+                    {deleteError.child_regions.map(child => (
+                      <li key={child.region_code} className="ml-4">
+                        • {child.region_name} ({child.region_code})
+                      </li>
+                    ))}
+                    {deleteError.has_more && (
+                      <li className="ml-4 text-gray-500">
+                        ... 외 {deleteError.child_count - 5}개 지역
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+              
+              <div className="text-red-600 font-bold">
+                정말로 하위 지역을 포함하여 모두 삭제하시겠습니까?
+                <br />
+                이 작업은 절대 되돌릴 수 없습니다!
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setIsForceDeleteOpen(false)
+                setDeleteError(null)
+              }}
+            >
+              취소
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => handleDelete(true)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              강제 삭제 (하위 지역 포함)
             </Button>
           </DialogFooter>
         </DialogContent>

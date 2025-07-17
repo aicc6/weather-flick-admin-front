@@ -55,11 +55,10 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
   };
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="flex-shrink-0">
+    <Card className="h-full flex flex-col shadow-none border-0">
+      <CardHeader className="flex-shrink-0 pt-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg">배치 작업 로그</CardTitle>
             <Badge variant="outline">{jobType}</Badge>
             {isConnected ? (
               <Badge variant="success" className="flex items-center gap-1">
@@ -92,11 +91,6 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
               <Trash2 className="h-4 w-4 mr-1" />
               지우기
             </Button>
-            {onClose && (
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                닫기
-              </Button>
-            )}
           </div>
         </div>
         {error && (
@@ -109,13 +103,13 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
           </div>
         )}
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-hidden">
+      <CardContent className="flex-1 overflow-hidden">
         <ScrollArea 
           ref={scrollAreaRef}
-          className="h-full"
+          className="h-full w-full"
           onScroll={handleScroll}
         >
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-3">
             {logs.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground">
                 {isConnected ? (
@@ -131,7 +125,7 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
               logs.map((log) => (
                 <div
                   key={log.id}
-                  className={`p-3 rounded-lg font-mono text-sm ${
+                  className={`p-3 rounded-lg font-mono text-sm bg-gray-50 dark:bg-gray-900 ${
                     log.historical ? 'opacity-70' : ''
                   }`}
                 >

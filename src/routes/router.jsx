@@ -233,6 +233,7 @@ export const router = createBrowserRouter([
     meta: {
       title: '배치 관리',
       breadcrumb: ['대시보드', '배치 관리'],
+      requiredRole: 'super_admin',
     },
   },
   {
