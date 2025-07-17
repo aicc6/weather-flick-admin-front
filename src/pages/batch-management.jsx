@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -41,13 +43,46 @@ import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 import BatchLogViewer from '@/components/batch/BatchLogViewer'
 
 const BatchManagement = () => {
+  const [autoRefresh, setAutoRefresh] = useState(true) // 자동 새로고침 설정
   const [jobTypeFilter, setJobTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [selectedJobType, setSelectedJobType] = useState('')
-  const [jobParameters, setJobParameters] = useState('')
   const [executeDialogOpen, setExecuteDialogOpen] = useState(false)
   const [selectedJobForLogs, setSelectedJobForLogs] = useState(null)
+
+  // 개별 파라미터 상태
+  const [jobParams, setJobParams] = useState({
+    // 공통 파라미터
+    priority: 5,
+
+    // WEATHER_DATA_COLLECTION 파라미터
+    weather_regions: [],
+    weather_days_back: 7,
+    weather_forecast_days: 3,
+
+    // KTO_DATA_COLLECTION 파라미터
+    kto_content_types: [],
+    kto_area_codes: [],
+    kto_include_new_apis: true,
+    kto_store_raw: true,
+
+    // DATA_QUALITY_CHECK 파라미터
+    quality_tables: [],
+    quality_check_types: [],
+
+    // RECOMMENDATION_CALCULATION 파라미터
+    rec_calculation_type: 'full',
+    rec_region_filter: [],
+
+    // ARCHIVE_BACKUP 파라미터
+    archive_backup_type: 'incremental',
+    archive_retain_days: 30,
+
+    // SYSTEM_HEALTH_CHECK 파라미터
+    health_check_level: 'basic',
+    health_notification_email: '',
+  })
 
   // API 호출
   const {
@@ -64,6 +99,25 @@ const BatchManagement = () => {
   const { data: statsData, refetch: refetchStats } =
     useGetBatchStatisticsQuery()
 
+  // 실행 중인 작업이 있는지 확인
+  const hasRunningJobs = jobsData?.jobs?.some(
+    (job) =>
+      job.status === BATCH_JOB_STATUS.RUNNING ||
+      job.status === BATCH_JOB_STATUS.PENDING,
+  )
+
+  // 자동 새로고침 설정 - 실행 중인 작업이 있고 autoRefresh가 true일 때만
+  useEffect(() => {
+    if (hasRunningJobs && autoRefresh) {
+      const interval = setInterval(() => {
+        refetchJobs()
+        refetchStats()
+      }, 5000) // 5초마다 새로고침
+
+      return () => clearInterval(interval)
+    }
+  }, [hasRunningJobs, autoRefresh, refetchJobs, refetchStats])
+
   const [executeBatchJob] = useExecuteBatchJobMutation()
   const [stopBatchJob] = useStopBatchJobMutation()
 
@@ -71,24 +125,81 @@ const BatchManagement = () => {
     if (!selectedJobType) return
 
     try {
-      let parameters = {}
-      if (jobParameters.trim()) {
-        parameters = JSON.parse(jobParameters)
-      }
+      // 작업 유형에 따라 파라미터 구성
+      const parameters = buildParametersForJobType(selectedJobType, jobParams)
 
       await executeBatchJob({
         jobType: selectedJobType,
         parameters,
-        priority: 5,
+        priority: jobParams.priority,
       }).unwrap()
 
       setExecuteDialogOpen(false)
       setSelectedJobType('')
-      setJobParameters('')
+      // 파라미터 초기화
+      setJobParams((prev) => ({
+        ...prev,
+        priority: 5,
+      }))
       refetchJobs()
       refetchStats()
     } catch (error) {
       console.error('배치 작업 실행 실패:', error)
+    }
+  }
+
+  // 작업 유형별 파라미터 구성 함수
+  const buildParametersForJobType = (jobType, params) => {
+    const baseParams = { priority: params.priority }
+
+    switch (jobType) {
+      case 'WEATHER_DATA_COLLECTION':
+        return {
+          ...baseParams,
+          regions: params.weather_regions,
+          days_back: params.weather_days_back,
+          forecast_days: params.weather_forecast_days,
+        }
+
+      case 'KTO_DATA_COLLECTION':
+        return {
+          ...baseParams,
+          content_types: params.kto_content_types,
+          area_codes: params.kto_area_codes,
+          include_new_apis: params.kto_include_new_apis,
+          store_raw: params.kto_store_raw,
+        }
+
+      case 'DATA_QUALITY_CHECK':
+        return {
+          ...baseParams,
+          tables: params.quality_tables,
+          check_types: params.quality_check_types,
+        }
+
+      case 'RECOMMENDATION_CALCULATION':
+        return {
+          ...baseParams,
+          calculation_type: params.rec_calculation_type,
+          region_filter: params.rec_region_filter,
+        }
+
+      case 'ARCHIVE_BACKUP':
+        return {
+          ...baseParams,
+          backup_type: params.archive_backup_type,
+          retain_days: params.archive_retain_days,
+        }
+
+      case 'SYSTEM_HEALTH_CHECK':
+        return {
+          ...baseParams,
+          check_level: params.health_check_level,
+          notification_email: params.health_notification_email,
+        }
+
+      default:
+        return baseParams
     }
   }
 
@@ -120,7 +231,21 @@ const BatchManagement = () => {
         title="배치 관리"
         description="시스템의 배치 작업을 관리하고 모니터링합니다."
       >
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4">
+          {/* 자동 새로고침 토글 */}
+          {hasRunningJobs && (
+            <div className="flex items-center gap-2">
+              <Switch
+                id="auto-refresh"
+                checked={autoRefresh}
+                onCheckedChange={setAutoRefresh}
+              />
+              <Label htmlFor="auto-refresh" className="text-sm font-normal">
+                자동 새로고침
+              </Label>
+            </div>
+          )}
+
           <Button
             variant="outline"
             onClick={() => {
@@ -128,7 +253,9 @@ const BatchManagement = () => {
               refetchStats()
             }}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${hasRunningJobs && autoRefresh ? 'animate-spin' : ''}`}
+            />
             새로고침
           </Button>
           <Dialog open={executeDialogOpen} onOpenChange={setExecuteDialogOpen}>
@@ -138,7 +265,7 @@ const BatchManagement = () => {
                 작업 실행
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>배치 작업 실행</DialogTitle>
               </DialogHeader>
@@ -163,15 +290,68 @@ const BatchManagement = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* 공통 파라미터 */}
                 <div>
-                  <Label htmlFor="parameters">매개변수 (JSON)</Label>
+                  <Label htmlFor="priority">우선순위 (1-10)</Label>
                   <Input
-                    id="parameters"
-                    placeholder='{"key": "value"}'
-                    value={jobParameters}
-                    onChange={(e) => setJobParameters(e.target.value)}
+                    id="priority"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={jobParams.priority}
+                    onChange={(e) =>
+                      setJobParams((prev) => ({
+                        ...prev,
+                        priority: parseInt(e.target.value) || 5,
+                      }))
+                    }
                   />
                 </div>
+
+                {/* 작업 유형별 파라미터 */}
+                {selectedJobType === 'WEATHER_DATA_COLLECTION' && (
+                  <WeatherParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'KTO_DATA_COLLECTION' && (
+                  <KtoParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'DATA_QUALITY_CHECK' && (
+                  <QualityParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'RECOMMENDATION_CALCULATION' && (
+                  <RecommendationParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'ARCHIVE_BACKUP' && (
+                  <ArchiveParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'SYSTEM_HEALTH_CHECK' && (
+                  <HealthCheckParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
@@ -290,7 +470,24 @@ const BatchManagement = () => {
                               </div>
                             )}
                             {job.progress > 0 && (
-                              <div>진행률: {job.progress.toFixed(1)}%</div>
+                              <div className="flex items-center gap-2">
+                                <span>진행률:</span>
+                                <div className="h-2 w-32 rounded-full bg-gray-200">
+                                  <div
+                                    className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                    style={{ width: `${job.progress}%` }}
+                                  />
+                                </div>
+                                <span className="text-sm">
+                                  {job.progress.toFixed(1)}%
+                                </span>
+                              </div>
+                            )}
+                            {job.current_step && (
+                              <div className="text-sm text-blue-600">
+                                <span className="font-medium">현재 단계:</span>{' '}
+                                {job.current_step}
+                              </div>
                             )}
                           </div>
                           {job.error_message && (
@@ -468,21 +665,528 @@ const BatchManagement = () => {
           open={!!selectedJobForLogs}
           onOpenChange={(open) => !open && setSelectedJobForLogs(null)}
         >
-          <DialogContent className="max-h-[90vh] max-w-[90vw]">
-            <DialogHeader>
-              <DialogTitle>배치 작업 로그 - {selectedJobForLogs}</DialogTitle>
-            </DialogHeader>
+          <DialogContent className="max-h-[90vh] max-w-[90vw] p-0">
             {selectedJobForLogs && (
-              <BatchLogViewer
-                jobId={selectedJobForLogs}
-                embedded={true}
-                onClose={() => setSelectedJobForLogs(null)}
-              />
+              <div className="h-[80vh]">
+                <BatchLogViewer
+                  jobId={selectedJobForLogs}
+                  jobType={
+                    jobsData?.jobs?.find((job) => job.id === selectedJobForLogs)
+                      ?.job_type
+                  }
+                  onClose={() => setSelectedJobForLogs(null)}
+                />
+              </div>
             )}
           </DialogContent>
         </Dialog>
       </ContentSection>
     </PageContainer>
+  )
+}
+
+// 날씨 데이터 수집 파라미터 폼
+const WeatherParametersForm = ({ jobParams, setJobParams }) => {
+  const regionOptions = [
+    { value: 'seoul', label: '서울' },
+    { value: 'busan', label: '부산' },
+    { value: 'daegu', label: '대구' },
+    { value: 'incheon', label: '인천' },
+    { value: 'gwangju', label: '광주' },
+    { value: 'daejeon', label: '대전' },
+    { value: 'ulsan', label: '울산' },
+    { value: 'sejong', label: '세종' },
+    { value: 'gyeonggi', label: '경기' },
+    { value: 'gangwon', label: '강원' },
+    { value: 'chungbuk', label: '충북' },
+    { value: 'chungnam', label: '충남' },
+    { value: 'jeonbuk', label: '전북' },
+    { value: 'jeonnam', label: '전남' },
+    { value: 'gyeongbuk', label: '경북' },
+    { value: 'gyeongnam', label: '경남' },
+    { value: 'jeju', label: '제주' },
+  ]
+
+  const handleRegionChange = (regionValue, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      weather_regions: checked
+        ? [...prev.weather_regions, regionValue]
+        : prev.weather_regions.filter((r) => r !== regionValue),
+    }))
+  }
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">날씨 데이터 수집 설정</h4>
+
+      <div>
+        <Label>수집할 지역 (다중 선택 가능)</Label>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {regionOptions.map((region) => (
+            <div key={region.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`weather-region-${region.value}`}
+                checked={jobParams.weather_regions.includes(region.value)}
+                onCheckedChange={(checked) =>
+                  handleRegionChange(region.value, checked)
+                }
+              />
+              <label
+                htmlFor={`weather-region-${region.value}`}
+                className="text-sm"
+              >
+                {region.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="weather_days_back">과거 데이터 수집 일수</Label>
+        <Input
+          id="weather_days_back"
+          type="number"
+          min="1"
+          max="30"
+          value={jobParams.weather_days_back}
+          onChange={(e) =>
+            setJobParams((prev) => ({
+              ...prev,
+              weather_days_back: parseInt(e.target.value) || 7,
+            }))
+          }
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="weather_forecast_days">예보 수집 일수</Label>
+        <Input
+          id="weather_forecast_days"
+          type="number"
+          min="1"
+          max="7"
+          value={jobParams.weather_forecast_days}
+          onChange={(e) =>
+            setJobParams((prev) => ({
+              ...prev,
+              weather_forecast_days: parseInt(e.target.value) || 3,
+            }))
+          }
+        />
+      </div>
+    </div>
+  )
+}
+
+// KTO 데이터 수집 파라미터 폼
+const KtoParametersForm = ({ jobParams, setJobParams }) => {
+  const contentTypeOptions = [
+    { value: '12', label: '관광지' },
+    { value: '14', label: '문화시설' },
+    { value: '15', label: '축제공연행사' },
+    { value: '25', label: '여행코스' },
+    { value: '28', label: '레포츠' },
+    { value: '32', label: '숙박' },
+    { value: '38', label: '쇼핑' },
+    { value: '39', label: '음식점' },
+  ]
+
+  const areaCodeOptions = [
+    { value: '1', label: '서울' },
+    { value: '2', label: '인천' },
+    { value: '3', label: '대전' },
+    { value: '4', label: '대구' },
+    { value: '5', label: '광주' },
+    { value: '6', label: '부산' },
+    { value: '7', label: '울산' },
+    { value: '8', label: '세종' },
+    { value: '31', label: '경기도' },
+    { value: '32', label: '강원특별자치도' },
+    { value: '33', label: '충청북도' },
+    { value: '34', label: '충청남도' },
+    { value: '35', label: '경상북도' },
+    { value: '36', label: '경상남도' },
+    { value: '37', label: '전라북도' },
+    { value: '38', label: '전라남도' },
+    { value: '39', label: '제주도' },
+  ]
+
+  const handleContentTypeChange = (value, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      kto_content_types: checked
+        ? [...prev.kto_content_types, value]
+        : prev.kto_content_types.filter((t) => t !== value),
+    }))
+  }
+
+  const handleAreaCodeChange = (value, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      kto_area_codes: checked
+        ? [...prev.kto_area_codes, value]
+        : prev.kto_area_codes.filter((a) => a !== value),
+    }))
+  }
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">KTO 데이터 수집 설정</h4>
+
+      <div>
+        <Label>콘텐츠 타입 (다중 선택 가능)</Label>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {contentTypeOptions.map((type) => (
+            <div key={type.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`kto-content-${type.value}`}
+                checked={jobParams.kto_content_types.includes(type.value)}
+                onCheckedChange={(checked) =>
+                  handleContentTypeChange(type.value, checked)
+                }
+              />
+              <label htmlFor={`kto-content-${type.value}`} className="text-sm">
+                {type.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Label>지역 코드 (다중 선택 가능)</Label>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {areaCodeOptions.map((area) => (
+            <div key={area.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`kto-area-${area.value}`}
+                checked={jobParams.kto_area_codes.includes(area.value)}
+                onCheckedChange={(checked) =>
+                  handleAreaCodeChange(area.value, checked)
+                }
+              />
+              <label htmlFor={`kto-area-${area.value}`} className="text-sm">
+                {area.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="kto_include_new_apis"
+          checked={jobParams.kto_include_new_apis}
+          onCheckedChange={(checked) =>
+            setJobParams((prev) => ({
+              ...prev,
+              kto_include_new_apis: checked,
+            }))
+          }
+        />
+        <Label htmlFor="kto_include_new_apis">신규 API 포함</Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="kto_store_raw"
+          checked={jobParams.kto_store_raw}
+          onCheckedChange={(checked) =>
+            setJobParams((prev) => ({
+              ...prev,
+              kto_store_raw: checked,
+            }))
+          }
+        />
+        <Label htmlFor="kto_store_raw">원본 데이터 저장</Label>
+      </div>
+    </div>
+  )
+}
+
+// 데이터 품질 검사 파라미터 폼
+const QualityParametersForm = ({ jobParams, setJobParams }) => {
+  const tableOptions = [
+    { value: 'tourist_attractions', label: '관광지' },
+    { value: 'accommodations', label: '숙박시설' },
+    { value: 'restaurants', label: '음식점' },
+    { value: 'festivals_events', label: '축제/행사' },
+    { value: 'weather_forecasts', label: '날씨 예보' },
+    { value: 'regions', label: '지역 정보' },
+  ]
+
+  const checkTypeOptions = [
+    { value: 'completeness', label: '완성도 검사' },
+    { value: 'accuracy', label: '정확성 검사' },
+    { value: 'consistency', label: '일관성 검사' },
+    { value: 'duplicates', label: '중복 검사' },
+    { value: 'validity', label: '유효성 검사' },
+  ]
+
+  const handleTableChange = (value, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      quality_tables: checked
+        ? [...prev.quality_tables, value]
+        : prev.quality_tables.filter((t) => t !== value),
+    }))
+  }
+
+  const handleCheckTypeChange = (value, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      quality_check_types: checked
+        ? [...prev.quality_check_types, value]
+        : prev.quality_check_types.filter((c) => c !== value),
+    }))
+  }
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">데이터 품질 검사 설정</h4>
+
+      <div>
+        <Label>검사할 테이블 (다중 선택 가능)</Label>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {tableOptions.map((table) => (
+            <div key={table.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`quality-table-${table.value}`}
+                checked={jobParams.quality_tables.includes(table.value)}
+                onCheckedChange={(checked) =>
+                  handleTableChange(table.value, checked)
+                }
+              />
+              <label
+                htmlFor={`quality-table-${table.value}`}
+                className="text-sm"
+              >
+                {table.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Label>검사 유형 (다중 선택 가능)</Label>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {checkTypeOptions.map((check) => (
+            <div key={check.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`quality-check-${check.value}`}
+                checked={jobParams.quality_check_types.includes(check.value)}
+                onCheckedChange={(checked) =>
+                  handleCheckTypeChange(check.value, checked)
+                }
+              />
+              <label
+                htmlFor={`quality-check-${check.value}`}
+                className="text-sm"
+              >
+                {check.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 추천 계산 파라미터 폼
+const RecommendationParametersForm = ({ jobParams, setJobParams }) => {
+  const calculationTypeOptions = [
+    { value: 'full', label: '전체 재계산' },
+    { value: 'incremental', label: '증분 계산' },
+    { value: 'specific', label: '특정 지역만' },
+  ]
+
+  const regionOptions = [
+    { value: 'seoul', label: '서울' },
+    { value: 'busan', label: '부산' },
+    { value: 'jeju', label: '제주' },
+    { value: 'gangwon', label: '강원' },
+    { value: 'gyeonggi', label: '경기' },
+  ]
+
+  const handleRegionFilterChange = (value, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      rec_region_filter: checked
+        ? [...prev.rec_region_filter, value]
+        : prev.rec_region_filter.filter((r) => r !== value),
+    }))
+  }
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">추천 계산 설정</h4>
+
+      <div>
+        <Label htmlFor="rec_calculation_type">계산 유형</Label>
+        <Select
+          value={jobParams.rec_calculation_type}
+          onValueChange={(value) =>
+            setJobParams((prev) => ({
+              ...prev,
+              rec_calculation_type: value,
+            }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {calculationTypeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {jobParams.rec_calculation_type === 'specific' && (
+        <div>
+          <Label>대상 지역 (다중 선택 가능)</Label>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {regionOptions.map((region) => (
+              <div key={region.value} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`rec-region-${region.value}`}
+                  checked={jobParams.rec_region_filter.includes(region.value)}
+                  onCheckedChange={(checked) =>
+                    handleRegionFilterChange(region.value, checked)
+                  }
+                />
+                <label
+                  htmlFor={`rec-region-${region.value}`}
+                  className="text-sm"
+                >
+                  {region.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// 아카이브 백업 파라미터 폼
+const ArchiveParametersForm = ({ jobParams, setJobParams }) => {
+  const backupTypeOptions = [
+    { value: 'full', label: '전체 백업' },
+    { value: 'incremental', label: '증분 백업' },
+    { value: 'differential', label: '차등 백업' },
+  ]
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">아카이브 백업 설정</h4>
+
+      <div>
+        <Label htmlFor="archive_backup_type">백업 유형</Label>
+        <Select
+          value={jobParams.archive_backup_type}
+          onValueChange={(value) =>
+            setJobParams((prev) => ({
+              ...prev,
+              archive_backup_type: value,
+            }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {backupTypeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="archive_retain_days">보관 기간 (일)</Label>
+        <Input
+          id="archive_retain_days"
+          type="number"
+          min="1"
+          max="365"
+          value={jobParams.archive_retain_days}
+          onChange={(e) =>
+            setJobParams((prev) => ({
+              ...prev,
+              archive_retain_days: parseInt(e.target.value) || 30,
+            }))
+          }
+        />
+      </div>
+    </div>
+  )
+}
+
+// 시스템 헬스체크 파라미터 폼
+const HealthCheckParametersForm = ({ jobParams, setJobParams }) => {
+  const checkLevelOptions = [
+    { value: 'basic', label: '기본 검사' },
+    { value: 'comprehensive', label: '종합 검사' },
+    { value: 'critical', label: '중요 시스템만' },
+  ]
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">시스템 헬스체크 설정</h4>
+
+      <div>
+        <Label htmlFor="health_check_level">검사 수준</Label>
+        <Select
+          value={jobParams.health_check_level}
+          onValueChange={(value) =>
+            setJobParams((prev) => ({
+              ...prev,
+              health_check_level: value,
+            }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {checkLevelOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="health_notification_email">
+          알림 이메일 (선택사항)
+        </Label>
+        <Input
+          id="health_notification_email"
+          type="email"
+          placeholder="admin@example.com"
+          value={jobParams.health_notification_email}
+          onChange={(e) =>
+            setJobParams((prev) => ({
+              ...prev,
+              health_notification_email: e.target.value,
+            }))
+          }
+        />
+      </div>
+    </div>
   )
 }
 

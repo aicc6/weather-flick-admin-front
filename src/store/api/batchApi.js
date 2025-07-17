@@ -1,35 +1,12 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { STORAGE_KEYS } from '@/constants/storage'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { baseQuery } from './baseQuery'
 
-// 배치 서버 URL 가져오기
-const getBatchBaseUrl = () => {
-  return import.meta.env.VITE_BATCH_API_BASE_URL || 'http://localhost:9090'
-}
-
-// 배치 API 키 가져오기
-const getBatchApiKey = () => {
-  return import.meta.env.VITE_BATCH_API_KEY || 'batch-api-secret-key'
-}
-
-// 배치 서버 전용 baseQuery
-const batchBaseQuery = fetchBaseQuery({
-  baseUrl: getBatchBaseUrl(),
-  prepareHeaders: (headers) => {
-    // 배치 서버 인증을 위한 X-API-Key 헤더
-    headers.set('X-API-Key', getBatchApiKey())
-
-    // 관리자 인증 토큰도 함께 전송 (필요한 경우)
-    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`)
-    }
-    return headers
-  },
-})
+// 관리자 백엔드의 baseQuery를 사용하여 배치 API 생성
+// 이제 배치 작업 관리가 관리자 백엔드를 통해 이루어집니다
 
 export const batchApi = createApi({
   reducerPath: 'batchApi',
-  baseQuery: batchBaseQuery,
+  baseQuery, // 관리자 백엔드의 baseQuery 사용
   tagTypes: ['BatchJob', 'BatchStats'],
   endpoints: (builder) => ({
     // 배치 작업 목록 조회

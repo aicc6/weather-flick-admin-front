@@ -6,6 +6,8 @@ import { contentApi } from './api/contentApi'
 import { travelCoursesApi } from './api/contentApi'
 import { festivalsEventsApi } from './api/contentApi'
 import { leisureSportsApi } from './api/contentApi'
+import { accommodationsApi } from './api/contentApi'
+import { restaurantsApi } from './api/contentApi'
 import { systemApi } from './api/systemApi'
 import { weatherApi } from './api/weatherApi'
 import { travelPlansApi } from './api/travelPlansApi'
@@ -28,6 +30,8 @@ export const store = configureStore({
     [travelCoursesApi.reducerPath]: travelCoursesApi.reducer,
     [festivalsEventsApi.reducerPath]: festivalsEventsApi.reducer,
     [leisureSportsApi.reducerPath]: leisureSportsApi.reducer,
+    [accommodationsApi.reducerPath]: accommodationsApi.reducer,
+    [restaurantsApi.reducerPath]: restaurantsApi.reducer,
     [travelPlansApi.reducerPath]: travelPlansApi.reducer,
     [batchApi.reducerPath]: batchApi.reducer,
     [touristAttractionsApi.reducerPath]: touristAttractionsApi.reducer,
@@ -58,6 +62,8 @@ export const store = configureStore({
       .concat(travelCoursesApi.middleware)
       .concat(festivalsEventsApi.middleware)
       .concat(leisureSportsApi.middleware)
+      .concat(accommodationsApi.middleware)
+      .concat(restaurantsApi.middleware)
       .concat(travelPlansApi.middleware)
       .concat(batchApi.middleware)
       .concat(touristAttractionsApi.middleware)

@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { AlertCircle, Edit2, Trash2, Plus } from 'lucide-react'
+import { AlertCircle, Edit2, Trash2, Plus, Dog } from 'lucide-react'
 import { LoadingState, EmptyState, ErrorState } from '@/components/common'
 import { ContentSection } from '@/layouts/ContentSection'
 import {
@@ -42,8 +42,10 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   // 입력값과 실제 검색값을 분리
   const [searchNameInput, setSearchNameInput] = useState('')
   const [searchRegionInput, setSearchRegionInput] = useState('all')
+  const [petFriendlyInput, setPetFriendlyInput] = useState('all')
   const [searchName, setSearchName] = useState('')
   const [searchRegion, setSearchRegion] = useState('')
+  const [petFriendly, setPetFriendly] = useState('')
   const [page, setPage] = useState(1)
   const pageSize = 12
 
@@ -57,12 +59,13 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
   }
 
   // RTK Query 훅 - 검색 여부에 따라 다른 쿼리 사용
-  const isSearching = searchName || regionCode
+  const isSearching = searchName || regionCode || petFriendly === 'yes'
   const queryParams = {
     limit: pageSize,
     offset: (page - 1) * pageSize,
     ...(searchName && { name: searchName }),
     ...(regionCode && { region_code: regionCode }), // region → region_code로 변경
+    ...(petFriendly === 'yes' && { pet_friendly: true }),
   }
 
   // 일반 목록 조회
@@ -244,6 +247,22 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                 ))}
               </SelectContent>
             </Select>
+            <Select
+              value={petFriendlyInput}
+              onValueChange={(value) => {
+                setPetFriendlyInput(value)
+                setPetFriendly(value)
+                setPage(1)
+              }}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="반려동물 동반" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="yes">반려동물 동반 가능</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button onClick={onCreate}>
             <Plus className="mr-2 h-4 w-4" />
@@ -317,9 +336,17 @@ export default function TouristAttractionList({ onEdit, onCreate }) {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">
-                        {REGION_MAP[a.region_code] || ''}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">
+                          {REGION_MAP[a.region_code] || ''}
+                        </Badge>
+                        {a.is_pet_friendly && (
+                          <Badge variant="outline" className="gap-1">
+                            <Dog className="h-3 w-3" />
+                            반려동물
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {a.created_at ? a.created_at.split('T')[0] : '-'}

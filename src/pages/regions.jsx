@@ -320,7 +320,11 @@ export default function RegionsPage() {
                     <TableCell>{region.parent_region_code || '-'}</TableCell>
                     <TableCell>{region.region_level}</TableCell>
                     <TableCell>
-                      <Badge variant={region.tour_api_area_code ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          region.tour_api_area_code ? 'default' : 'secondary'
+                        }
+                      >
                         {region.tour_api_area_code || '-'}
                       </Badge>
                     </TableCell>

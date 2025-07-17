@@ -10,7 +10,7 @@ export const adminsApi = createApi({
       query: (params) => {
         const queryParams = new URLSearchParams()
         if (params.page) queryParams.append('page', params.page.toString())
-        if (params.limit) queryParams.append('limit', params.limit.toString())
+        if (params.size) queryParams.append('size', params.size.toString())
         if (params.search) queryParams.append('search', params.search)
 
         return `/api/admins/?${queryParams.toString()}`

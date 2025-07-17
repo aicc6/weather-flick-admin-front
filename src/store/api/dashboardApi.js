@@ -60,6 +60,13 @@ export const dashboardApi = createApi({
       providesTags: ['Dashboard'],
       keepUnusedDataFor: 300, // 5분 캐싱
     }),
+
+    // 대시보드 종합 통계
+    getDashboardStats: builder.query({
+      query: () => '/api/dashboard/stats',
+      providesTags: ['Dashboard'],
+      keepUnusedDataFor: 60, // 1분 캐싱
+    }),
   }),
 })
 
@@ -69,4 +76,5 @@ export const {
   useGetAdminStatsQuery,
   useGetTravelCourseRegionCountQuery,
   useGetTouristAttractionsSummaryQuery,
+  useGetDashboardStatsQuery,
 } = dashboardApi

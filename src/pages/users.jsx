@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import {
   useGetUserStatsQuery,
   useGetUsersQuery,
@@ -72,7 +73,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
-import { UserDetailModal } from '@/components/users/UserDetailModal'
+import { Skeleton } from '@/components/ui/skeleton'
 
 // 헬퍼 함수 선언
 const isDeletedUser = (user) => user.email?.startsWith('deleted_')
@@ -86,8 +87,6 @@ export const UsersPage = () => {
   const [statusFilter, setStatusFilter] = useState('all') // 'all', 'active', 'inactive', 'deleted'
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] =
     useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -212,11 +211,12 @@ export const UsersPage = () => {
       await deleteUser(actionUser.user_id).unwrap()
       setIsDeleteDialogOpen(false)
       setActionUser(null)
+      toast.success(`${actionUser.email} 사용자가 삭제되었습니다.`)
     } catch (error) {
       console.error('Failed to delete:', error)
       const errorMsg =
         error.data?.detail || error.message || '삭제에 실패했습니다.'
-      alert(errorMsg)
+      toast.error(errorMsg)
     }
   }
 
@@ -228,12 +228,12 @@ export const UsersPage = () => {
       const response = await resetUserPassword(actionUser.user_id).unwrap()
 
       if (response.email_sent) {
-        alert(
-          `사용자 '${response.email}'로 임시 비밀번호가 이메일로 전송되었습니다.\n\n${response.note || ''}`,
+        toast.success(
+          `사용자 '${response.email}'로 임시 비밀번호가 이메일로 전송되었습니다.`,
         )
       } else {
-        alert(
-          `이메일 전송에 실패했습니다.\n임시 비밀번호: ${response.temporary_password || 'N/A'}\n\n관리자가 직접 사용자에게 전달해주세요.`,
+        toast.error(
+          `이메일 전송에 실패했습니다. 임시 비밀번호: ${response.temporary_password || 'N/A'}`,
         )
       }
 
@@ -243,7 +243,7 @@ export const UsersPage = () => {
       console.error('Failed to reset password:', error)
       const errorMsg =
         error.data?.detail || error.message || '비밀번호 초기화에 실패했습니다.'
-      alert(errorMsg)
+      toast.error(errorMsg)
     }
   }
 
@@ -252,8 +252,10 @@ export const UsersPage = () => {
     try {
       if (isActive) {
         await deactivateUser(userId).unwrap()
+        toast.success('사용자가 비활성화되었습니다.')
       } else {
         await activateUser(userId).unwrap()
+        toast.success('사용자가 활성화되었습니다.')
       }
     } catch (error) {
       console.error('Failed to toggle user status:', error)
@@ -261,7 +263,7 @@ export const UsersPage = () => {
         error.data?.detail ||
         error.message ||
         '사용자 상태 변경에 실패했습니다.'
-      alert(errorMsg)
+      toast.error(errorMsg)
     }
   }
 
@@ -273,11 +275,12 @@ export const UsersPage = () => {
       setActionUser(null)
       refetchStats()
       refetchUsers()
+      toast.success(`${actionUser.email} 사용자가 영구 삭제되었습니다.`)
     } catch (error) {
       console.error('Failed to hard delete:', error)
       const errorMsg =
         error.data?.detail || error.message || '영구 삭제에 실패했습니다.'
-      alert(errorMsg)
+      toast.error(errorMsg)
     }
   }
 
@@ -311,66 +314,83 @@ export const UsersPage = () => {
       />
 
       {/* 상단 요약 카드 */}
-      {displayStats && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StyledCard
-            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
-              statusFilter === 'all' ? 'ring-primary ring-2' : ''
-            }`}
-            onClick={() => setStatusFilter('all')}
-          >
-            <Users className="text-primary mb-2 h-8 w-8" />
-            <span className="text-muted-foreground text-sm font-medium">
-              총 사용자
-            </span>
-            <span className="text-foreground text-2xl font-bold">
-              {displayStats.total}명
-            </span>
-          </StyledCard>
-          <StyledCard
-            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
-              statusFilter === 'active' ? 'ring-2 ring-green-600' : ''
-            }`}
-            onClick={() => setStatusFilter('active')}
-          >
-            <UserCheck className="mb-2 h-8 w-8 text-green-600" />
-            <span className="text-muted-foreground text-sm font-medium">
-              활성 사용자
-            </span>
-            <span className="text-2xl font-bold text-green-600">
-              {displayStats.active}명
-            </span>
-          </StyledCard>
-          <StyledCard
-            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
-              statusFilter === 'inactive' ? 'ring-2 ring-gray-600' : ''
-            }`}
-            onClick={() => setStatusFilter('inactive')}
-          >
-            <UserX className="text-muted-foreground mb-2 h-8 w-8" />
-            <span className="text-muted-foreground text-sm font-medium">
-              비활성 사용자
-            </span>
-            <span className="text-muted-foreground text-2xl font-bold">
-              {displayStats.inactive}명
-            </span>
-          </StyledCard>
-          <StyledCard
-            className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
-              statusFilter === 'deleted' ? 'ring-2 ring-red-600' : ''
-            }`}
-            onClick={() => setStatusFilter('deleted')}
-          >
-            <Trash2 className="mb-2 h-8 w-8 text-red-600" />
-            <span className="text-muted-foreground text-sm font-medium">
-              탈퇴 사용자
-            </span>
-            <span className="text-2xl font-bold text-red-600">
-              {displayStats.deleted}명
-            </span>
-          </StyledCard>
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statsLoading ? (
+          // 로딩 스켈레톤
+          <>
+            {[...Array(4)].map((_, index) => (
+              <StyledCard
+                key={index}
+                className="flex flex-col items-center justify-center p-4"
+              >
+                <Skeleton className="mb-2 h-8 w-8 rounded-full" />
+                <Skeleton className="mb-1 h-4 w-16" />
+                <Skeleton className="h-8 w-20" />
+              </StyledCard>
+            ))}
+          </>
+        ) : (
+          // 실제 데이터
+          <>
+            <StyledCard
+              className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
+                statusFilter === 'all' ? 'ring-primary ring-2' : ''
+              }`}
+              onClick={() => setStatusFilter('all')}
+            >
+              <Users className="text-primary mb-2 h-8 w-8" />
+              <span className="text-muted-foreground text-sm font-medium">
+                총 사용자
+              </span>
+              <span className="text-foreground text-2xl font-bold">
+                {displayStats?.total || 0}명
+              </span>
+            </StyledCard>
+            <StyledCard
+              className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
+                statusFilter === 'active' ? 'ring-2 ring-green-600' : ''
+              }`}
+              onClick={() => setStatusFilter('active')}
+            >
+              <UserCheck className="mb-2 h-8 w-8 text-green-600" />
+              <span className="text-muted-foreground text-sm font-medium">
+                활성 사용자
+              </span>
+              <span className="text-2xl font-bold text-green-600">
+                {displayStats?.active || 0}명
+              </span>
+            </StyledCard>
+            <StyledCard
+              className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
+                statusFilter === 'inactive' ? 'ring-2 ring-gray-600' : ''
+              }`}
+              onClick={() => setStatusFilter('inactive')}
+            >
+              <UserX className="text-muted-foreground mb-2 h-8 w-8" />
+              <span className="text-muted-foreground text-sm font-medium">
+                비활성 사용자
+              </span>
+              <span className="text-muted-foreground text-2xl font-bold">
+                {displayStats?.inactive || 0}명
+              </span>
+            </StyledCard>
+            <StyledCard
+              className={`flex cursor-pointer flex-col items-center justify-center p-4 transition-all hover:shadow-md ${
+                statusFilter === 'deleted' ? 'ring-2 ring-red-600' : ''
+              }`}
+              onClick={() => setStatusFilter('deleted')}
+            >
+              <Trash2 className="mb-2 h-8 w-8 text-red-600" />
+              <span className="text-muted-foreground text-sm font-medium">
+                탈퇴 사용자
+              </span>
+              <span className="text-2xl font-bold text-red-600">
+                {displayStats?.deleted || 0}명
+              </span>
+            </StyledCard>
+          </>
+        )}
+      </div>
 
       {/* 검색 영역 */}
       <ContentSection transparent>
@@ -431,7 +451,7 @@ export const UsersPage = () => {
             <TableHeader className="bg-gray-50">
               <TableRow>
                 <TableHead>이메일</TableHead>
-                <TableHead>닉네임/이름</TableHead>
+                <TableHead>닉네임</TableHead>
                 <TableHead>상태</TableHead>
                 <TableHead>권한</TableHead>
                 <TableHead className="text-right">액션</TableHead>
@@ -443,10 +463,13 @@ export const UsersPage = () => {
                 return (
                   <TableRow
                     key={item.user_id}
-                    className={`transition hover:bg-gray-50 ${isDeleted ? 'opacity-60' : ''}`}
+                    className={`transition hover:bg-gray-50 ${isDeleted ? 'opacity-60' : 'cursor-pointer'}`}
+                    onClick={() =>
+                      !isDeleted && navigate(`/users/${item.user_id}`)
+                    }
                   >
                     <TableCell>{item.email}</TableCell>
-                    <TableCell>{item.nickname || item.name}</TableCell>
+                    <TableCell>{item.nickname || '-'}</TableCell>
                     <TableCell>
                       {isDeleted ? (
                         <Badge variant="destructive">탈퇴</Badge>
@@ -486,7 +509,6 @@ export const UsersPage = () => {
                               variant="ghost"
                               className="h-8 w-8 p-0"
                               onClick={(e) => {
-                                console.log('드롭다운 버튼 클릭됨', item)
                                 e.stopPropagation()
                               }}
                             >
@@ -499,8 +521,7 @@ export const UsersPage = () => {
                               onClick={(e) => {
                                 console.log('상세보기 클릭됨', item)
                                 e.stopPropagation()
-                                setSelectedUser(item)
-                                setIsDetailModalOpen(true)
+                                navigate(`/users/${item.user_id}`)
                               }}
                             >
                               <Eye className="mr-2 h-4 w-4" />
@@ -758,16 +779,6 @@ export const UsersPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* 사용자 상세 정보 모달 */}
-      <UserDetailModal
-        user={selectedUser}
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false)
-          setSelectedUser(null)
-        }}
-      />
     </PageContainer>
   )
 }

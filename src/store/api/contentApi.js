@@ -272,3 +272,133 @@ export const {
   useDeleteLeisureSportMutation,
   useGetLeisureFacilityNamesQuery,
 } = leisureSportsApi
+
+// Accommodations API
+export const accommodationsApi = createApi({
+  reducerPath: 'accommodationsApi',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['Accommodation'],
+  endpoints: (builder) => ({
+    getAccommodations: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.skip) queryParams.append('skip', params.skip)
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.region_code)
+          queryParams.append('region_code', params.region_code)
+        if (params?.accommodation_name)
+          queryParams.append('accommodation_name', params.accommodation_name)
+        if (params?.accommodation_type)
+          queryParams.append('accommodation_type', params.accommodation_type)
+        return `/api/accommodations/?${queryParams.toString()}`
+      },
+      providesTags: ['Accommodation'],
+    }),
+    getAccommodationById: builder.query({
+      query: (content_id) => `/api/accommodations/${content_id}`,
+      providesTags: (result, error, id) => [{ type: 'Accommodation', id }],
+    }),
+    createAccommodation: builder.mutation({
+      query: (data) => ({
+        url: '/api/accommodations',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Accommodation'],
+    }),
+    updateAccommodation: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/accommodations/${content_id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'Accommodation', content_id },
+      ],
+    }),
+    deleteAccommodation: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/accommodations/${content_id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Accommodation'],
+    }),
+    getAccommodationTypes: builder.query({
+      query: () => '/api/accommodations/types/list',
+    }),
+  }),
+})
+
+export const {
+  useGetAccommodationsQuery,
+  useGetAccommodationByIdQuery,
+  useCreateAccommodationMutation,
+  useUpdateAccommodationMutation,
+  useDeleteAccommodationMutation,
+  useGetAccommodationTypesQuery,
+} = accommodationsApi
+
+// Restaurants API
+export const restaurantsApi = createApi({
+  reducerPath: 'restaurantsApi',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['Restaurant'],
+  endpoints: (builder) => ({
+    getRestaurants: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.skip) queryParams.append('skip', params.skip)
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.region_code)
+          queryParams.append('region_code', params.region_code)
+        if (params?.restaurant_name)
+          queryParams.append('restaurant_name', params.restaurant_name)
+        if (params?.cuisine_type)
+          queryParams.append('cuisine_type', params.cuisine_type)
+        return `/api/restaurants/?${queryParams.toString()}`
+      },
+      providesTags: ['Restaurant'],
+    }),
+    getRestaurantById: builder.query({
+      query: (content_id) => `/api/restaurants/${content_id}`,
+      providesTags: (result, error, id) => [{ type: 'Restaurant', id }],
+    }),
+    createRestaurant: builder.mutation({
+      query: (data) => ({
+        url: '/api/restaurants',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Restaurant'],
+    }),
+    updateRestaurant: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/restaurants/${content_id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'Restaurant', content_id },
+      ],
+    }),
+    deleteRestaurant: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/restaurants/${content_id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Restaurant'],
+    }),
+    getCuisineTypes: builder.query({
+      query: () => '/api/restaurants/cuisine-types/list',
+    }),
+  }),
+})
+
+export const {
+  useGetRestaurantsQuery,
+  useGetRestaurantByIdQuery,
+  useCreateRestaurantMutation,
+  useUpdateRestaurantMutation,
+  useDeleteRestaurantMutation,
+  useGetCuisineTypesQuery,
+} = restaurantsApi

@@ -32,7 +32,7 @@ export const usersApi = createApi({
       providesTags: ['User'],
     }),
 
-    getUserById: builder.query({
+    getUser: builder.query({
       query: (id) => `/api/users/${id}`,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
@@ -132,7 +132,7 @@ export const usersApi = createApi({
 
 export const {
   useGetUsersQuery,
-  useGetUserByIdQuery,
+  useGetUserQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,

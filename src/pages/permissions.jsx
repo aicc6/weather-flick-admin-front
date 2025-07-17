@@ -10,7 +10,6 @@ import {
   useGetAdminsQuery,
 } from '@/store/api/adminsApi'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -21,13 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2, Users, Shield } from 'lucide-react'
@@ -57,12 +50,7 @@ import {
   ErrorState,
   StandardInput,
 } from '@/components/common'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const PermissionsPage = () => {
   const { user } = useAuth()
@@ -74,15 +62,13 @@ export const PermissionsPage = () => {
     error: matrixError,
   } = useGetPermissionsMatrixQuery()
 
-  const {
-    data: permissionsData,
-    isLoading: permissionsLoading,
-  } = useGetPermissionsQuery()
+  const { data: permissionsData, isLoading: permissionsLoading } =
+    useGetPermissionsQuery()
 
-  const {
-    data: adminsData,
-    isLoading: adminsLoading,
-  } = useGetAdminsQuery({ page: 1, size: 100 })
+  const { data: adminsData, isLoading: adminsLoading } = useGetAdminsQuery({
+    page: 1,
+    size: 100,
+  })
 
   const [createRoleMutation] = useCreateRoleMutation()
   const [updateRoleMutation] = useUpdateRoleMutation()
@@ -120,7 +106,12 @@ export const PermissionsPage = () => {
     try {
       await createRoleMutation(roleFormData).unwrap()
       setIsRoleDialogOpen(false)
-      setRoleFormData({ name: '', display_name: '', description: '', permission_ids: [] })
+      setRoleFormData({
+        name: '',
+        display_name: '',
+        description: '',
+        permission_ids: [],
+      })
     } catch (error) {
       console.error('역할 생성 실패:', error)
     }
@@ -135,7 +126,12 @@ export const PermissionsPage = () => {
       setIsRoleDialogOpen(false)
       setSelectedRole(null)
       setEditMode(false)
-      setRoleFormData({ name: '', display_name: '', description: '', permission_ids: [] })
+      setRoleFormData({
+        name: '',
+        display_name: '',
+        description: '',
+        permission_ids: [],
+      })
     } catch (error) {
       console.error('역할 수정 실패:', error)
     }
@@ -180,7 +176,12 @@ export const PermissionsPage = () => {
     } else {
       setSelectedRole(null)
       setEditMode(false)
-      setRoleFormData({ name: '', display_name: '', description: '', permission_ids: [] })
+      setRoleFormData({
+        name: '',
+        display_name: '',
+        description: '',
+        permission_ids: [],
+      })
     }
     setIsRoleDialogOpen(true)
   }
@@ -213,9 +214,11 @@ export const PermissionsPage = () => {
         description="시스템의 역할과 권한을 관리하고 관리자에게 할당할 수 있습니다."
       />
 
-      {(matrixError) && (
+      {matrixError && (
         <Alert variant="destructive">
-          <AlertDescription>{matrixError?.message || '데이터를 불러오는 중 오류가 발생했습니다'}</AlertDescription>
+          <AlertDescription>
+            {matrixError?.message || '데이터를 불러오는 중 오류가 발생했습니다'}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -253,13 +256,17 @@ export const PermissionsPage = () => {
             ) : (
               <div className="space-y-4">
                 {roles.map((role) => (
-                  <div key={role.role_id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
+                  <div key={role.role_id} className="rounded-lg border p-4">
+                    <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        {role.is_system && <Shield className="h-4 w-4 text-blue-600" />}
+                        {role.is_system && (
+                          <Shield className="h-4 w-4 text-blue-600" />
+                        )}
                         <h3 className="font-medium">{role.display_name}</h3>
                         {role.is_system && (
-                          <Badge variant="outline" className="text-xs">시스템</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            시스템
+                          </Badge>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -285,11 +292,17 @@ export const PermissionsPage = () => {
                       </div>
                     </div>
                     {role.description && (
-                      <p className="text-sm text-gray-600 mb-2">{role.description}</p>
+                      <p className="mb-2 text-sm text-gray-600">
+                        {role.description}
+                      </p>
                     )}
                     <div className="flex flex-wrap gap-1">
                       {role.permissions.map((permission) => (
-                        <Badge key={permission} variant="secondary" className="text-xs">
+                        <Badge
+                          key={permission}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {permission}
                         </Badge>
                       ))}
@@ -313,10 +326,7 @@ export const PermissionsPage = () => {
             {adminsLoading ? (
               <LoadingState message="관리자 목록을 불러오는 중..." />
             ) : admins.length === 0 ? (
-              <EmptyState
-                type="data"
-                message="등록된 관리자가 없습니다"
-              />
+              <EmptyState type="data" message="등록된 관리자가 없습니다" />
             ) : (
               <div className="rounded-md border">
                 <Table>
@@ -333,8 +343,12 @@ export const PermissionsPage = () => {
                       <TableRow key={admin.admin_id}>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{admin.name || admin.email}</div>
-                            <div className="text-sm text-gray-500">{admin.email}</div>
+                            <div className="font-medium">
+                              {admin.name || admin.email}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {admin.email}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -345,7 +359,9 @@ export const PermissionsPage = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={admin.is_active ? 'default' : 'outline'}>
+                          <Badge
+                            variant={admin.is_active ? 'default' : 'outline'}
+                          >
                             {admin.is_active ? '활성' : '비활성'}
                           </Badge>
                         </TableCell>
@@ -356,7 +372,7 @@ export const PermissionsPage = () => {
                             onClick={() => openAdminRoleDialog(admin)}
                             disabled={admin.admin_id === user?.admin_id}
                           >
-                            <Users className="h-4 w-4 mr-1" />
+                            <Users className="mr-1 h-4 w-4" />
                             권한 수정
                           </Button>
                         </TableCell>
@@ -376,7 +392,9 @@ export const PermissionsPage = () => {
           <DialogHeader>
             <DialogTitle>{editMode ? '역할 수정' : '새 역할 추가'}</DialogTitle>
             <DialogDescription>
-              {editMode ? '역할 정보와 권한을 수정합니다.' : '새로운 역할을 생성하고 권한을 설정합니다.'}
+              {editMode
+                ? '역할 정보와 권한을 수정합니다.'
+                : '새로운 역할을 생성하고 권한을 설정합니다.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -403,7 +421,10 @@ export const PermissionsPage = () => {
                 id="role-display-name"
                 value={roleFormData.display_name}
                 onChange={(e) =>
-                  setRoleFormData({ ...roleFormData, display_name: e.target.value })
+                  setRoleFormData({
+                    ...roleFormData,
+                    display_name: e.target.value,
+                  })
                 }
                 className="col-span-3"
                 placeholder="예: 콘텐츠 관리자"
@@ -411,14 +432,17 @@ export const PermissionsPage = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="role-description" className="text-right pt-2">
+              <Label htmlFor="role-description" className="pt-2 text-right">
                 설명
               </Label>
               <Textarea
                 id="role-description"
                 value={roleFormData.description}
                 onChange={(e) =>
-                  setRoleFormData({ ...roleFormData, description: e.target.value })
+                  setRoleFormData({
+                    ...roleFormData,
+                    description: e.target.value,
+                  })
                 }
                 className="col-span-3"
                 placeholder="역할에 대한 설명을 입력하세요"
@@ -426,36 +450,54 @@ export const PermissionsPage = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">권한</Label>
-              <div className="col-span-3 space-y-2 max-h-48 overflow-y-auto border rounded p-3">
+              <Label className="pt-2 text-right">권한</Label>
+              <div className="col-span-3 max-h-48 space-y-2 overflow-y-auto rounded border p-3">
                 {permissionsLoading ? (
-                  <p className="text-sm text-gray-500">권한 목록을 불러오는 중...</p>
+                  <p className="text-sm text-gray-500">
+                    권한 목록을 불러오는 중...
+                  </p>
                 ) : permissions.length === 0 ? (
-                  <p className="text-sm text-gray-500">사용 가능한 권한이 없습니다.</p>
+                  <p className="text-sm text-gray-500">
+                    사용 가능한 권한이 없습니다.
+                  </p>
                 ) : (
                   permissions.map((permission) => (
-                    <div key={permission.id} className="flex items-center space-x-2">
+                    <div
+                      key={permission.id}
+                      className="flex items-center space-x-2"
+                    >
                       <Checkbox
                         id={`permission_${permission.id}`}
-                        checked={roleFormData.permission_ids.includes(permission.id)}
+                        checked={roleFormData.permission_ids.includes(
+                          permission.id,
+                        )}
                         onCheckedChange={(checked) => {
                           if (checked) {
                             setRoleFormData({
                               ...roleFormData,
-                              permission_ids: [...roleFormData.permission_ids, permission.id]
+                              permission_ids: [
+                                ...roleFormData.permission_ids,
+                                permission.id,
+                              ],
                             })
                           } else {
                             setRoleFormData({
                               ...roleFormData,
-                              permission_ids: roleFormData.permission_ids.filter(id => id !== permission.id)
+                              permission_ids:
+                                roleFormData.permission_ids.filter(
+                                  (id) => id !== permission.id,
+                                ),
                             })
                           }
                         }}
                       />
-                      <Label htmlFor={`permission_${permission.id}`} className="text-sm">
+                      <Label
+                        htmlFor={`permission_${permission.id}`}
+                        className="text-sm"
+                      >
                         <span className="font-medium">{permission.name}</span>
                         {permission.description && (
-                          <span className="text-gray-500 text-xs block">
+                          <span className="block text-xs text-gray-500">
                             {permission.description}
                           </span>
                         )}
@@ -489,8 +531,9 @@ export const PermissionsPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>역할 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              '{selectedRole?.display_name}' 역할을 삭제하시겠습니까? 
-              이 작업은 되돌릴 수 없으며, 해당 역할을 가진 관리자가 있으면 삭제할 수 없습니다.
+              &apos;{selectedRole?.display_name}&apos; 역할을 삭제하시겠습니까?
+              이 작업은 되돌릴 수 없으며, 해당 역할을 가진 관리자가 있으면
+              삭제할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -506,12 +549,16 @@ export const PermissionsPage = () => {
       </AlertDialog>
 
       {/* 관리자 권한 수정 다이얼로그 */}
-      <Dialog open={isAdminRoleDialogOpen} onOpenChange={setIsAdminRoleDialogOpen}>
+      <Dialog
+        open={isAdminRoleDialogOpen}
+        onOpenChange={setIsAdminRoleDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>관리자 권한 수정</DialogTitle>
             <DialogDescription>
-              {selectedAdmin?.name || selectedAdmin?.email} 관리자의 권한을 수정합니다.
+              {selectedAdmin?.name || selectedAdmin?.email} 관리자의 권한을
+              수정합니다.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -521,49 +568,66 @@ export const PermissionsPage = () => {
                   id="admin-is-superuser"
                   checked={adminRoleFormData.is_superuser}
                   onCheckedChange={(checked) =>
-                    setAdminRoleFormData({ 
-                      ...adminRoleFormData, 
+                    setAdminRoleFormData({
+                      ...adminRoleFormData,
                       is_superuser: checked,
-                      role_ids: checked ? [] : adminRoleFormData.role_ids
+                      role_ids: checked ? [] : adminRoleFormData.role_ids,
                     })
                   }
                 />
                 <Label htmlFor="admin-is-superuser">슈퍼관리자 권한</Label>
               </div>
-              
+
               {!adminRoleFormData.is_superuser && (
                 <div className="space-y-2">
-                  <Label className="text-sm text-gray-600">일반 관리자 역할 선택:</Label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto border rounded p-2">
-                    {roles.filter(role => !role.is_system).map((role) => (
-                      <div key={role.role_id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`admin_role_${role.role_id}`}
-                          checked={adminRoleFormData.role_ids.includes(role.role_id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setAdminRoleFormData({
-                                ...adminRoleFormData,
-                                role_ids: [...adminRoleFormData.role_ids, role.role_id]
-                              })
-                            } else {
-                              setAdminRoleFormData({
-                                ...adminRoleFormData,
-                                role_ids: adminRoleFormData.role_ids.filter(id => id !== role.role_id)
-                              })
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`admin_role_${role.role_id}`} className="text-sm">
-                          {role.display_name}
-                          {role.description && (
-                            <span className="text-gray-500 text-xs block">
-                              {role.description}
-                            </span>
-                          )}
-                        </Label>
-                      </div>
-                    ))}
+                  <Label className="text-sm text-gray-600">
+                    일반 관리자 역할 선택:
+                  </Label>
+                  <div className="max-h-32 space-y-2 overflow-y-auto rounded border p-2">
+                    {roles
+                      .filter((role) => !role.is_system)
+                      .map((role) => (
+                        <div
+                          key={role.role_id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`admin_role_${role.role_id}`}
+                            checked={adminRoleFormData.role_ids.includes(
+                              role.role_id,
+                            )}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setAdminRoleFormData({
+                                  ...adminRoleFormData,
+                                  role_ids: [
+                                    ...adminRoleFormData.role_ids,
+                                    role.role_id,
+                                  ],
+                                })
+                              } else {
+                                setAdminRoleFormData({
+                                  ...adminRoleFormData,
+                                  role_ids: adminRoleFormData.role_ids.filter(
+                                    (id) => id !== role.role_id,
+                                  ),
+                                })
+                              }
+                            }}
+                          />
+                          <Label
+                            htmlFor={`admin_role_${role.role_id}`}
+                            className="text-sm"
+                          >
+                            {role.display_name}
+                            {role.description && (
+                              <span className="block text-xs text-gray-500">
+                                {role.description}
+                              </span>
+                            )}
+                          </Label>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}

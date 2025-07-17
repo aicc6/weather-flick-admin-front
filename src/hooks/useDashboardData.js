@@ -11,15 +11,31 @@ import { useGetUsersQuery } from '../store/api/usersApi'
 
 export function useDashboardData() {
   // 사용자 전체 목록 가져오기 (limit를 충분히 크게)
-  const { data: usersData = {} } = useGetUsersQuery({ limit: 9999 })
+  const { data: usersData = {}, isLoading: usersLoading } = useGetUsersQuery({
+    limit: 9999,
+  })
   const users = usersData?.users || []
 
   // 기존 쿼리들 유지
-  const { data: weatherData = null } = useGetWeatherSummaryQuery()
-  const { data: adminStats = null } = useGetAdminStatsQuery()
-  const { data: regionCountData = null } = useGetTravelCourseRegionCountQuery()
-  const { data: tourSummary = null } = useGetTouristAttractionsSummaryQuery()
-  const { data: systemStatus = null } = useGetSystemStatusQuery()
+  const { data: weatherData = null, isLoading: weatherLoading } =
+    useGetWeatherSummaryQuery()
+  const { data: adminStats = null, isLoading: adminLoading } =
+    useGetAdminStatsQuery()
+  const { data: regionCountData = null, isLoading: regionLoading } =
+    useGetTravelCourseRegionCountQuery()
+  const { data: tourSummary = null, isLoading: tourLoading } =
+    useGetTouristAttractionsSummaryQuery()
+  const { data: systemStatus = null, isLoading: systemLoading } =
+    useGetSystemStatusQuery()
+
+  // 전체 로딩 상태
+  const isLoading =
+    usersLoading ||
+    weatherLoading ||
+    adminLoading ||
+    regionLoading ||
+    tourLoading ||
+    systemLoading
 
   // 데이터 정규화 및 기본값 설정
   const normalizedData = useMemo(() => {
@@ -71,7 +87,7 @@ export function useDashboardData() {
     systemStatus,
   ])
 
-  return normalizedData
+  return { ...normalizedData, isLoading }
 }
 
 // 새로고침 기능을 위한 추가 훅

@@ -27,6 +27,7 @@ import {
   Plus,
   Trash2,
   Edit,
+  Eye,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -43,6 +44,7 @@ import {
   StandardInput,
 } from '@/components/common'
 import { Input } from '@/components/ui/input'
+import { UserDetailModal } from '@/components/users/UserDetailModal'
 import {
   Select,
   SelectContent,
@@ -74,6 +76,8 @@ export function UsersPage() {
   const [deleteUserMutation] = useDeleteUserMutation()
 
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [userFormData, setUserFormData] = useState({
     full_name: '',
     email: '',
@@ -110,6 +114,12 @@ export function UsersPage() {
       console.error('Failed to create user:', err)
       alert(`사용자 생성에 실패했습니다: ${err.message}`)
     }
+  }
+
+  // 사용자 상세보기
+  const handleViewDetail = (user) => {
+    setSelectedUser(user)
+    setIsDetailModalOpen(true)
   }
 
   // 사용자 삭제
@@ -332,7 +342,16 @@ export function UsersPage() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleViewDetail(user)}
+                          title="상세보기"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => console.log('Edit user:', user.id)}
+                          title="수정"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -340,6 +359,7 @@ export function UsersPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteUser(user.id)}
+                          title="삭제"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -492,6 +512,16 @@ export function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 사용자 상세보기 모달 */}
+      <UserDetailModal
+        user={selectedUser}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false)
+          setSelectedUser(null)
+        }}
+      />
     </PageContainer>
   )
 }

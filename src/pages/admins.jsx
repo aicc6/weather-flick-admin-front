@@ -98,7 +98,13 @@ export const AdminsPage = () => {
     try {
       await createAdminMutation(formData).unwrap()
       setIsCreateDialogOpen(false)
-      setFormData({ email: '', name: '', password: '', is_superuser: false, role_ids: [] })
+      setFormData({
+        email: '',
+        name: '',
+        password: '',
+        is_superuser: false,
+        role_ids: [],
+      })
     } catch (error) {
       console.error('관리자 생성에 실패했습니다:', error)
     }
@@ -112,7 +118,13 @@ export const AdminsPage = () => {
       }).unwrap()
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
-      setFormData({ email: '', name: '', password: '', is_superuser: false, role_ids: [] })
+      setFormData({
+        email: '',
+        name: '',
+        password: '',
+        is_superuser: false,
+        role_ids: [],
+      })
     } catch (error) {
       console.error('관리자 수정에 실패했습니다:', error)
     }
@@ -388,36 +400,42 @@ export const AdminsPage = () => {
                 required
               />
             </div>
-            
+
             {/* 권한 선택 */}
             <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">
-                권한
-              </Label>
+              <Label className="pt-2 text-right">권한</Label>
               <div className="col-span-3 space-y-3">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="is_superuser"
                     checked={formData.is_superuser}
                     onCheckedChange={(checked) =>
-                      setFormData({ 
-                        ...formData, 
+                      setFormData({
+                        ...formData,
                         is_superuser: checked,
-                        role_ids: checked ? [] : formData.role_ids
+                        role_ids: checked ? [] : formData.role_ids,
                       })
                     }
                   />
-                  <Label htmlFor="is_superuser" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  <Label
+                    htmlFor="is_superuser"
+                    className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
                     슈퍼관리자 권한
                   </Label>
                 </div>
-                
+
                 {!formData.is_superuser && (
                   <div className="space-y-2">
-                    <Label className="text-sm text-gray-600">일반 관리자 역할 선택:</Label>
-                    <div className="space-y-2 max-h-32 overflow-y-auto border rounded p-2">
+                    <Label className="text-sm text-gray-600">
+                      일반 관리자 역할 선택:
+                    </Label>
+                    <div className="max-h-32 space-y-2 overflow-y-auto rounded border p-2">
                       {roles.map((role) => (
-                        <div key={role.id} className="flex items-center space-x-2">
+                        <div
+                          key={role.id}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             id={`role_${role.id}`}
                             checked={formData.role_ids.includes(role.id)}
@@ -425,20 +443,25 @@ export const AdminsPage = () => {
                               if (checked) {
                                 setFormData({
                                   ...formData,
-                                  role_ids: [...formData.role_ids, role.id]
+                                  role_ids: [...formData.role_ids, role.id],
                                 })
                               } else {
                                 setFormData({
                                   ...formData,
-                                  role_ids: formData.role_ids.filter(id => id !== role.id)
+                                  role_ids: formData.role_ids.filter(
+                                    (id) => id !== role.id,
+                                  ),
                                 })
                               }
                             }}
                           />
-                          <Label htmlFor={`role_${role.id}`} className="text-sm">
+                          <Label
+                            htmlFor={`role_${role.id}`}
+                            className="text-sm"
+                          >
                             {role.display_name}
                             {role.description && (
-                              <span className="text-gray-500 text-xs block">
+                              <span className="block text-xs text-gray-500">
                                 {role.description}
                               </span>
                             )}
@@ -446,7 +469,9 @@ export const AdminsPage = () => {
                         </div>
                       ))}
                       {roles.length === 0 && (
-                        <p className="text-sm text-gray-500">사용 가능한 역할이 없습니다.</p>
+                        <p className="text-sm text-gray-500">
+                          사용 가능한 역할이 없습니다.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -544,7 +569,10 @@ export const AdminsPage = () => {
               관리자 {user?.is_superuser ? '영구 삭제' : '비활성화'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedAdmin?.name || selectedAdmin?.username || selectedAdmin?.email} 관리자를{' '}
+              {selectedAdmin?.name ||
+                selectedAdmin?.username ||
+                selectedAdmin?.email}{' '}
+              관리자를{' '}
               {user?.is_superuser
                 ? '영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 관련 데이터가 삭제됩니다.'
                 : '비활성화하시겠습니까? 비활성화된 관리자는 로그인할 수 없습니다.'}
