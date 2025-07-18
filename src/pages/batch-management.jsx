@@ -80,6 +80,11 @@ const BatchManagement = () => {
     // SYSTEM_HEALTH_CHECK 파라미터
     health_check_level: 'basic',
     health_notification_email: '',
+
+    // WEATHER_CHANGE_NOTIFICATION 파라미터
+    weather_notification_force_check: false,
+    weather_notification_email: '',
+    weather_notification_regions: [],
   })
 
   // API 호출
@@ -183,6 +188,14 @@ const BatchManagement = () => {
           ...baseParams,
           check_level: params.health_check_level,
           notification_email: params.health_notification_email,
+        }
+
+      case 'WEATHER_CHANGE_NOTIFICATION':
+        return {
+          ...baseParams,
+          force_check: params.weather_notification_force_check,
+          notification_email: params.weather_notification_email,
+          regions: params.weather_notification_regions,
         }
 
       default:
@@ -318,6 +331,13 @@ const BatchManagement = () => {
 
                 {selectedJobType === 'SYSTEM_HEALTH_CHECK' && (
                   <HealthCheckParametersForm
+                    jobParams={jobParams}
+                    setJobParams={setJobParams}
+                  />
+                )}
+
+                {selectedJobType === 'WEATHER_CHANGE_NOTIFICATION' && (
+                  <WeatherNotificationParametersForm
                     jobParams={jobParams}
                     setJobParams={setJobParams}
                   />
@@ -1159,6 +1179,110 @@ const HealthCheckParametersForm = ({ jobParams, setJobParams }) => {
             }))
           }
         />
+      </div>
+    </div>
+  )
+}
+
+// 날씨 변경 알림 파라미터 폼
+const WeatherNotificationParametersForm = ({ jobParams, setJobParams }) => {
+  const regionOptions = [
+    { value: 'seoul', label: '서울' },
+    { value: 'busan', label: '부산' },
+    { value: 'daegu', label: '대구' },
+    { value: 'incheon', label: '인천' },
+    { value: 'gwangju', label: '광주' },
+    { value: 'daejeon', label: '대전' },
+    { value: 'ulsan', label: '울산' },
+    { value: 'sejong', label: '세종' },
+    { value: 'gyeonggi', label: '경기' },
+    { value: 'gangwon', label: '강원' },
+    { value: 'chungbuk', label: '충북' },
+    { value: 'chungnam', label: '충남' },
+    { value: 'jeonbuk', label: '전북' },
+    { value: 'jeonnam', label: '전남' },
+    { value: 'gyeongbuk', label: '경북' },
+    { value: 'gyeongnam', label: '경남' },
+    { value: 'jeju', label: '제주' },
+  ]
+
+  const handleRegionChange = (regionValue, checked) => {
+    setJobParams((prev) => ({
+      ...prev,
+      weather_notification_regions: checked
+        ? [...prev.weather_notification_regions, regionValue]
+        : prev.weather_notification_regions.filter((r) => r !== regionValue),
+    }))
+  }
+
+  return (
+    <div className="space-y-4 rounded border p-4">
+      <h4 className="font-semibold">날씨 변경 알림 설정</h4>
+      
+      <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+        <p>📢 이 작업은 활성 여행 플랜의 날씨 변화를 감지하고 사용자에게 알림을 전송합니다.</p>
+        <p>• 온도 변화 5도 이상 또는 강수 확률 30% 이상 변화 시 알림</p>
+        <p>• 하루에 한 번만 알림 (중복 방지)</p>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="weather_notification_force_check"
+          checked={jobParams.weather_notification_force_check}
+          onCheckedChange={(checked) =>
+            setJobParams((prev) => ({
+              ...prev,
+              weather_notification_force_check: checked,
+            }))
+          }
+        />
+        <Label htmlFor="weather_notification_force_check">
+          강제 체크 (24시간 제한 무시)
+        </Label>
+      </div>
+
+      <div>
+        <Label>특정 지역만 체크 (선택사항, 미선택 시 전체 지역)</Label>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {regionOptions.map((region) => (
+            <div key={region.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`weather-notification-region-${region.value}`}
+                checked={jobParams.weather_notification_regions.includes(region.value)}
+                onCheckedChange={(checked) =>
+                  handleRegionChange(region.value, checked)
+                }
+              />
+              <label
+                htmlFor={`weather-notification-region-${region.value}`}
+                className="text-sm"
+              >
+                {region.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="weather_notification_email">
+          추가 알림 이메일 (선택사항)
+        </Label>
+        <Input
+          id="weather_notification_email"
+          type="email"
+          placeholder="admin@example.com"
+          value={jobParams.weather_notification_email}
+          onChange={(e) =>
+            setJobParams((prev) => ({
+              ...prev,
+              weather_notification_email: e.target.value,
+            }))
+          }
+        />
+        <div className="text-sm text-gray-500 mt-1">
+          사용자 외에 추가로 알림을 받을 관리자 이메일
+        </div>
       </div>
     </div>
   )
