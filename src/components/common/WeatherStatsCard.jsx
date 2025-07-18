@@ -1,4 +1,4 @@
-import { Cloud, Sun, CheckCircle } from 'lucide-react'
+import { Cloud, Sun, CheckCircle, Clock } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -8,8 +8,30 @@ import {
 } from '@/components/ui/card'
 import { calculateWeatherStats } from '@/utils/weatherUtils.jsx'
 
+// 날짜 포맷팅 헬퍼 함수
+function formatDateTime(dateString) {
+  if (!dateString) return '정보 없음'
+  const date = new Date(dateString)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  return `${month}/${day} ${hours}:${minutes.toString().padStart(2, '0')}`
+}
+
 export function WeatherStatsCard({ weatherData }) {
   const stats = calculateWeatherStats(weatherData)
+  
+  // weatherData가 배열인지 확인
+  const dataArray = Array.isArray(weatherData) ? weatherData : []
+  
+  // 가장 최근 업데이트 시간 찾기
+  const mostRecentUpdate = dataArray.reduce((latest, item) => {
+    const updateTime = item.last_updated || item.forecast_date
+    if (!updateTime) return latest
+    if (!latest) return updateTime
+    return new Date(updateTime) > new Date(latest) ? updateTime : latest
+  }, null)
 
   return (
     <Card>
@@ -54,9 +76,11 @@ export function WeatherStatsCard({ weatherData }) {
                 </span>
               </div>
               <div className="flex flex-col items-center justify-center p-2">
-                <CheckCircle className="mb-1 h-6 w-6 text-green-500" />
-                <span className="font-semibold">데이터 업데이트</span>
-                <span className="text-xs text-green-600">정상</span>
+                <Clock className="mb-1 h-6 w-6 text-green-500" />
+                <span className="font-semibold">마지막 업데이트</span>
+                <span className="text-xs text-green-600">
+                  {formatDateTime(mostRecentUpdate)}
+                </span>
               </div>
             </div>
           ) : (
