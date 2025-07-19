@@ -8,9 +8,12 @@ import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
 import { SystemStatusCard } from '@/components/common/SystemStatusCard'
 import { StatsGrid } from '@/layouts/StatsGrid'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
-import { useGetTravelCoursesQuery } from '@/store/api/contentApi'
-import { useGetFestivalEventsQuery } from '@/store/api/contentApi'
-import { useGetLeisureSportsQuery } from '@/store/api/contentApi'
+import { 
+  useGetTravelCoursesQuery,
+  useGetFestivalEventsQuery,
+  useGetLeisureSportsQuery 
+} from '@/store/api/contentApi'
+import { useGetDashboardStatsQuery } from '@/store/api/dashboardApi'
 import { Link } from 'react-router-dom'
 
 export const MainPage = () => {
@@ -22,6 +25,9 @@ export const MainPage = () => {
     isLoading: dashboardLoading,
   } = useDashboardData()
 
+  // 대시보드 종합 통계 데이터
+  const { data: dashboardStats } = useGetDashboardStatsQuery()
+  
   // 컨텐츠 관리 요약 데이터
   const { data: travelCourseData } = useGetTravelCoursesQuery({
     limit: 1,
@@ -89,7 +95,7 @@ export const MainPage = () => {
             description="전체 등록된 여행 코스 수"
             icon={BookOpen}
             iconColor="text-blue-500"
-            total={travelCourseData?.total ?? 0}
+            total={dashboardStats?.contents?.travel_courses ?? travelCourseData?.total ?? 0}
             totalColor="text-blue-600"
             className="h-full"
           >
@@ -104,7 +110,7 @@ export const MainPage = () => {
             description="전체 등록된 축제/이벤트 수"
             icon={Calendar}
             iconColor="text-pink-500"
-            total={festivalData?.total ?? 0}
+            total={dashboardStats?.contents?.festivals ?? festivalData?.total ?? 0}
             totalColor="text-pink-600"
             className="h-full"
           >
@@ -119,7 +125,7 @@ export const MainPage = () => {
             description="전체 등록된 레저 스포츠 수"
             icon={Dumbbell}
             iconColor="text-green-500"
-            total={leisureData?.total ?? 0}
+            total={dashboardStats?.contents?.leisure_sports ?? leisureData?.total ?? 0}
             totalColor="text-green-600"
             className="h-full"
           >

@@ -4,6 +4,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
 const apiRequest = async (url, options = {}) => {
   const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+  
+  console.log('Contact API - Token:', token ? 'exists' : 'missing', 'URL:', url)
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
@@ -15,6 +17,7 @@ const apiRequest = async (url, options = {}) => {
   })
 
   if (!response.ok) {
+    console.error('Contact API Error:', response.status, response.statusText)
     throw new Error(`API Error: ${response.status}`)
   }
 
@@ -34,28 +37,28 @@ export const contactApi = {
     if (params?.end_date) queryParams.append('end_date', params.end_date)
 
     return apiRequest(
-      `/api/contact${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
+      `/api/contacts/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
     )
   },
 
   // 문의 통계 조회
   getContactStats: async () => {
-    return apiRequest('/api/contact/stats')
+    return apiRequest('/api/contacts/stats')
   },
 
   // 문의 카테고리 목록 조회
   getCategories: async () => {
-    return apiRequest('/api/contact/categories')
+    return apiRequest('/api/contacts/categories')
   },
 
   // 문의 상세 조회
   getContact: async (contactId) => {
-    return apiRequest(`/api/contact/${contactId}`)
+    return apiRequest(`/api/contacts/${contactId}`)
   },
 
   // 문의 상태 변경
   updateContactStatus: async (contactId, data) => {
-    return apiRequest(`/api/contact/${contactId}/status`, {
+    return apiRequest(`/api/contacts/${contactId}/status`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
@@ -63,7 +66,7 @@ export const contactApi = {
 
   // 문의 답변 작성
   createAnswer: async (contactId, data) => {
-    return apiRequest(`/api/contact/${contactId}/answer`, {
+    return apiRequest(`/api/contacts/${contactId}/answer`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -71,7 +74,7 @@ export const contactApi = {
 
   // 문의 답변 수정
   updateAnswer: async (contactId, data) => {
-    return apiRequest(`/api/contact/${contactId}/answer`, {
+    return apiRequest(`/api/contacts/${contactId}/answer`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
@@ -79,7 +82,7 @@ export const contactApi = {
 
   // 문의 답변 삭제
   deleteAnswer: async (contactId) => {
-    return apiRequest(`/api/contact/${contactId}/answer`, {
+    return apiRequest(`/api/contacts/${contactId}/answer`, {
       method: 'DELETE',
     })
   },

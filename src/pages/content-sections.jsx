@@ -1,16 +1,9 @@
 import { useState, useEffect } from 'react'
 import {
-  useGetTravelCoursesQuery,
-  useCreateTravelCourseMutation,
-  useDeleteTravelCourseMutation,
-  useGetFestivalEventsQuery,
-  useCreateFestivalEventMutation,
-  useUpdateFestivalEventMutation,
-  useDeleteFestivalEventMutation,
-  useGetLeisureSportsQuery,
-  useCreateLeisureSportMutation,
-  useUpdateLeisureSportMutation,
-  useDeleteLeisureSportMutation,
+  useGetTouristAttractionsQuery,
+  useCreateTouristAttractionMutation,
+  useUpdateTouristAttractionMutation,
+  useDeleteTouristAttractionMutation,
   useGetAccommodationsQuery,
   useCreateAccommodationMutation,
   useUpdateAccommodationMutation,
@@ -19,18 +12,7 @@ import {
   useCreateRestaurantMutation,
   useUpdateRestaurantMutation,
   useDeleteRestaurantMutation,
-  useGetTouristAttractionsQuery,
-  useCreateTouristAttractionMutation,
-  useUpdateTouristAttractionMutation,
-  useDeleteTouristAttractionMutation,
 } from '@/store/api/contentApi'
-import {
-  useGetTravelPlansQuery,
-  useCreateTravelPlanMutation,
-  useUpdateTravelPlanMutation,
-  useDeleteTravelPlanMutation,
-} from '@/store/api/travelPlansApi'
-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -77,6 +59,7 @@ import {
 import { Link } from 'react-router-dom'
 import { REGION_MAP } from '@/constants/region'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { formatTableValue, formatAddress, formatDate, formatTel } from '@/utils/dataHelpers'
 import {
   AlertCircle,
   Trash2,
@@ -94,8 +77,6 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from '@/components/ui/pagination'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { PageContainer, PageHeader } from '@/layouts'
 import {
   LoadingState,
   EmptyState,
@@ -104,113 +85,68 @@ import {
   StyledCardContent,
   CategoryBadge,
 } from '@/components/common'
-import { QueryClient } from '@tanstack/react-query'
-import {
-  TouristAttractionsSection,
-  AccommodationsSection,
-  RestaurantsSection,
-} from './content-sections'
-
-const queryClient = new QueryClient()
 
 const REGION_OPTIONS = Object.entries(REGION_MAP)
 
-const TABS = [
-  { key: 'course', label: '여행 코스 관리' },
-  { key: 'plan', label: '여행 계획 관리' },
-  { key: 'festival', label: '콘텐츠 관리' },
-]
-
-export const ContentPage = () => {
-  const [activeTab, setActiveTab] = useState('course')
-
-  return (
-    <PageContainer>
-      <PageHeader
-        title="콘텐츠 관리"
-        description="여행 코스, 여행 계획, 축제 이벤트 및 레저 스포츠 시설을 관리합니다."
-      />
-
-      {/* 탭 네비게이션 */}
-      <div className="mb-6">
-        <div className="border-border border-b">
-          <nav className="-mb-px flex space-x-8">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                className={`border-b-2 px-1 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-primary text-primary'
-                    : 'text-muted-foreground hover:text-foreground border-transparent hover:border-gray-300'
-                }`}
-                onClick={() => setActiveTab(tab.key)}
-                type="button"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* 탭 콘텐츠 */}
-      {activeTab === 'course' && <TravelCoursesSection />}
-      {activeTab === 'plan' && <TravelPlansSection />}
-      {activeTab === 'festival' && (
-        <Tabs defaultValue="event" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="event">축제 이벤트</TabsTrigger>
-            <TabsTrigger value="leisure">레저 스포츠</TabsTrigger>
-            <TabsTrigger value="attraction">관광지</TabsTrigger>
-            <TabsTrigger value="accommodation">숙박시설</TabsTrigger>
-            <TabsTrigger value="restaurant">음식점</TabsTrigger>
-          </TabsList>
-          <TabsContent value="event">
-            <FestivalEventSection />
-          </TabsContent>
-          <TabsContent value="leisure">
-            <LeisureSportsSection />
-          </TabsContent>
-          <TabsContent value="attraction">
-            <TouristAttractionsSection />
-          </TabsContent>
-          <TabsContent value="accommodation">
-            <AccommodationsSection />
-          </TabsContent>
-          <TabsContent value="restaurant">
-            <RestaurantsSection />
-          </TabsContent>
-        </Tabs>
-      )}
-    </PageContainer>
-  )
+// 유효한 데이터인지 확인하는 헬퍼 함수
+const hasValidData = (item) => {
+  // 필수 필드가 있는지 확인
+  if (!item.content_id) return false
+  
+  // 이름이 비어있지 않은지 확인
+  const nameField = item.attraction_name || item.accommodation_name || item.restaurant_name
+  if (!nameField || nameField.trim() === '') return false
+  
+  // 최소한 하나의 의미있는 정보가 있는지 확인
+  const hasInfo = 
+    (item.address && item.address.trim() !== '') ||
+    (item.description && item.description.trim() !== '') ||
+    (item.tel && item.tel.trim() !== '') ||
+    (item.image_url && item.image_url.trim() !== '') ||
+    item.latitude || 
+    item.longitude
+  
+  return hasInfo
 }
 
-function TravelCoursesSection() {
-  const [searchCourseName, setSearchCourseName] = useState('')
-  const [searchRegion, setSearchRegion] = useState('')
-  const [addOpen, setAddOpen] = useState(false)
-  const [deleteId, setDeleteId] = useState(null)
-  const [form, setForm] = useState({ course_name: '', region_code: '' })
+// 관광지 섹션
+export function TouristAttractionsSection() {
   const [page, setPage] = useState(1)
   const limit = 20
   const offset = (page - 1) * limit
+  const [searchName, setSearchName] = useState('')
+  const [searchRegion, setSearchRegion] = useState('')
+  const [deleteId, setDeleteId] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editData, setEditData] = useState(null)
+  const [errorMsg, setErrorMsg] = useState(null)
+  
+  const [form, setForm] = useState({
+    attraction_name: '',
+    description: '',
+    address: '',
+    image_url: '',
+    latitude: '',
+    longitude: '',
+    category_code: '',
+    category_name: '',
+    region_code: '',
+  })
 
-  const { data, isLoading, error, refetch } = useGetTravelCoursesQuery({
+  const { data, isLoading, error, refetch } = useGetTouristAttractionsQuery({
     limit,
     offset,
-    course_name: searchCourseName,
-    region: searchRegion,
+    attraction_name: searchName || undefined,
+    region_code: searchRegion && searchRegion !== 'all' ? searchRegion : undefined,
   })
-  const [createTravelCourse, { isLoading: isCreating }] =
-    useCreateTravelCourseMutation()
-  const [deleteTravelCourse, { isLoading: isDeleting }] =
-    useDeleteTravelCourseMutation()
-  const [errorMsg, setErrorMsg] = useState(null)
+
+  const [createTouristAttraction, { isLoading: isCreating }] = useCreateTouristAttractionMutation()
+  const [updateTouristAttraction, { isLoading: isUpdating }] = useUpdateTouristAttractionMutation()
+  const [deleteTouristAttraction, { isLoading: isDeleting }] = useDeleteTouristAttractionMutation()
 
   useEffect(() => {
     setPage(1)
-  }, [searchCourseName, searchRegion])
+  }, [searchName, searchRegion])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -218,22 +154,666 @@ function TravelCoursesSection() {
     refetch()
   }
 
-  const handleAdd = async (e) => {
+  const handleOpenCreate = () => {
+    setEditData(null)
+    setForm({
+      attraction_name: '',
+      description: '',
+      address: '',
+      image_url: '',
+      latitude: '',
+      longitude: '',
+      category_code: '',
+      category_name: '',
+      region_code: '',
+    })
+    setModalOpen(true)
+  }
+
+  const handleOpenEdit = (attraction) => {
+    setEditData(attraction)
+    setForm({
+      attraction_name: attraction.attraction_name || '',
+      description: attraction.description || '',
+      address: attraction.address || '',
+      image_url: attraction.image_url || '',
+      latitude: attraction.latitude || '',
+      longitude: attraction.longitude || '',
+      category_code: attraction.category_code || '',
+      category_name: attraction.category_name || '',
+      region_code: attraction.region_code || '',
+    })
+    setModalOpen(true)
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await createTravelCourse(form)
-      setForm({ course_name: '', region_code: '' })
-      setAddOpen(false)
+      const formData = {
+        ...form,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+      }
+      
+      if (editData) {
+        await updateTouristAttraction({ 
+          content_id: editData.content_id, 
+          data: formData 
+        }).unwrap()
+      } else {
+        await createTouristAttraction(formData).unwrap()
+      }
+      setModalOpen(false)
       refetch()
     } catch (err) {
-      setErrorMsg(err.message || '추가 실패')
+      setErrorMsg(err.message || '저장 실패')
     }
   }
 
   const handleDelete = async () => {
     if (deleteId) {
       try {
-        await deleteTravelCourse(deleteId)
+        await deleteTouristAttraction(deleteId).unwrap()
+        setDeleteId(null)
+        refetch()
+      } catch (err) {
+        setErrorMsg(err.message || '삭제 실패')
+      }
+    }
+  }
+
+  // 필터링된 데이터 개수 계산
+  const filteredItems = data?.items ? data.items.filter(hasValidData) : []
+  const hiddenCount = data?.items ? data.items.length - filteredItems.length : 0
+  
+  const totalPages = data ? Math.ceil(data.total / limit) : 1
+  const renderPagination = () => {
+    if (totalPages <= 1) return null
+    const pageItems = []
+    let start = Math.max(1, page - 2)
+    let end = Math.min(totalPages, page + 2)
+
+    if (page <= 3) {
+      end = Math.min(5, totalPages)
+    } else if (page >= totalPages - 2) {
+      start = Math.max(1, totalPages - 4)
+    }
+
+    pageItems.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious
+          onClick={() => setPage(page > 1 ? page - 1 : 1)}
+          aria-disabled={page === 1}
+          className={
+            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          }
+        />
+      </PaginationItem>,
+    )
+
+    if (start > 1) {
+      pageItems.push(
+        <PaginationItem key={1}>
+          <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
+            1
+          </PaginationLink>
+        </PaginationItem>,
+      )
+      if (start > 2) {
+        pageItems.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pageItems.push(
+        <PaginationItem key={i}>
+          <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
+            {i}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        pageItems.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+      pageItems.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+
+    pageItems.push(
+      <PaginationItem key="next">
+        <PaginationNext
+          onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
+          aria-disabled={page === totalPages}
+          className={
+            page === totalPages
+              ? 'pointer-events-none opacity-50'
+              : 'cursor-pointer'
+          }
+        />
+      </PaginationItem>,
+    )
+
+    return (
+      <Pagination className="justify-center">
+        <PaginationContent>{pageItems}</PaginationContent>
+      </Pagination>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {errorMsg && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* 검색 및 액션 바 */}
+      <StyledCard>
+        <StyledCardContent className="p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col gap-4 lg:flex-row lg:items-end"
+            >
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <label htmlFor="search-name" className="text-sm font-medium">
+                    관광지명
+                  </label>
+                  <Input
+                    id="search-name"
+                    placeholder="관광지명 검색..."
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="search-region"
+                    className="text-sm font-medium"
+                  >
+                    지역
+                  </label>
+                  <Select value={searchRegion} onValueChange={setSearchRegion}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="전체 지역" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">전체</SelectItem>
+                      {REGION_OPTIONS.map(([code, name]) => (
+                        <SelectItem key={code} value={code}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2 lg:items-end">
+                  <Button type="submit" disabled={isLoading}>
+                    <Search className="mr-2 h-4 w-4" />
+                    검색
+                  </Button>
+                </div>
+              </div>
+            </form>
+
+            <Button onClick={handleOpenCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              관광지 등록
+            </Button>
+          </div>
+        </StyledCardContent>
+      </StyledCard>
+
+      {/* 테이블 */}
+      <StyledCard>
+        <StyledCardContent className="p-0">
+          {isLoading ? (
+            <div className="p-8">
+              <LoadingState message="관광지 데이터를 불러오는 중..." />
+            </div>
+          ) : error ? (
+            <div className="p-8">
+              <ErrorState
+                error={error}
+                onRetry={refetch}
+                message="관광지 데이터를 불러올 수 없습니다"
+              />
+            </div>
+          ) : !data?.items?.length ? (
+            <div className="p-8">
+              <EmptyState
+                type="search"
+                message={
+                  searchName || searchRegion
+                    ? '검색 결과가 없습니다'
+                    : '등록된 관광지가 없습니다'
+                }
+                description={
+                  searchName || searchRegion
+                    ? '다른 검색어로 시도해보세요'
+                    : '새로운 관광지를 등록해주세요'
+                }
+              />
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">관광지명</TableHead>
+                    <TableHead>지역</TableHead>
+                    <TableHead>카테고리</TableHead>
+                    <TableHead>주소</TableHead>
+                    <TableHead className="w-[100px]">액션</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.items.filter(hasValidData).map((attraction) => (
+                    <TableRow key={attraction.content_id}>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <Link
+                            to={`/tourist-attractions/${attraction.content_id}`}
+                            className="text-primary font-medium hover:underline"
+                          >
+                            {formatTableValue(attraction.attraction_name)}
+                          </Link>
+                          {attraction.description && (
+                            <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
+                              {attraction.description.length > 80
+                                ? `${attraction.description.substring(0, 80)}...`
+                                : attraction.description}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {REGION_MAP[attraction.region_code] || attraction.region_code}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {attraction.category_info ? (
+                          <CategoryBadge
+                            categoryCode={attraction.category_info.category_code}
+                            categoryName={attraction.category_info.category_name}
+                            showIcon={true}
+                            showTooltip={true}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatAddress(attraction.address)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEdit(attraction)}
+                            >
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeleteId(attraction.content_id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* 페이지네이션 */}
+              <div className="border-t p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-muted-foreground text-sm">
+                    총 {data?.total || 0}개 중{' '}
+                    {Math.min(offset + 1, data?.total || 0)}-
+                    {Math.min(offset + limit, data?.total || 0)}개 표시
+                  </div>
+                  {renderPagination()}
+                </div>
+              </div>
+            </>
+          )}
+        </StyledCardContent>
+      </StyledCard>
+
+      {/* 등록/수정 다이얼로그 */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editData ? '관광지 수정' : '관광지 등록'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="attraction_name" className="text-sm font-medium">
+                  관광지명
+                </label>
+                <Input
+                  id="attraction_name"
+                  name="attraction_name"
+                  value={form.attraction_name}
+                  onChange={handleChange}
+                  placeholder="관광지명"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="region_code" className="text-sm font-medium">
+                  지역
+                </label>
+                <Select
+                  value={form.region_code}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, region_code: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="지역 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGION_OPTIONS.map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="category_code" className="text-sm font-medium">
+                  카테고리 코드
+                </label>
+                <Input
+                  id="category_code"
+                  name="category_code"
+                  value={form.category_code}
+                  onChange={handleChange}
+                  placeholder="예: A0101"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="category_name" className="text-sm font-medium">
+                  카테고리명
+                </label>
+                <Input
+                  id="category_name"
+                  name="category_name"
+                  value={form.category_name}
+                  onChange={handleChange}
+                  placeholder="예: 자연관광지"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="latitude" className="text-sm font-medium">
+                  위도
+                </label>
+                <Input
+                  id="latitude"
+                  name="latitude"
+                  type="number"
+                  step="any"
+                  value={form.latitude}
+                  onChange={handleChange}
+                  placeholder="37.5665"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="longitude" className="text-sm font-medium">
+                  경도
+                </label>
+                <Input
+                  id="longitude"
+                  name="longitude"
+                  type="number"
+                  step="any"
+                  value={form.longitude}
+                  onChange={handleChange}
+                  placeholder="126.9780"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="address" className="text-sm font-medium">
+                주소
+              </label>
+              <Input
+                id="address"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="전체 주소"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium">
+                설명
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="관광지에 대한 설명을 입력하세요"
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[100px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="image_url" className="text-sm font-medium">
+                대표 이미지 URL
+              </label>
+              <Input
+                id="image_url"
+                name="image_url"
+                value={form.image_url}
+                onChange={handleChange}
+                placeholder="이미지 URL"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  취소
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={isCreating || isUpdating}>
+                {editData ? '수정' : '등록'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 작업은 되돌릴 수 없습니다. 관광지가 영구적으로 삭제됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
+// 숙박시설 섹션
+export function AccommodationsSection() {
+  const [page, setPage] = useState(1)
+  const limit = 20
+  const offset = (page - 1) * limit
+  const [searchName, setSearchName] = useState('')
+  const [searchRegion, setSearchRegion] = useState('')
+  const [deleteId, setDeleteId] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editData, setEditData] = useState(null)
+  const [errorMsg, setErrorMsg] = useState(null)
+  
+  const [form, setForm] = useState({
+    accommodation_name: '',
+    description: '',
+    address: '',
+    image_url: '',
+    latitude: '',
+    longitude: '',
+    room_type: '',
+    check_in_time: '',
+    check_out_time: '',
+    price_range: '',
+    category_code: '',
+    category_name: '',
+    region_code: '',
+  })
+
+  const { data, isLoading, error, refetch } = useGetAccommodationsQuery({
+    limit,
+    offset,
+    accommodation_name: searchName || undefined,
+    region_code: searchRegion && searchRegion !== 'all' ? searchRegion : undefined,
+  })
+
+  const [createAccommodation, { isLoading: isCreating }] = useCreateAccommodationMutation()
+  const [updateAccommodation, { isLoading: isUpdating }] = useUpdateAccommodationMutation()
+  const [deleteAccommodation, { isLoading: isDeleting }] = useDeleteAccommodationMutation()
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchName, searchRegion])
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    setPage(1)
+    refetch()
+  }
+
+  const handleOpenCreate = () => {
+    setEditData(null)
+    setForm({
+      accommodation_name: '',
+      description: '',
+      address: '',
+      image_url: '',
+      latitude: '',
+      longitude: '',
+      room_type: '',
+      check_in_time: '',
+      check_out_time: '',
+      price_range: '',
+      category_code: '',
+      category_name: '',
+      region_code: '',
+    })
+    setModalOpen(true)
+  }
+
+  const handleOpenEdit = (accommodation) => {
+    setEditData(accommodation)
+    setForm({
+      accommodation_name: accommodation.accommodation_name || '',
+      description: accommodation.description || '',
+      address: accommodation.address || '',
+      image_url: accommodation.image_url || '',
+      latitude: accommodation.latitude || '',
+      longitude: accommodation.longitude || '',
+      room_type: accommodation.room_type || '',
+      check_in_time: accommodation.check_in_time || '',
+      check_out_time: accommodation.check_out_time || '',
+      price_range: accommodation.price_range || '',
+      category_code: accommodation.category_code || '',
+      category_name: accommodation.category_name || '',
+      region_code: accommodation.region_code || '',
+    })
+    setModalOpen(true)
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const formData = {
+        ...form,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+      }
+      
+      if (editData) {
+        await updateAccommodation({ 
+          content_id: editData.content_id, 
+          data: formData 
+        }).unwrap()
+      } else {
+        await createAccommodation(formData).unwrap()
+      }
+      setModalOpen(false)
+      refetch()
+    } catch (err) {
+      setErrorMsg(err.message || '저장 실패')
+    }
+  }
+
+  const handleDelete = async () => {
+    if (deleteId) {
+      try {
+        await deleteAccommodation(deleteId).unwrap()
         setDeleteId(null)
         refetch()
       } catch (err) {
@@ -355,13 +935,13 @@ function TravelCoursesSection() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
                   <label htmlFor="search-name" className="text-sm font-medium">
-                    코스명
+                    숙박시설명
                   </label>
                   <Input
                     id="search-name"
-                    placeholder="코스명 검색..."
-                    value={searchCourseName}
-                    onChange={(e) => setSearchCourseName(e.target.value)}
+                    placeholder="숙박시설명 검색..."
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -394,73 +974,10 @@ function TravelCoursesSection() {
               </div>
             </form>
 
-            <Dialog open={addOpen} onOpenChange={setAddOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  코스 등록
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>여행코스 등록</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleAdd} className="space-y-4">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="course-name"
-                      className="text-sm font-medium"
-                    >
-                      코스명
-                    </label>
-                    <Input
-                      id="course-name"
-                      placeholder="코스명을 입력하세요"
-                      value={form.course_name}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, course_name: e.target.value }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="region-code"
-                      className="text-sm font-medium"
-                    >
-                      지역
-                    </label>
-                    <Select
-                      value={form.region_code}
-                      onValueChange={(value) =>
-                        setForm((f) => ({ ...f, region_code: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="지역을 선택하세요" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {REGION_OPTIONS.map(([code, name]) => (
-                          <SelectItem key={code} value={code}>
-                            {name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline">
-                        취소
-                      </Button>
-                    </DialogClose>
-                    <Button type="submit" disabled={isCreating}>
-                      등록
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={handleOpenCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              숙박시설 등록
+            </Button>
           </div>
         </StyledCardContent>
       </StyledCard>
@@ -470,14 +987,14 @@ function TravelCoursesSection() {
         <StyledCardContent className="p-0">
           {isLoading ? (
             <div className="p-8">
-              <LoadingState message="여행코스 데이터를 불러오는 중..." />
+              <LoadingState message="숙박시설 데이터를 불러오는 중..." />
             </div>
           ) : error ? (
             <div className="p-8">
               <ErrorState
                 error={error}
                 onRetry={refetch}
-                message="여행코스 데이터를 불러올 수 없습니다"
+                message="숙박시설 데이터를 불러올 수 없습니다"
               />
             </div>
           ) : !data?.items?.length ? (
@@ -485,14 +1002,14 @@ function TravelCoursesSection() {
               <EmptyState
                 type="search"
                 message={
-                  searchCourseName || searchRegion
+                  searchName || searchRegion
                     ? '검색 결과가 없습니다'
-                    : '등록된 여행코스가 없습니다'
+                    : '등록된 숙박시설이 없습니다'
                 }
                 description={
-                  searchCourseName || searchRegion
+                  searchName || searchRegion
                     ? '다른 검색어로 시도해보세요'
-                    : '새로운 여행코스를 등록해주세요'
+                    : '새로운 숙박시설을 등록해주세요'
                 }
               />
             </div>
@@ -501,52 +1018,47 @@ function TravelCoursesSection() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[200px]">코스명</TableHead>
+                    <TableHead className="min-w-[200px]">숙박시설명</TableHead>
                     <TableHead>지역</TableHead>
-                    <TableHead>카테고리</TableHead>
+                    <TableHead>객실 유형</TableHead>
+                    <TableHead>가격대</TableHead>
                     <TableHead>주소</TableHead>
                     <TableHead className="w-[100px]">액션</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.items.map((course) => (
-                    <TableRow key={course.content_id}>
+                  {data.items.filter(hasValidData).map((accommodation) => (
+                    <TableRow key={accommodation.content_id}>
                       <TableCell>
                         <div className="space-y-1">
                           <Link
-                            to={`/content/${course.content_id}`}
+                            to={`/accommodations/${accommodation.content_id}`}
                             className="text-primary font-medium hover:underline"
                           >
-                            {course.course_name}
+                            {formatTableValue(accommodation.accommodation_name)}
                           </Link>
-                          {course.overview && (
+                          {accommodation.description && (
                             <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
-                              {course.overview.length > 80
-                                ? `${course.overview.substring(0, 80)}...`
-                                : course.overview}
+                              {accommodation.description.length > 80
+                                ? `${accommodation.description.substring(0, 80)}...`
+                                : accommodation.description}
                             </p>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {REGION_MAP[course.region_code] || course.region_code}
+                          {REGION_MAP[accommodation.region_code] || accommodation.region_code}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        {course.category_info ? (
-                          <CategoryBadge
-                            categoryCode={course.category_info.category_code}
-                            categoryName={course.category_info.category_name}
-                            showIcon={true}
-                            showTooltip={true}
-                          />
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                      <TableCell className="text-muted-foreground">
+                        {accommodation.room_type || '-'}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {course.address || '-'}
+                        {formatTableValue(accommodation.price_range)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatAddress(accommodation.address)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -557,7 +1069,13 @@ function TravelCoursesSection() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => setDeleteId(course.content_id)}
+                              onClick={() => handleOpenEdit(accommodation)}
+                            >
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeleteId(accommodation.content_id)}
                               className="text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -587,6 +1105,179 @@ function TravelCoursesSection() {
         </StyledCardContent>
       </StyledCard>
 
+      {/* 등록/수정 다이얼로그 */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editData ? '숙박시설 수정' : '숙박시설 등록'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="accommodation_name" className="text-sm font-medium">
+                  숙박시설명
+                </label>
+                <Input
+                  id="accommodation_name"
+                  name="accommodation_name"
+                  value={form.accommodation_name}
+                  onChange={handleChange}
+                  placeholder="숙박시설명"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="region_code" className="text-sm font-medium">
+                  지역
+                </label>
+                <Select
+                  value={form.region_code}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, region_code: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="지역 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGION_OPTIONS.map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="room_type" className="text-sm font-medium">
+                  객실 유형
+                </label>
+                <Input
+                  id="room_type"
+                  name="room_type"
+                  value={form.room_type}
+                  onChange={handleChange}
+                  placeholder="예: 디럭스, 스탠다드"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="price_range" className="text-sm font-medium">
+                  가격대
+                </label>
+                <Input
+                  id="price_range"
+                  name="price_range"
+                  value={form.price_range}
+                  onChange={handleChange}
+                  placeholder="예: 10만원~15만원"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="check_in_time" className="text-sm font-medium">
+                  체크인 시간
+                </label>
+                <Input
+                  id="check_in_time"
+                  name="check_in_time"
+                  value={form.check_in_time}
+                  onChange={handleChange}
+                  placeholder="예: 15:00"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="check_out_time" className="text-sm font-medium">
+                  체크아웃 시간
+                </label>
+                <Input
+                  id="check_out_time"
+                  name="check_out_time"
+                  value={form.check_out_time}
+                  onChange={handleChange}
+                  placeholder="예: 11:00"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="latitude" className="text-sm font-medium">
+                  위도
+                </label>
+                <Input
+                  id="latitude"
+                  name="latitude"
+                  type="number"
+                  step="any"
+                  value={form.latitude}
+                  onChange={handleChange}
+                  placeholder="37.5665"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="longitude" className="text-sm font-medium">
+                  경도
+                </label>
+                <Input
+                  id="longitude"
+                  name="longitude"
+                  type="number"
+                  step="any"
+                  value={form.longitude}
+                  onChange={handleChange}
+                  placeholder="126.9780"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="address" className="text-sm font-medium">
+                주소
+              </label>
+              <Input
+                id="address"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="전체 주소"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="description" className="text-sm font-medium">
+                설명
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="숙박시설에 대한 설명을 입력하세요"
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[100px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="image_url" className="text-sm font-medium">
+                대표 이미지 URL
+              </label>
+              <Input
+                id="image_url"
+                name="image_url"
+                value={form.image_url}
+                onChange={handleChange}
+                placeholder="이미지 URL"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  취소
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={isCreating || isUpdating}>
+                {editData ? '수정' : '등록'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* 삭제 확인 다이얼로그 */}
       <AlertDialog
         open={!!deleteId}
@@ -596,7 +1287,7 @@ function TravelCoursesSection() {
           <AlertDialogHeader>
             <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
             <AlertDialogDescription>
-              이 작업은 되돌릴 수 없습니다. 여행코스가 영구적으로 삭제됩니다.
+              이 작업은 되돌릴 수 없습니다. 숙박시설이 영구적으로 삭제됩니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -611,45 +1302,48 @@ function TravelCoursesSection() {
   )
 }
 
-function TravelPlansSection() {
+// 음식점 섹션
+export function RestaurantsSection() {
   const [page, setPage] = useState(1)
-  const [searchTitle, setSearchTitle] = useState('')
-  const [searchStatus, setSearchStatus] = useState('')
-  const limit = 12
-  const skip = (page - 1) * limit
-
-  const {
-    data: plans = [],
-    isLoading,
-    error,
-    refetch,
-  } = useGetTravelPlansQuery({ skip, limit })
-  const [createTravelPlan] = useCreateTravelPlanMutation()
-  const [updateTravelPlan] = useUpdateTravelPlanMutation()
-  const [deleteTravelPlan] = useDeleteTravelPlanMutation()
+  const limit = 20
+  const offset = (page - 1) * limit
+  const [searchName, setSearchName] = useState('')
+  const [searchRegion, setSearchRegion] = useState('')
+  const [deleteId, setDeleteId] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [editData, setEditData] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
+  
   const [form, setForm] = useState({
-    title: '',
+    restaurant_name: '',
     description: '',
-    start_date: '',
-    end_date: '',
-    budget: '',
-    status: 'PLANNING',
-    participants: '',
-    transportation: '',
-    start_location: '',
+    address: '',
+    image_url: '',
+    latitude: '',
+    longitude: '',
+    menu: '',
+    business_hours: '',
+    tel: '',
+    price_range: '',
+    category_code: '',
+    category_name: '',
+    region_code: '',
   })
 
-  // 검색 필터링
-  const filteredPlans = plans.filter((plan) => {
-    const matchesTitle =
-      !searchTitle ||
-      plan.title.toLowerCase().includes(searchTitle.toLowerCase())
-    const matchesStatus = !searchStatus || plan.status === searchStatus
-    return matchesTitle && matchesStatus
+  const { data, isLoading, error, refetch } = useGetRestaurantsQuery({
+    limit,
+    offset,
+    restaurant_name: searchName || undefined,
+    region_code: searchRegion && searchRegion !== 'all' ? searchRegion : undefined,
   })
+
+  const [createRestaurant, { isLoading: isCreating }] = useCreateRestaurantMutation()
+  const [updateRestaurant, { isLoading: isUpdating }] = useUpdateRestaurantMutation()
+  const [deleteRestaurant, { isLoading: isDeleting }] = useDeleteRestaurantMutation()
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchName, searchRegion])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -660,35 +1354,41 @@ function TravelPlansSection() {
   const handleOpenCreate = () => {
     setEditData(null)
     setForm({
-      title: '',
+      restaurant_name: '',
       description: '',
-      start_date: '',
-      end_date: '',
-      budget: '',
-      status: 'PLANNING',
-      participants: '',
-      transportation: '',
-      start_location: '',
+      address: '',
+      image_url: '',
+      latitude: '',
+      longitude: '',
+      menu: '',
+      business_hours: '',
+      tel: '',
+      price_range: '',
+      category_code: '',
+      category_name: '',
+      region_code: '',
     })
     setModalOpen(true)
   }
 
-  const handleOpenEdit = (plan) => {
-    setEditData(plan)
+  const handleOpenEdit = (restaurant) => {
+    setEditData(restaurant)
     setForm({
-      ...plan,
-      start_date: plan.start_date?.slice(0, 10) || '',
-      end_date: plan.end_date?.slice(0, 10) || '',
-      budget: plan.budget ?? '',
-      participants: plan.participants ?? '',
+      restaurant_name: restaurant.restaurant_name || '',
+      description: restaurant.description || '',
+      address: restaurant.address || '',
+      image_url: restaurant.image_url || '',
+      latitude: restaurant.latitude || '',
+      longitude: restaurant.longitude || '',
+      menu: restaurant.menu || '',
+      business_hours: restaurant.business_hours || '',
+      tel: restaurant.tel || '',
+      price_range: restaurant.price_range || '',
+      category_code: restaurant.category_code || '',
+      category_name: restaurant.category_name || '',
+      region_code: restaurant.region_code || '',
     })
     setModalOpen(true)
-  }
-
-  const _handleCloseModal = () => {
-    setModalOpen(false)
-    setEditData(null)
-    setErrorMsg(null)
   }
 
   const handleChange = (e) => {
@@ -699,13 +1399,19 @@ function TravelPlansSection() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      const formData = {
+        ...form,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+      }
+      
       if (editData) {
-        await updateTravelPlan({ plan_id: editData.plan_id, data: form })
+        await updateRestaurant({ 
+          content_id: editData.content_id, 
+          data: formData 
+        }).unwrap()
       } else {
-        await createTravelPlan({
-          ...form,
-          user_id: 'd6809797-2fe2-4ed1-a87a-3eea5db278d2',
-        })
+        await createRestaurant(formData).unwrap()
       }
       setModalOpen(false)
       refetch()
@@ -714,44 +1420,109 @@ function TravelPlansSection() {
     }
   }
 
-  const handleDelete = async (plan_id) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return
-    try {
-      await deleteTravelPlan(plan_id)
-      refetch()
-    } catch (err) {
-      setErrorMsg(err.message || '삭제 실패')
+  const handleDelete = async () => {
+    if (deleteId) {
+      try {
+        await deleteRestaurant(deleteId).unwrap()
+        setDeleteId(null)
+        refetch()
+      } catch (err) {
+        setErrorMsg(err.message || '삭제 실패')
+      }
     }
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PLANNING':
-        return 'bg-blue-100 text-blue-800'
-      case 'CONFIRMED':
-        return 'bg-green-100 text-green-800'
-      case 'COMPLETED':
-        return 'bg-gray-100 text-gray-800'
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
+  const totalPages = data ? Math.ceil(data.total / limit) : 1
+  const renderPagination = () => {
+    if (totalPages <= 1) return null
+    const pageItems = []
+    let start = Math.max(1, page - 2)
+    let end = Math.min(totalPages, page + 2)
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'PLANNING':
-        return '계획중'
-      case 'CONFIRMED':
-        return '확정'
-      case 'COMPLETED':
-        return '완료'
-      case 'CANCELLED':
-        return '취소'
-      default:
-        return status
+    if (page <= 3) {
+      end = Math.min(5, totalPages)
+    } else if (page >= totalPages - 2) {
+      start = Math.max(1, totalPages - 4)
     }
+
+    pageItems.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious
+          onClick={() => setPage(page > 1 ? page - 1 : 1)}
+          aria-disabled={page === 1}
+          className={
+            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+          }
+        />
+      </PaginationItem>,
+    )
+
+    if (start > 1) {
+      pageItems.push(
+        <PaginationItem key={1}>
+          <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
+            1
+          </PaginationLink>
+        </PaginationItem>,
+      )
+      if (start > 2) {
+        pageItems.push(
+          <PaginationItem key="start-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pageItems.push(
+        <PaginationItem key={i}>
+          <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
+            {i}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        pageItems.push(
+          <PaginationItem key="end-ellipsis">
+            <PaginationEllipsis />
+          </PaginationItem>,
+        )
+      }
+      pageItems.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>,
+      )
+    }
+
+    pageItems.push(
+      <PaginationItem key="next">
+        <PaginationNext
+          onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
+          aria-disabled={page === totalPages}
+          className={
+            page === totalPages
+              ? 'pointer-events-none opacity-50'
+              : 'cursor-pointer'
+          }
+        />
+      </PaginationItem>,
+    )
+
+    return (
+      <Pagination className="justify-center">
+        <PaginationContent>{pageItems}</PaginationContent>
+      </Pagination>
+    )
   }
 
   return (
@@ -773,38 +1544,39 @@ function TravelPlansSection() {
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
-                  <label htmlFor="search-title" className="text-sm font-medium">
-                    제목
+                  <label htmlFor="search-name" className="text-sm font-medium">
+                    음식점명
                   </label>
                   <Input
-                    id="search-title"
-                    placeholder="제목 검색..."
-                    value={searchTitle}
-                    onChange={(e) => setSearchTitle(e.target.value)}
+                    id="search-name"
+                    placeholder="음식점명 검색..."
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <label
-                    htmlFor="search-status"
+                    htmlFor="search-region"
                     className="text-sm font-medium"
                   >
-                    상태
+                    지역
                   </label>
-                  <Select value={searchStatus} onValueChange={setSearchStatus}>
+                  <Select value={searchRegion} onValueChange={setSearchRegion}>
                     <SelectTrigger>
-                      <SelectValue placeholder="전체 상태" />
+                      <SelectValue placeholder="전체 지역" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">전체</SelectItem>
-                      <SelectItem value="PLANNING">계획중</SelectItem>
-                      <SelectItem value="CONFIRMED">확정</SelectItem>
-                      <SelectItem value="COMPLETED">완료</SelectItem>
-                      <SelectItem value="CANCELLED">취소</SelectItem>
+                      {REGION_OPTIONS.map(([code, name]) => (
+                        <SelectItem key={code} value={code}>
+                          {name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex gap-2 lg:items-end">
-                  <Button type="submit">
+                  <Button type="submit" disabled={isLoading}>
                     <Search className="mr-2 h-4 w-4" />
                     검색
                   </Button>
@@ -814,7 +1586,7 @@ function TravelPlansSection() {
 
             <Button onClick={handleOpenCreate}>
               <Plus className="mr-2 h-4 w-4" />
-              계획 등록
+              음식점 등록
             </Button>
           </div>
         </StyledCardContent>
@@ -825,99 +1597,120 @@ function TravelPlansSection() {
         <StyledCardContent className="p-0">
           {isLoading ? (
             <div className="p-8">
-              <LoadingState message="여행 계획 데이터를 불러오는 중..." />
+              <LoadingState message="음식점 데이터를 불러오는 중..." />
             </div>
           ) : error ? (
             <div className="p-8">
               <ErrorState
                 error={error}
                 onRetry={refetch}
-                message="여행 계획 데이터를 불러올 수 없습니다"
+                message="음식점 데이터를 불러올 수 없습니다"
               />
             </div>
-          ) : !filteredPlans.length ? (
+          ) : !data?.items?.length ? (
             <div className="p-8">
               <EmptyState
                 type="search"
                 message={
-                  searchTitle || searchStatus
+                  searchName || searchRegion
                     ? '검색 결과가 없습니다'
-                    : '등록된 여행 계획이 없습니다'
+                    : '등록된 음식점이 없습니다'
                 }
                 description={
-                  searchTitle || searchStatus
+                  searchName || searchRegion
                     ? '다른 검색어로 시도해보세요'
-                    : '새로운 여행 계획을 등록해주세요'
+                    : '새로운 음식점을 등록해주세요'
                 }
               />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>제목</TableHead>
-                  <TableHead>기간</TableHead>
-                  <TableHead>상태</TableHead>
-                  <TableHead>예산</TableHead>
-                  <TableHead>참여인원</TableHead>
-                  <TableHead className="w-[100px]">액션</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPlans.map((plan) => (
-                  <TableRow key={plan.plan_id}>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">{plan.title}</div>
-                        {plan.description && (
-                          <div className="text-muted-foreground line-clamp-2 text-sm">
-                            {plan.description}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {plan.start_date} ~ {plan.end_date}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(plan.status)}>
-                        {getStatusLabel(plan.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {plan.budget || '-'}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {plan.participants || '-'}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleOpenEdit(plan)}
-                          >
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            수정
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(plan.plan_id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">음식점명</TableHead>
+                    <TableHead>지역</TableHead>
+                    <TableHead>영업시간</TableHead>
+                    <TableHead>가격대</TableHead>
+                    <TableHead>연락처</TableHead>
+                    <TableHead className="w-[100px]">액션</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {data.items.filter(hasValidData).map((restaurant) => (
+                    <TableRow key={restaurant.content_id}>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <Link
+                            to={`/restaurants/${restaurant.content_id}`}
+                            className="text-primary font-medium hover:underline"
+                          >
+                            {formatTableValue(restaurant.restaurant_name)}
+                          </Link>
+                          {restaurant.description && (
+                            <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
+                              {restaurant.description.length > 80
+                                ? `${restaurant.description.substring(0, 80)}...`
+                                : restaurant.description}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {REGION_MAP[restaurant.region_code] || restaurant.region_code}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {restaurant.business_hours || '-'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatTableValue(restaurant.price_range)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatTel(restaurant.tel)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEdit(restaurant)}
+                            >
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeleteId(restaurant.content_id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* 페이지네이션 */}
+              <div className="border-t p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-muted-foreground text-sm">
+                    총 {data?.total || 0}개 중{' '}
+                    {Math.min(offset + 1, data?.total || 0)}-
+                    {Math.min(offset + limit, data?.total || 0)}개 표시
+                  </div>
+                  {renderPagination()}
+                </div>
+              </div>
+            </>
           )}
         </StyledCardContent>
       </StyledCard>
@@ -927,97 +1720,146 @@ function TravelPlansSection() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editData ? '여행 계획 수정' : '여행 계획 등록'}
+              {editData ? '음식점 수정' : '음식점 등록'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="title" className="text-sm font-medium">
-                  제목
+                <label htmlFor="restaurant_name" className="text-sm font-medium">
+                  음식점명
                 </label>
                 <Input
-                  id="title"
-                  name="title"
-                  value={form.title}
+                  id="restaurant_name"
+                  name="restaurant_name"
+                  value={form.restaurant_name}
                   onChange={handleChange}
-                  placeholder="여행 제목"
+                  placeholder="음식점명"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="status" className="text-sm font-medium">
-                  상태
+                <label htmlFor="region_code" className="text-sm font-medium">
+                  지역
                 </label>
                 <Select
-                  value={form.status}
+                  value={form.region_code}
                   onValueChange={(value) =>
-                    setForm((f) => ({ ...f, status: value }))
+                    setForm((f) => ({ ...f, region_code: value }))
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="지역 선택" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PLANNING">계획중</SelectItem>
-                    <SelectItem value="CONFIRMED">확정</SelectItem>
-                    <SelectItem value="COMPLETED">완료</SelectItem>
-                    <SelectItem value="CANCELLED">취소</SelectItem>
+                    {REGION_OPTIONS.map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <label htmlFor="start_date" className="text-sm font-medium">
-                  시작일
+                <label htmlFor="business_hours" className="text-sm font-medium">
+                  영업시간
                 </label>
                 <Input
-                  id="start_date"
-                  name="start_date"
-                  type="date"
-                  value={form.start_date}
+                  id="business_hours"
+                  name="business_hours"
+                  value={form.business_hours}
                   onChange={handleChange}
-                  required
+                  placeholder="예: 11:00~22:00"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="end_date" className="text-sm font-medium">
-                  종료일
+                <label htmlFor="tel" className="text-sm font-medium">
+                  연락처
                 </label>
                 <Input
-                  id="end_date"
-                  name="end_date"
-                  type="date"
-                  value={form.end_date}
+                  id="tel"
+                  name="tel"
+                  value={form.tel}
                   onChange={handleChange}
-                  required
+                  placeholder="예: 02-1234-5678"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="budget" className="text-sm font-medium">
-                  예산
+                <label htmlFor="price_range" className="text-sm font-medium">
+                  가격대
                 </label>
                 <Input
-                  id="budget"
-                  name="budget"
+                  id="price_range"
+                  name="price_range"
+                  value={form.price_range}
+                  onChange={handleChange}
+                  placeholder="예: 1만원~2만원"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="category_name" className="text-sm font-medium">
+                  음식 종류
+                </label>
+                <Input
+                  id="category_name"
+                  name="category_name"
+                  value={form.category_name}
+                  onChange={handleChange}
+                  placeholder="예: 한식, 중식, 일식"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="latitude" className="text-sm font-medium">
+                  위도
+                </label>
+                <Input
+                  id="latitude"
+                  name="latitude"
                   type="number"
-                  value={form.budget}
+                  step="any"
+                  value={form.latitude}
                   onChange={handleChange}
-                  placeholder="예산 (원)"
+                  placeholder="37.5665"
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="participants" className="text-sm font-medium">
-                  참여인원
+                <label htmlFor="longitude" className="text-sm font-medium">
+                  경도
                 </label>
                 <Input
-                  id="participants"
-                  name="participants"
+                  id="longitude"
+                  name="longitude"
                   type="number"
-                  value={form.participants}
+                  step="any"
+                  value={form.longitude}
                   onChange={handleChange}
-                  placeholder="참여인원 (명)"
+                  placeholder="126.9780"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="address" className="text-sm font-medium">
+                주소
+              </label>
+              <Input
+                id="address"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="전체 주소"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="menu" className="text-sm font-medium">
+                대표 메뉴
+              </label>
+              <Input
+                id="menu"
+                name="menu"
+                value={form.menu}
+                onChange={handleChange}
+                placeholder="예: 갈비탕, 비빔밥, 김치찌개"
+              />
             </div>
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium">
@@ -1028,502 +1870,18 @@ function TravelPlansSection() {
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                placeholder="여행 계획에 대한 설명을 입력하세요"
+                placeholder="음식점에 대한 설명을 입력하세요"
                 className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[100px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               />
             </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  취소
-                </Button>
-              </DialogClose>
-              <Button type="submit">{editData ? '수정' : '등록'}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
-function FestivalEventSection() {
-  const [page, setPage] = useState(1)
-  const limit = 15
-  const offset = (page - 1) * limit
-  const [searchName, setSearchName] = useState('')
-  const [searchRegion, setSearchRegion] = useState('')
-
-  const { data, isLoading, error, refetch } = useGetFestivalEventsQuery({
-    skip: offset,
-    limit,
-    event_name: searchName,
-    region_code: searchRegion,
-  })
-
-  const [createFestivalEvent] = useCreateFestivalEventMutation()
-  const [updateFestivalEvent] = useUpdateFestivalEventMutation()
-  const [deleteFestivalEvent] = useDeleteFestivalEventMutation()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editData, setEditData] = useState(null)
-  const [form, setForm] = useState({
-    event_name: '',
-    region_code: '',
-    event_start_date: '',
-    event_end_date: '',
-    event_place: '',
-    tel: '',
-    first_image: '',
-  })
-  const [errorMsg, setErrorMsg] = useState(null)
-
-  // 페이지네이션
-  const total = data?.total || 0
-  const totalPages = total ? Math.ceil(total / limit) : 1
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setPage(1)
-    refetch()
-  }
-
-  const handleOpenCreate = () => {
-    setEditData(null)
-    setForm({
-      event_name: '',
-      region_code: '',
-      event_start_date: '',
-      event_end_date: '',
-      event_place: '',
-      tel: '',
-      first_image: '',
-    })
-    setModalOpen(true)
-  }
-
-  const handleOpenEdit = (row) => {
-    setEditData(row)
-    setForm({ ...row })
-    setModalOpen(true)
-  }
-
-  const _handleCloseModal = () => {
-    setModalOpen(false)
-    setEditData(null)
-    setErrorMsg(null)
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((f) => ({ ...f, [name]: value }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      if (editData) {
-        await updateFestivalEvent({
-          content_id: editData.content_id,
-          data: form,
-        })
-      } else {
-        await createFestivalEvent(form)
-      }
-      setModalOpen(false)
-      refetch()
-    } catch (err) {
-      setErrorMsg(err.message || '저장 실패')
-    }
-  }
-
-  const handleDelete = async (content_id) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return
-    try {
-      await deleteFestivalEvent(content_id)
-      refetch()
-    } catch (err) {
-      setErrorMsg(err.message || '삭제 실패')
-    }
-  }
-
-  const renderPagination = () => {
-    if (totalPages <= 1) return null
-    const pageItems = []
-    let start = Math.max(1, page - 2)
-    let end = Math.min(totalPages, page + 2)
-
-    if (page <= 3) {
-      end = Math.min(5, totalPages)
-    } else if (page >= totalPages - 2) {
-      start = Math.max(1, totalPages - 4)
-    }
-
-    pageItems.push(
-      <PaginationItem key="prev">
-        <PaginationPrevious
-          onClick={() => setPage(page > 1 ? page - 1 : 1)}
-          aria-disabled={page === 1}
-          className={
-            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-          }
-        />
-      </PaginationItem>,
-    )
-
-    if (start > 1) {
-      pageItems.push(
-        <PaginationItem key={1}>
-          <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
-            1
-          </PaginationLink>
-        </PaginationItem>,
-      )
-      if (start > 2) {
-        pageItems.push(
-          <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-    }
-
-    for (let i = start; i <= end; i++) {
-      pageItems.push(
-        <PaginationItem key={i}>
-          <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
-            {i}
-          </PaginationLink>
-        </PaginationItem>,
-      )
-    }
-
-    if (end < totalPages) {
-      if (end < totalPages - 1) {
-        pageItems.push(
-          <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-      pageItems.push(
-        <PaginationItem key={totalPages}>
-          <PaginationLink
-            onClick={() => setPage(totalPages)}
-            isActive={page === totalPages}
-          >
-            {totalPages}
-          </PaginationLink>
-        </PaginationItem>,
-      )
-    }
-
-    pageItems.push(
-      <PaginationItem key="next">
-        <PaginationNext
-          onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
-          aria-disabled={page === totalPages}
-          className={
-            page === totalPages
-              ? 'pointer-events-none opacity-50'
-              : 'cursor-pointer'
-          }
-        />
-      </PaginationItem>,
-    )
-
-    return (
-      <Pagination className="justify-center">
-        <PaginationContent>{pageItems}</PaginationContent>
-      </Pagination>
-    )
-  }
-
-  return (
-    <div className="space-y-6">
-      {errorMsg && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{errorMsg}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* 검색 및 액션 바 */}
-      <StyledCard>
-        <StyledCardContent className="p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form
-              onSubmit={handleSearch}
-              className="flex flex-col gap-4 lg:flex-row lg:items-end"
-            >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="search-event-name"
-                    className="text-sm font-medium"
-                  >
-                    축제명
-                  </label>
-                  <Input
-                    id="search-event-name"
-                    placeholder="축제명 검색..."
-                    value={searchName}
-                    onChange={(e) => setSearchName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="search-region"
-                    className="text-sm font-medium"
-                  >
-                    지역
-                  </label>
-                  <Select value={searchRegion} onValueChange={setSearchRegion}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="전체 지역" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">전체</SelectItem>
-                      {REGION_OPTIONS.map(([code, name]) => (
-                        <SelectItem key={code} value={code}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-2 lg:items-end">
-                  <Button type="submit">
-                    <Search className="mr-2 h-4 w-4" />
-                    검색
-                  </Button>
-                </div>
-              </div>
-            </form>
-
-            <Button onClick={handleOpenCreate}>
-              <Plus className="mr-2 h-4 w-4" />
-              축제 등록
-            </Button>
-          </div>
-        </StyledCardContent>
-      </StyledCard>
-
-      {/* 테이블 */}
-      <StyledCard>
-        <StyledCardContent className="p-0">
-          {isLoading ? (
-            <div className="p-8">
-              <LoadingState message="축제 이벤트 데이터를 불러오는 중..." />
-            </div>
-          ) : error ? (
-            <div className="p-8">
-              <ErrorState
-                error={error}
-                onRetry={refetch}
-                message="축제 이벤트 데이터를 불러올 수 없습니다"
-              />
-            </div>
-          ) : !data?.items?.length ? (
-            <div className="p-8">
-              <EmptyState
-                type="search"
-                message={
-                  searchName || searchRegion
-                    ? '검색 결과가 없습니다'
-                    : '등록된 축제 이벤트가 없습니다'
-                }
-                description={
-                  searchName || searchRegion
-                    ? '다른 검색어로 시도해보세요'
-                    : '새로운 축제 이벤트를 등록해주세요'
-                }
-              />
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>축제명</TableHead>
-                    <TableHead>지역</TableHead>
-                    <TableHead>기간</TableHead>
-                    <TableHead>주소</TableHead>
-                    <TableHead className="w-[100px]">액션</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.items.map((row) => (
-                    <TableRow key={row.content_id}>
-                      <TableCell>
-                        <Link
-                          to={`/content/festival/${row.content_id}`}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          {row.event_name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {REGION_MAP[row.region_code] || row.region_code}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.event_start_date && row.event_end_date
-                          ? `${row.event_start_date} ~ ${row.event_end_date}`
-                          : '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.address || '-'}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenEdit(row)}
-                            >
-                              <Edit2 className="mr-2 h-4 w-4" />
-                              수정
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(row.content_id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* 페이지네이션 */}
-              <div className="border-t p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm">
-                    총 {total}개 중 {Math.min(offset + 1, total)}-
-                    {Math.min(offset + limit, total)}개 표시
-                  </div>
-                  {renderPagination()}
-                </div>
-              </div>
-            </>
-          )}
-        </StyledCardContent>
-      </StyledCard>
-
-      {/* 등록/수정 다이얼로그 */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editData ? '축제 이벤트 수정' : '축제 이벤트 등록'}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="event_name" className="text-sm font-medium">
-                  축제명
-                </label>
-                <Input
-                  id="event_name"
-                  name="event_name"
-                  value={form.event_name}
-                  onChange={handleChange}
-                  placeholder="축제명"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="region_code" className="text-sm font-medium">
-                  지역
-                </label>
-                <Select
-                  value={form.region_code}
-                  onValueChange={(value) =>
-                    setForm((f) => ({ ...f, region_code: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="지역 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REGION_OPTIONS.map(([code, name]) => (
-                      <SelectItem key={code} value={code}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label
-                  htmlFor="event_start_date"
-                  className="text-sm font-medium"
-                >
-                  시작일
-                </label>
-                <Input
-                  id="event_start_date"
-                  name="event_start_date"
-                  type="date"
-                  value={form.event_start_date}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="event_end_date" className="text-sm font-medium">
-                  종료일
-                </label>
-                <Input
-                  id="event_end_date"
-                  name="event_end_date"
-                  type="date"
-                  value={form.event_end_date}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="event_place" className="text-sm font-medium">
-                  장소
-                </label>
-                <Input
-                  id="event_place"
-                  name="event_place"
-                  value={form.event_place}
-                  onChange={handleChange}
-                  placeholder="행사 장소"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="tel" className="text-sm font-medium">
-                  연락처
-                </label>
-                <Input
-                  id="tel"
-                  name="tel"
-                  value={form.tel}
-                  onChange={handleChange}
-                  placeholder="연락처"
-                />
-              </div>
-            </div>
             <div className="space-y-2">
-              <label htmlFor="first_image" className="text-sm font-medium">
+              <label htmlFor="image_url" className="text-sm font-medium">
                 대표 이미지 URL
               </label>
               <Input
-                id="first_image"
-                name="first_image"
-                value={form.first_image}
+                id="image_url"
+                name="image_url"
+                value={form.image_url}
                 onChange={handleChange}
                 placeholder="이미지 URL"
               />
@@ -1534,506 +1892,34 @@ function FestivalEventSection() {
                   취소
                 </Button>
               </DialogClose>
-              <Button type="submit">{editData ? '수정' : '등록'}</Button>
+              <Button type="submit" disabled={isCreating || isUpdating}>
+                {editData ? '수정' : '등록'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              이 작업은 되돌릴 수 없습니다. 음식점이 영구적으로 삭제됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
-
-function LeisureSportsSection() {
-  const [page, setPage] = useState(1)
-  const limit = 15
-  const offset = (page - 1) * limit
-  const [searchName, setSearchName] = useState('')
-  const [searchRegion, setSearchRegion] = useState('')
-
-  const { data, isLoading, error, refetch } = useGetLeisureSportsQuery({
-    skip: offset,
-    limit,
-    facility_name: searchName,
-    region_code: searchRegion,
-  })
-
-  const [createLeisureSport] = useCreateLeisureSportMutation()
-  const [updateLeisureSport] = useUpdateLeisureSportMutation()
-  const [deleteLeisureSport] = useDeleteLeisureSportMutation()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editData, setEditData] = useState(null)
-  const [form, setForm] = useState({
-    facility_name: '',
-    region_code: '',
-    sports_type: '',
-    admission_fee: '',
-    parking_info: '',
-    tel: '',
-    first_image: '',
-  })
-  const [errorMsg, setErrorMsg] = useState(null)
-
-  const total = data?.total || 0
-  const totalPages = total ? Math.ceil(total / limit) : 1
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setPage(1)
-    refetch()
-  }
-
-  const handleOpenCreate = () => {
-    setEditData(null)
-    setForm({
-      facility_name: '',
-      region_code: '',
-      sports_type: '',
-      admission_fee: '',
-      parking_info: '',
-      tel: '',
-      first_image: '',
-    })
-    setModalOpen(true)
-  }
-
-  const handleOpenEdit = (row) => {
-    setEditData(row)
-    setForm({ ...row })
-    setModalOpen(true)
-  }
-
-  const _handleCloseModal = () => {
-    setModalOpen(false)
-    setEditData(null)
-    setErrorMsg(null)
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((f) => ({ ...f, [name]: value }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      if (editData) {
-        await updateLeisureSport({
-          content_id: editData.content_id,
-          data: form,
-        })
-      } else {
-        await createLeisureSport(form)
-      }
-      setModalOpen(false)
-      refetch()
-    } catch (err) {
-      setErrorMsg(err.message || '저장 실패')
-    }
-  }
-
-  const handleDelete = async (content_id) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return
-    try {
-      await deleteLeisureSport(content_id)
-      refetch()
-    } catch (err) {
-      setErrorMsg(err.message || '삭제 실패')
-    }
-  }
-
-  const renderPagination = () => {
-    if (totalPages <= 1) return null
-    const pageItems = []
-    let start = Math.max(1, page - 2)
-    let end = Math.min(totalPages, page + 2)
-
-    if (page <= 3) {
-      end = Math.min(5, totalPages)
-    } else if (page >= totalPages - 2) {
-      start = Math.max(1, totalPages - 4)
-    }
-
-    pageItems.push(
-      <PaginationItem key="prev">
-        <PaginationPrevious
-          onClick={() => setPage(page > 1 ? page - 1 : 1)}
-          aria-disabled={page === 1}
-          className={
-            page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-          }
-        />
-      </PaginationItem>,
-    )
-
-    if (start > 1) {
-      pageItems.push(
-        <PaginationItem key={1}>
-          <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
-            1
-          </PaginationLink>
-        </PaginationItem>,
-      )
-      if (start > 2) {
-        pageItems.push(
-          <PaginationItem key="start-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-    }
-
-    for (let i = start; i <= end; i++) {
-      pageItems.push(
-        <PaginationItem key={i}>
-          <PaginationLink onClick={() => setPage(i)} isActive={i === page}>
-            {i}
-          </PaginationLink>
-        </PaginationItem>,
-      )
-    }
-
-    if (end < totalPages) {
-      if (end < totalPages - 1) {
-        pageItems.push(
-          <PaginationItem key="end-ellipsis">
-            <PaginationEllipsis />
-          </PaginationItem>,
-        )
-      }
-      pageItems.push(
-        <PaginationItem key={totalPages}>
-          <PaginationLink
-            onClick={() => setPage(totalPages)}
-            isActive={page === totalPages}
-          >
-            {totalPages}
-          </PaginationLink>
-        </PaginationItem>,
-      )
-    }
-
-    pageItems.push(
-      <PaginationItem key="next">
-        <PaginationNext
-          onClick={() => setPage(page < totalPages ? page + 1 : totalPages)}
-          aria-disabled={page === totalPages}
-          className={
-            page === totalPages
-              ? 'pointer-events-none opacity-50'
-              : 'cursor-pointer'
-          }
-        />
-      </PaginationItem>,
-    )
-
-    return (
-      <Pagination className="justify-center">
-        <PaginationContent>{pageItems}</PaginationContent>
-      </Pagination>
-    )
-  }
-
-  return (
-    <div className="space-y-6">
-      {errorMsg && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{errorMsg}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* 검색 및 액션 바 */}
-      <StyledCard>
-        <StyledCardContent className="p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <form
-              onSubmit={handleSearch}
-              className="flex flex-col gap-4 lg:flex-row lg:items-end"
-            >
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="search-facility-name"
-                    className="text-sm font-medium"
-                  >
-                    시설명
-                  </label>
-                  <Input
-                    id="search-facility-name"
-                    placeholder="시설명 검색..."
-                    value={searchName}
-                    onChange={(e) => setSearchName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="search-region"
-                    className="text-sm font-medium"
-                  >
-                    지역
-                  </label>
-                  <Select value={searchRegion} onValueChange={setSearchRegion}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="전체 지역" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">전체</SelectItem>
-                      {REGION_OPTIONS.map(([code, name]) => (
-                        <SelectItem key={code} value={code}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-2 lg:items-end">
-                  <Button type="submit">
-                    <Search className="mr-2 h-4 w-4" />
-                    검색
-                  </Button>
-                </div>
-              </div>
-            </form>
-
-            <Button onClick={handleOpenCreate}>
-              <Plus className="mr-2 h-4 w-4" />
-              시설 등록
-            </Button>
-          </div>
-        </StyledCardContent>
-      </StyledCard>
-
-      {/* 테이블 */}
-      <StyledCard>
-        <StyledCardContent className="p-0">
-          {isLoading ? (
-            <div className="p-8">
-              <LoadingState message="레저 스포츠 데이터를 불러오는 중..." />
-            </div>
-          ) : error ? (
-            <div className="p-8">
-              <ErrorState
-                error={error}
-                onRetry={refetch}
-                message="레저 스포츠 데이터를 불러올 수 없습니다"
-              />
-            </div>
-          ) : !data?.items?.length ? (
-            <div className="p-8">
-              <EmptyState
-                type="search"
-                message={
-                  searchName || searchRegion
-                    ? '검색 결과가 없습니다'
-                    : '등록된 레저 스포츠 시설이 없습니다'
-                }
-                description={
-                  searchName || searchRegion
-                    ? '다른 검색어로 시도해보세요'
-                    : '새로운 레저 스포츠 시설을 등록해주세요'
-                }
-              />
-            </div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>시설명</TableHead>
-                    <TableHead>지역</TableHead>
-                    <TableHead>스포츠 종류</TableHead>
-                    <TableHead>입장료</TableHead>
-                    <TableHead>연락처</TableHead>
-                    <TableHead className="w-[100px]">액션</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.items.map((row) => (
-                    <TableRow key={row.content_id}>
-                      <TableCell>
-                        <Link
-                          to={`/leisure-sports/${row.content_id}`}
-                          className="text-primary font-medium hover:underline"
-                        >
-                          {row.facility_name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {REGION_MAP[row.region_code] || row.region_code}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.sports_type || '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.admission_fee || '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {row.tel || '-'}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleOpenEdit(row)}
-                            >
-                              <Edit2 className="mr-2 h-4 w-4" />
-                              수정
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(row.content_id)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* 페이지네이션 */}
-              <div className="border-t p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm">
-                    총 {total}개 중 {Math.min(offset + 1, total)}-
-                    {Math.min(offset + limit, total)}개 표시
-                  </div>
-                  {renderPagination()}
-                </div>
-              </div>
-            </>
-          )}
-        </StyledCardContent>
-      </StyledCard>
-
-      {/* 등록/수정 다이얼로그 */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editData ? '레저 스포츠 시설 수정' : '레저 스포츠 시설 등록'}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="facility_name" className="text-sm font-medium">
-                  시설명
-                </label>
-                <Input
-                  id="facility_name"
-                  name="facility_name"
-                  value={form.facility_name}
-                  onChange={handleChange}
-                  placeholder="시설명"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="region_code" className="text-sm font-medium">
-                  지역
-                </label>
-                <Select
-                  value={form.region_code}
-                  onValueChange={(value) =>
-                    setForm((f) => ({ ...f, region_code: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="지역 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {REGION_OPTIONS.map(([code, name]) => (
-                      <SelectItem key={code} value={code}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="sports_type" className="text-sm font-medium">
-                  스포츠 종류
-                </label>
-                <Input
-                  id="sports_type"
-                  name="sports_type"
-                  value={form.sports_type}
-                  onChange={handleChange}
-                  placeholder="스포츠 종류"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="admission_fee" className="text-sm font-medium">
-                  입장료
-                </label>
-                <Input
-                  id="admission_fee"
-                  name="admission_fee"
-                  value={form.admission_fee}
-                  onChange={handleChange}
-                  placeholder="입장료"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="parking_info" className="text-sm font-medium">
-                  주차 정보
-                </label>
-                <Input
-                  id="parking_info"
-                  name="parking_info"
-                  value={form.parking_info}
-                  onChange={handleChange}
-                  placeholder="주차 정보"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="tel" className="text-sm font-medium">
-                  연락처
-                </label>
-                <Input
-                  id="tel"
-                  name="tel"
-                  value={form.tel}
-                  onChange={handleChange}
-                  placeholder="연락처"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="first_image" className="text-sm font-medium">
-                대표 이미지 URL
-              </label>
-              <Input
-                id="first_image"
-                name="first_image"
-                value={form.first_image}
-                onChange={handleChange}
-                placeholder="이미지 URL"
-              />
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  취소
-                </Button>
-              </DialogClose>
-              <Button type="submit">{editData ? '수정' : '등록'}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-export default ContentPage

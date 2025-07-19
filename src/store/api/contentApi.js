@@ -402,3 +402,62 @@ export const {
   useDeleteRestaurantMutation,
   useGetCuisineTypesQuery,
 } = restaurantsApi
+
+// Tourist Attractions API (관광지)
+export const touristAttractionsApi = createApi({
+  reducerPath: 'touristAttractionsApi',
+  baseQuery: baseQueryWithReauth,
+  tagTypes: ['TouristAttraction'],
+  endpoints: (builder) => ({
+    getTouristAttractions: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams()
+        if (params?.limit) queryParams.append('limit', params.limit)
+        if (params?.offset) queryParams.append('offset', params.offset)
+        if (params?.region_code)
+          queryParams.append('region_code', params.region_code)
+        if (params?.attraction_name)
+          queryParams.append('attraction_name', params.attraction_name)
+        return `/api/tourist-attractions/?${queryParams.toString()}`
+      },
+      providesTags: ['TouristAttraction'],
+    }),
+    getTouristAttractionById: builder.query({
+      query: (content_id) => `/api/tourist-attractions/${content_id}`,
+      providesTags: (result, error, id) => [{ type: 'TouristAttraction', id }],
+    }),
+    createTouristAttraction: builder.mutation({
+      query: (data) => ({
+        url: '/api/tourist-attractions',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['TouristAttraction'],
+    }),
+    updateTouristAttraction: builder.mutation({
+      query: ({ content_id, data }) => ({
+        url: `/api/tourist-attractions/${content_id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { content_id }) => [
+        { type: 'TouristAttraction', content_id },
+      ],
+    }),
+    deleteTouristAttraction: builder.mutation({
+      query: (content_id) => ({
+        url: `/api/tourist-attractions/${content_id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['TouristAttraction'],
+    }),
+  }),
+})
+
+export const {
+  useGetTouristAttractionsQuery,
+  useGetTouristAttractionByIdQuery,
+  useCreateTouristAttractionMutation,
+  useUpdateTouristAttractionMutation,
+  useDeleteTouristAttractionMutation,
+} = touristAttractionsApi

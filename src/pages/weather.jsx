@@ -1,4 +1,3 @@
-import WeatherAlert from './WeatherAlert'
 
 import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
 import { getWeatherIcon } from '@/utils/weatherUtils'
@@ -38,19 +37,6 @@ function WeatherRealtimePage() {
         <WeatherStatsCard weatherData={weatherList} />
       </ContentSection>
 
-      {/* 날씨 알림 카드 */}
-      {weatherList.length > 0 && (
-        <ContentSection>
-          <div className="relative">
-            <WeatherAlert weather={weatherList[0]} />
-            {weatherList[0].last_updated && (
-              <div className="absolute right-4 top-4 text-sm text-muted-foreground">
-                업데이트: {formatDateTime(weatherList[0].last_updated)}
-              </div>
-            )}
-          </div>
-        </ContentSection>
-      )}
 
       {/* 도시별 요약 카드 (가로 스크롤) */}
       {weatherList.length > 0 && (
