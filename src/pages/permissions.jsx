@@ -190,7 +190,7 @@ export const PermissionsPage = () => {
     setSelectedAdmin(admin)
     setAdminRoleFormData({
       is_superuser: admin.is_superuser,
-      role_ids: [], // 현재 역할 정보를 가져올 수 있으면 여기에 설정
+      role_ids: admin.role_ids || [], // API에서 받은 현재 역할 ID 설정
     })
     setIsAdminRoleDialogOpen(true)
   }

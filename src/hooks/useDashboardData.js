@@ -17,8 +17,11 @@ export function useDashboardData() {
   const users = usersData?.users || []
 
   // 기존 쿼리들 유지
-  const { data: weatherData = null, isLoading: weatherLoading } =
+  const { data: weatherResponse = null, isLoading: weatherLoading } =
     useGetWeatherSummaryQuery()
+  
+  // API 응답에서 regions 배열 추출
+  const weatherData = weatherResponse?.regions || []
   const { data: adminStats = null, isLoading: adminLoading } =
     useGetAdminStatsQuery()
   const { data: regionCountData = null, isLoading: regionLoading } =
@@ -45,8 +48,8 @@ export function useDashboardData() {
     const inactive = total - active
 
     return {
-      // 날씨 데이터 (객체 형태로 변환됨)
-      weatherData: weatherData || {},
+      // 날씨 데이터 (배열 형태)
+      weatherData: weatherData || [],
 
       // 사용자 통계 (직접 계산)
       userSummary: {

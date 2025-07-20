@@ -9,19 +9,7 @@ export const dashboardApi = createApi({
     // 날씨 요약 데이터 (weather_forecasts 테이블 사용)
     getWeatherSummary: builder.query({
       query: () => '/api/weather/summary-forecast',
-      transformResponse: (response) => {
-        // regions 배열을 객체 형태로 변환
-        const regionMap = {}
-        if (response.regions) {
-          response.regions.forEach((region) => {
-            regionMap[region.city_name] = {
-              ...region,
-              region_name: region.city_name,
-            }
-          })
-        }
-        return regionMap
-      },
+      // transformResponse 제거하여 원본 API 응답 구조 유지
       providesTags: ['Dashboard'],
       keepUnusedDataFor: 60, // 1분 캐싱
     }),
