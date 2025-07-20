@@ -65,6 +65,15 @@ export default function RegionsPage() {
   const [deleteError, setDeleteError] = useState(null)
   const [expandedNodes, setExpandedNodes] = useState(new Set())
 
+  // 디버깅용 useEffect
+  useEffect(() => {
+    console.log('isDeleteOpen 상태 변경:', isDeleteOpen)
+  }, [isDeleteOpen])
+
+  useEffect(() => {
+    console.log('selectedRegion 상태 변경:', selectedRegion)
+  }, [selectedRegion])
+
   // API 호출
   const { data, isLoading, refetch } = useGetRegionsQuery({
     search,
@@ -164,9 +173,13 @@ export default function RegionsPage() {
 
       return (
         <div key={node.region_code} style={{ marginLeft: `${level * 24}px` }}>
-          <div className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-2 py-2">
+          <div className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-2">
             <button
-              onClick={() => hasChildren && toggleNode(node.region_code)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                hasChildren && toggleNode(node.region_code)
+              }}
               className="p-0.5"
               disabled={!hasChildren}
             >
@@ -189,7 +202,9 @@ export default function RegionsPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
                   setSelectedRegion(node)
                   setIsEditOpen(true)
                 }}
@@ -199,8 +214,12 @@ export default function RegionsPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('계층구조 삭제 버튼 클릭:', node.region_name, node.region_code)
                   setSelectedRegion(node)
+                  console.log('setIsDeleteOpen(true) 호출')
                   setIsDeleteOpen(true)
                 }}
               >
@@ -404,6 +423,7 @@ export default function RegionsPage() {
       />
 
       {/* 삭제 확인 다이얼로그 */}
+      {console.log('삭제 다이얼로그 렌더링 체크:', { isDeleteOpen, selectedRegion: selectedRegion?.region_name })}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent>
           <DialogHeader>
@@ -414,10 +434,16 @@ export default function RegionsPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              console.log('삭제 다이얼로그 취소 클릭')
+              setIsDeleteOpen(false)
+            }}>
               취소
             </Button>
-            <Button variant="destructive" onClick={() => handleDelete(false)}>
+            <Button variant="destructive" onClick={() => {
+              console.log('삭제 다이얼로그 삭제 클릭:', selectedRegion?.region_code)
+              handleDelete(false)
+            }}>
               삭제
             </Button>
           </DialogFooter>
