@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,18 +20,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-  AlertCircle,
-  Play,
-  Square,
-  MoreVertical,
-  RefreshCw,
-  FileText,
-} from 'lucide-react'
+import { AlertCircle, Play, RefreshCw } from 'lucide-react'
 import {
   useGetBatchJobsQuery,
   useExecuteBatchJobMutation,
   useStopBatchJobMutation,
+  useDeleteBatchJobMutation,
   useGetBatchStatisticsQuery,
   BATCH_JOB_STATUS,
   BATCH_JOB_TYPE_LABELS,
@@ -40,6 +34,7 @@ import {
 } from '@/store/api/batchApi'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
 import BatchLogViewer from '@/components/batch/BatchLogViewer'
+import BatchJobActions from '@/components/batch/BatchJobActions'
 
 const BatchManagement = () => {
   const [jobTypeFilter, setJobTypeFilter] = useState('all')
@@ -109,9 +104,10 @@ const BatchManagement = () => {
       job.status === BATCH_JOB_STATUS.PENDING,
   )
 
-
   const [executeBatchJob] = useExecuteBatchJobMutation()
   const [stopBatchJob] = useStopBatchJobMutation()
+  const [deleteBatchJob, { isLoading: isDeleting }] =
+    useDeleteBatchJobMutation()
 
   const handleExecuteJob = async () => {
     if (!selectedJobType) return
@@ -210,6 +206,17 @@ const BatchManagement = () => {
       refetchStats()
     } catch (error) {
       console.error('배치 작업 중단 실패:', error)
+    }
+  }
+
+  const handleDeleteJob = async (jobId) => {
+    try {
+      await deleteBatchJob(jobId).unwrap()
+      refetchJobs()
+      refetchStats()
+    } catch (error) {
+      console.error('배치 작업 삭제 실패:', error)
+      throw error
     }
   }
 
@@ -489,27 +496,13 @@ const BatchManagement = () => {
                           )}
                         </div>
                         <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedJobForLogs(job.id)}
-                          >
-                            <FileText className="mr-1 h-4 w-4" />
-                            로그
-                          </Button>
-                          {job.status === BATCH_JOB_STATUS.RUNNING && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleStopJob(job.id)}
-                            >
-                              <Square className="mr-1 h-4 w-4" />
-                              중단
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
+                          <BatchJobActions
+                            job={job}
+                            onViewLogs={setSelectedJobForLogs}
+                            onStopJob={handleStopJob}
+                            onDeleteJob={handleDeleteJob}
+                            isDeleting={isDeleting}
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -656,7 +649,7 @@ const BatchManagement = () => {
           open={!!selectedJobForLogs}
           onOpenChange={(open) => !open && setSelectedJobForLogs(null)}
         >
-          <DialogContent className="max-h-[90vh] max-w-[80vw] w-full overflow-hidden">
+          <DialogContent className="max-h-[90vh] w-full max-w-[80vw] overflow-hidden">
             <DialogHeader>
               <DialogTitle>배치 작업 로그</DialogTitle>
             </DialogHeader>
@@ -1218,9 +1211,12 @@ const WeatherNotificationParametersForm = ({ jobParams, setJobParams }) => {
   return (
     <div className="space-y-4 rounded border p-4">
       <h4 className="font-semibold">날씨 변경 알림 설정</h4>
-      
-      <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-        <p>📢 이 작업은 활성 여행 플랜의 날씨 변화를 감지하고 사용자에게 알림을 전송합니다.</p>
+
+      <div className="rounded bg-blue-50 p-3 text-sm text-gray-600">
+        <p>
+          📢 이 작업은 활성 여행 플랜의 날씨 변화를 감지하고 사용자에게 알림을
+          전송합니다.
+        </p>
         <p>• 온도 변화 5도 이상 또는 강수 확률 30% 이상 변화 시 알림</p>
         <p>• 하루에 한 번만 알림 (중복 방지)</p>
       </div>
@@ -1248,7 +1244,9 @@ const WeatherNotificationParametersForm = ({ jobParams, setJobParams }) => {
             <div key={region.value} className="flex items-center space-x-2">
               <Checkbox
                 id={`weather-notification-region-${region.value}`}
-                checked={jobParams.weather_notification_regions.includes(region.value)}
+                checked={jobParams.weather_notification_regions.includes(
+                  region.value,
+                )}
                 onCheckedChange={(checked) =>
                   handleRegionChange(region.value, checked)
                 }
@@ -1280,7 +1278,7 @@ const WeatherNotificationParametersForm = ({ jobParams, setJobParams }) => {
             }))
           }
         />
-        <div className="text-sm text-gray-500 mt-1">
+        <div className="mt-1 text-sm text-gray-500">
           사용자 외에 추가로 알림을 받을 관리자 이메일
         </div>
       </div>

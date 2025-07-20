@@ -75,6 +75,15 @@ export const batchApi = createApi({
       ],
     }),
 
+    // 배치 작업 삭제
+    deleteBatchJob: builder.mutation({
+      query: (jobId) => ({
+        url: `/api/batch/jobs/${jobId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['BatchJob', 'BatchStats'],
+    }),
+
     // 배치 작업 통계 조회
     getBatchStatistics: builder.query({
       query: (params = {}) => {
@@ -97,6 +106,7 @@ export const {
   useGetBatchJobStatusQuery,
   useGetBatchJobLogsQuery,
   useStopBatchJobMutation,
+  useDeleteBatchJobMutation,
   useGetBatchStatisticsQuery,
 } = batchApi
 
