@@ -56,7 +56,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Link } from 'react-router-dom'
 import { REGION_MAP } from '@/constants/region'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { formatTableValue, formatAddress, formatDate, formatTel } from '@/utils/dataHelpers'
@@ -439,12 +438,9 @@ export function TouristAttractionsSection() {
                     <TableRow key={attraction.content_id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <Link
-                            to={`/tourist-attractions/${attraction.content_id}`}
-                            className="text-primary font-medium hover:underline"
-                          >
+                          <span className="font-medium">
                             {formatTableValue(attraction.attraction_name)}
-                          </Link>
+                          </span>
                           {attraction.description && (
                             <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
                               {attraction.description.length > 80
@@ -1031,12 +1027,9 @@ export function AccommodationsSection() {
                     <TableRow key={accommodation.content_id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <Link
-                            to={`/accommodations/${accommodation.content_id}`}
-                            className="text-primary font-medium hover:underline"
-                          >
+                          <span className="font-medium">
                             {formatTableValue(accommodation.accommodation_name)}
-                          </Link>
+                          </span>
                           {accommodation.description && (
                             <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
                               {accommodation.description.length > 80
@@ -1641,12 +1634,9 @@ export function RestaurantsSection() {
                     <TableRow key={restaurant.content_id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <Link
-                            to={`/restaurants/${restaurant.content_id}`}
-                            className="text-primary font-medium hover:underline"
-                          >
+                          <span className="font-medium">
                             {formatTableValue(restaurant.restaurant_name)}
-                          </Link>
+                          </span>
                           {restaurant.description && (
                             <p className="text-muted-foreground line-clamp-2 max-w-[300px] text-xs">
                               {restaurant.description.length > 80
