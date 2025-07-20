@@ -573,9 +573,27 @@ const BatchManagement = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">
-                          {statsData.statistics_by_type
-                            ?.reduce((sum, stat) => sum + stat.success_rate, 0)
-                            ?.toFixed(1) || 0}
+                          {statsData.statistics_by_type &&
+                          statsData.statistics_by_type.length > 0
+                            ? (() => {
+                                // 가중 평균 계산 (작업 수를 고려한 평균)
+                                const totalJobs =
+                                  statsData.statistics_by_type.reduce(
+                                    (sum, stat) => sum + stat.total_count,
+                                    0,
+                                  )
+                                const weightedSum =
+                                  statsData.statistics_by_type.reduce(
+                                    (sum, stat) =>
+                                      sum +
+                                      stat.success_rate * stat.total_count,
+                                    0,
+                                  )
+                                return totalJobs > 0
+                                  ? (weightedSum / totalJobs).toFixed(1)
+                                  : '0.0'
+                              })()
+                            : '0.0'}
                           %
                         </div>
                         <div className="text-sm text-gray-600">평균 성공률</div>
