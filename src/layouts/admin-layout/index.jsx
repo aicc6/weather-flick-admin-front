@@ -17,7 +17,6 @@ import {
   ChevronDown,
   Sun,
   Moon,
-  Bell,
   User,
   Shield,
   Map,
@@ -188,16 +187,6 @@ export function AdminLayout({ children }) {
               ) : (
                 <Moon className="h-5 w-5" />
               )}
-            </Button>
-
-            {/* Notifications */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground relative"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="bg-destructive absolute top-1 right-1 h-2 w-2 rounded-full" />
             </Button>
 
             {/* User Menu */}

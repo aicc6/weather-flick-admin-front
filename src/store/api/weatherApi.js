@@ -69,6 +69,40 @@ export const weatherApi = createApi({
       providesTags: ['Weather'],
       keepUnusedDataFor: 60, // 1분
     }),
+
+    // 날씨 데이터 수집 통계 조회
+    getCollectionStats: builder.query({
+      query: () => '/api/weather/collect/stats',
+      providesTags: ['WeatherStats'],
+      keepUnusedDataFor: 30, // 30초
+    }),
+
+    // 모든 도시 날씨 데이터 수집
+    collectAllCities: builder.mutation({
+      query: () => ({
+        url: '/api/weather/collect/all',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Weather', 'WeatherStats'],
+    }),
+
+    // 현재 날씨만 수집
+    collectCurrentWeather: builder.mutation({
+      query: () => ({
+        url: '/api/weather/collect/current',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Weather', 'WeatherStats'],
+    }),
+
+    // 빈 날씨 데이터 업데이트
+    updateEmptyWeatherData: builder.mutation({
+      query: () => ({
+        url: '/api/weather/update-empty-data',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Weather', 'WeatherStats'],
+    }),
   }),
 })
 
@@ -79,4 +113,8 @@ export const {
   useGetAvailableRegionsQuery,
   useGetLatestWeatherDataQuery,
   useGetForecastWeatherDataQuery,
+  useGetCollectionStatsQuery,
+  useCollectAllCitiesMutation,
+  useCollectCurrentWeatherMutation,
+  useUpdateEmptyWeatherDataMutation,
 } = weatherApi

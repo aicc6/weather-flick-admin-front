@@ -1,8 +1,11 @@
 
+import { useState } from 'react'
 import { WeatherStatsCard } from '@/components/common/WeatherStatsCard'
+import WeatherDetailModal from '@/components/weather/WeatherDetailModal'
 import { getWeatherIcon } from '@/utils/weatherUtils'
 import { useGetForecastWeatherDataQuery } from '@/store/api/weatherApi'
 import { PageContainer, PageHeader, ContentSection } from '@/layouts'
+import { Card } from '@/components/ui/card'
 
 // 날짜 포맷팅 헬퍼 함수
 function formatDateTime(dateString) {
@@ -16,14 +19,22 @@ function formatDateTime(dateString) {
 }
 
 function WeatherRealtimePage() {
+  const [selectedWeather, setSelectedWeather] = useState(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+
   // RTK Query로 weather_forecasts 테이블에서 데이터 가져오기 (1분마다 자동 갱신)
   const {
     data: weatherList = [],
     isLoading: loading,
     error,
-  } = useGetForecastWeatherDataQuery(20, {
+  } = useGetForecastWeatherDataQuery(50, {
     pollingInterval: 60000, // 60초마다 자동 새로고침
   })
+
+  const handleWeatherClick = (weather) => {
+    setSelectedWeather(weather)
+    setIsDetailModalOpen(true)
+  }
 
   return (
     <PageContainer>
@@ -33,19 +44,18 @@ function WeatherRealtimePage() {
       />
 
       {/* 요약 통계 카드 (대시보드 스타일) */}
-      <ContentSection transparent>
+      <ContentSection transparent className="mt-6">
         <WeatherStatsCard weatherData={weatherList} />
       </ContentSection>
-
 
       {/* 도시별 요약 카드 (가로 스크롤) */}
       {weatherList.length > 0 && (
         <ContentSection>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">도시별 요약</h3>
+              <h3 className="text-lg font-semibold">도시별 상세 날씨</h3>
               <p className="text-muted-foreground text-sm">
-                주요 도시의 현재 날씨를 한눈에 확인
+                클릭하여 상세 정보를 확인하세요
               </p>
             </div>
             {weatherList.length > 0 && weatherList[0].last_updated && (
@@ -54,39 +64,35 @@ function WeatherRealtimePage() {
               </div>
             )}
           </div>
-          <div className="flex gap-4 overflow-x-auto py-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {weatherList.map((item) => (
-              <div
+              <Card
                 key={item.id}
-                className="bg-muted flex min-w-[160px] flex-col items-center rounded-lg border px-3 py-3"
-                style={{ flex: '0 0 160px' }}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handleWeatherClick(item)}
               >
-                <div className="mb-1 text-sm font-semibold text-blue-900">
-                  {item.city_name}
-                </div>
-                <div className="mb-1 text-2xl font-bold text-blue-600">
-                  {item.temperature}°
-                </div>
-                <div className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  <span>{item.min_temp}°</span>
-                  <span>/</span>
-                  <span>{item.max_temp}°</span>
-                </div>
-                <div className="mb-1">
-                  {getWeatherIcon(item.weather_description)}
-                </div>
-                <div className="text-muted-foreground min-h-[18px] text-center text-xs">
-                  {item.weather_description}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {item.forecast_date && (
-                    <div>예보: {formatDateTime(item.forecast_date)}</div>
-                  )}
-                  {item.last_updated && (
-                    <div>수집: {formatDateTime(item.last_updated)}</div>
+                <div className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">{item.city_name}</h4>
+                    {getWeatherIcon(item.weather_description)}
+                  </div>
+                  <div className="text-3xl font-bold">
+                    {item.temperature}°
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>최저 {item.min_temp}°</span>
+                    <span>최고 {item.max_temp}°</span>
+                  </div>
+                  <div className="text-sm">
+                    {item.weather_description}
+                  </div>
+                  {item.precipitation_prob > 0 && (
+                    <div className="text-sm text-blue-600">
+                      강수확률 {item.precipitation_prob}%
+                    </div>
                   )}
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </ContentSection>
@@ -104,11 +110,16 @@ function WeatherRealtimePage() {
           </p>
         </div>
       )}
+
+      {/* 날씨 상세 정보 모달 */}
+      <WeatherDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        weatherData={selectedWeather}
+      />
     </PageContainer>
   )
 }
 
 export default WeatherRealtimePage
 export const WeatherPage = WeatherRealtimePage
-
-// 최신 도시별 날씨 데이터를 가져오는 함수는 더 이상 필요하지 않음 (RTK Query로 대체)
