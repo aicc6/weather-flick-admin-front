@@ -221,7 +221,9 @@ const BatchManagement = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('ko-KR')
+    return new Date(dateString).toLocaleString('ko-KR', {
+      timeZone: 'Asia/Seoul'
+    })
   }
 
   const formatDuration = (seconds) => {

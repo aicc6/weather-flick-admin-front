@@ -70,6 +70,17 @@ export const weatherApi = createApi({
       keepUnusedDataFor: 60, // 1분
     }),
 
+    // weather_current 테이블에서 실시간 날씨 데이터 조회
+    getCurrentWeatherData: builder.query({
+      query: (limit = 20) =>
+        `/api/weather/database/current-data?limit=${limit}`,
+      transformResponse: (response) => {
+        return response.data || response || []
+      },
+      providesTags: ['Weather'],
+      keepUnusedDataFor: 60, // 1분
+    }),
+
     // 날씨 데이터 수집 통계 조회
     getCollectionStats: builder.query({
       query: () => '/api/weather/collect/stats',
@@ -113,6 +124,7 @@ export const {
   useGetAvailableRegionsQuery,
   useGetLatestWeatherDataQuery,
   useGetForecastWeatherDataQuery,
+  useGetCurrentWeatherDataQuery,
   useGetCollectionStatsQuery,
   useCollectAllCitiesMutation,
   useCollectCurrentWeatherMutation,

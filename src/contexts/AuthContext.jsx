@@ -70,8 +70,48 @@ export const AuthProvider = ({ children }) => {
       return { success: true }
     } catch (error) {
       console.error('Login failed:', error)
-      const errorMessage =
-        error.data?.detail || error.message || '로그인에 실패했습니다.'
+      
+      // FastAPI validation error 처리 - 사용자 친화적 메시지
+      let errorMessage = '로그인에 실패했습니다.'
+      
+      if (error.data?.detail) {
+        if (Array.isArray(error.data.detail)) {
+          // 필드별 한국어 메시지 매핑
+          const fieldMessages = {
+            'username': '이메일을 입력해주세요.',
+            'password': '비밀번호를 입력해주세요.',
+            'email': '이메일을 입력해주세요.'
+          }
+          
+          // FastAPI validation errors를 사용자 친화적 메시지로 변환
+          const messages = error.data.detail.map(err => {
+            // loc 배열에서 실제 필드명 추출 (예: ["body", "username"] -> "username")
+            const fieldName = err.loc && err.loc.length > 1 ? err.loc[err.loc.length - 1] : null
+            
+            // 필드별 한국어 메시지 또는 기본 메시지 사용
+            if (fieldName && fieldMessages[fieldName]) {
+              return fieldMessages[fieldName]
+            } else if (err.msg) {
+              // 기본 영어 메시지를 한국어로 변환
+              if (err.msg.includes('Field required')) {
+                return '필수 정보를 입력해주세요.'
+              } else if (err.msg.includes('Invalid')) {
+                return '올바른 형식으로 입력해주세요.'
+              }
+              return err.msg
+            }
+            return '유효하지 않은 입력입니다.'
+          })
+          
+          // 중복 메시지 제거 후 조합
+          errorMessage = [...new Set(messages)].join(' ')
+        } else if (typeof error.data.detail === 'string') {
+          errorMessage = error.data.detail
+        }
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
       dispatch(setError(errorMessage))
       return {
         success: false,

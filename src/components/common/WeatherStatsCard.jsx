@@ -8,15 +8,23 @@ import {
 } from '@/components/ui/card'
 import { calculateWeatherStats } from '@/utils/weatherUtils.jsx'
 
-// 날짜 포맷팅 헬퍼 함수
+// 날짜 포맷팅 헬퍼 함수 (KST 타임존 적용)
 function formatDateTime(dateString) {
   if (!dateString) return '정보 없음'
-  const date = new Date(dateString)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hours = date.getHours()
-  const minutes = date.getMinutes()
-  return `${month}/${day} ${hours}:${minutes.toString().padStart(2, '0')}`
+  try {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat('ko-KR', {
+      month: 'numeric',
+      day: 'numeric', 
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Seoul'
+    }).format(date)
+  } catch (error) {
+    console.warn('날씨 업데이트 시간 형식 오류:', dateString, error)
+    return '형식 오류'
+  }
 }
 
 export function WeatherStatsCard({ weatherData }) {
@@ -25,9 +33,9 @@ export function WeatherStatsCard({ weatherData }) {
   // weatherData가 배열인지 확인
   const dataArray = Array.isArray(weatherData) ? weatherData : []
   
-  // 가장 최근 업데이트 시간 찾기
+  // 가장 최근 업데이트 시간 찾기 (실제 데이터 수집 시간)
   const mostRecentUpdate = dataArray.reduce((latest, item) => {
-    const updateTime = item.last_updated || item.forecast_date
+    const updateTime = item.last_updated
     if (!updateTime) return latest
     if (!latest) return updateTime
     return new Date(updateTime) > new Date(latest) ? updateTime : latest

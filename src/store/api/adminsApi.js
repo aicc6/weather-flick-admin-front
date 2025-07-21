@@ -96,7 +96,7 @@ export const adminsApi = createApi({
     }),
 
     getRoles: builder.query({
-      query: () => '/api/admins/roles',
+      query: () => '/api/rbac/roles',
       providesTags: ['Role'],
     }),
 
@@ -107,7 +107,7 @@ export const adminsApi = createApi({
 
     createRole: builder.mutation({
       query: (roleData) => ({
-        url: '/api/admins/roles',
+        url: '/api/rbac/roles',
         method: 'POST',
         body: roleData,
       }),
@@ -116,7 +116,7 @@ export const adminsApi = createApi({
 
     updateRole: builder.mutation({
       query: ({ roleId, data }) => ({
-        url: `/api/admins/roles/${roleId}`,
+        url: `/api/rbac/roles/${roleId}`,
         method: 'PUT',
         body: data,
       }),
@@ -125,7 +125,7 @@ export const adminsApi = createApi({
 
     deleteRole: builder.mutation({
       query: (roleId) => ({
-        url: `/api/admins/roles/${roleId}`,
+        url: `/api/rbac/roles/${roleId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Role'],
@@ -141,7 +141,7 @@ export const adminsApi = createApi({
     }),
 
     getPermissions: builder.query({
-      query: () => '/api/admins/permissions',
+      query: () => '/api/rbac/permissions',
       providesTags: ['Role'],
     }),
   }),

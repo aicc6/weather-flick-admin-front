@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWebSocketLogs } from '@/hooks/useWebSocketLogs';
-import { Loader2, Download, Trash2, Wifi, WifiOff } from 'lucide-react';
+import { Loader2, Download, Trash2, Wifi, WifiOff, ArrowDown, ArrowDownToLine } from 'lucide-react';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -19,21 +19,61 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
   const { logs, isConnected, error, clearLogs, currentStep, progress } = useWebSocketLogs(jobId);
   const scrollAreaRef = useRef(null);
   const shouldAutoScrollRef = useRef(true);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  useEffect(() => {
-    // 새 로그가 추가될 때 자동 스크롤
-    if (shouldAutoScrollRef.current && scrollAreaRef.current) {
+  // 자동 스크롤 함수
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     }
-  }, [logs]);
+  };
+
+  useEffect(() => {
+    // 새 로그가 추가될 때 자동 스크롤 (자동 스크롤이 활성화된 경우만)
+    if (isAutoScrollEnabled && scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        // 부드러운 스크롤로 하단으로 이동
+        requestAnimationFrame(() => {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: 'smooth'
+          });
+        });
+      }
+    }
+  }, [logs, isAutoScrollEnabled]);
 
   const handleScroll = (event) => {
     const { scrollTop, scrollHeight, clientHeight } = event.target;
-    // 스크롤이 하단에서 100px 이내에 있으면 자동 스크롤 활성화
-    shouldAutoScrollRef.current = scrollHeight - scrollTop - clientHeight < 100;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    
+    // 하단에서 50px 이내에 있으면 자동 스크롤 활성화
+    const isNearBottom = distanceFromBottom < 50;
+    const newAutoScrollState = isNearBottom;
+    
+    // 상태 업데이트
+    if (newAutoScrollState !== isAutoScrollEnabled) {
+      setIsAutoScrollEnabled(newAutoScrollState);
+      shouldAutoScrollRef.current = newAutoScrollState;
+    }
+    
+    // 스크롤 버튼 표시 여부 (하단에서 100px 이상 떨어져 있으면 표시)
+    setShowScrollToBottom(distanceFromBottom > 100);
+  };
+
+  // 수동으로 하단으로 스크롤하는 함수
+  const handleScrollToBottom = () => {
+    setIsAutoScrollEnabled(true);
+    shouldAutoScrollRef.current = true;
+    scrollToBottom();
   };
 
   const handleExportLogs = () => {
@@ -71,6 +111,18 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
                 연결 끊김
               </Badge>
             )}
+            {/* 자동 스크롤 상태 표시 */}
+            {logs.length > 0 && (
+              <Badge 
+                variant={isAutoScrollEnabled ? "default" : "secondary"} 
+                className={`flex items-center gap-1 text-xs ${
+                  isAutoScrollEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                <ArrowDownToLine className="h-3 w-3" />
+                {isAutoScrollEnabled ? '자동 스크롤' : '수동 스크롤'}
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -103,7 +155,7 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
           </div>
         )}
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
+      <CardContent className="flex-1 overflow-hidden relative">
         <ScrollArea 
           ref={scrollAreaRef}
           className="h-full w-full"
@@ -151,6 +203,18 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
             )}
           </div>
         </ScrollArea>
+        
+        {/* 플로팅 스크롤 하단 버튼 */}
+        {showScrollToBottom && (
+          <Button
+            onClick={handleScrollToBottom}
+            size="sm"
+            className="absolute bottom-4 right-4 shadow-lg z-10 bg-primary hover:bg-primary/90"
+            title="하단으로 스크롤"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
