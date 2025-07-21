@@ -56,7 +56,7 @@ export default defineConfig({
   ],
   esbuild: {
     target: 'es2015',
-    keepNames: true,
+    keepNames: false, // __name 함수 충돌 방지
   },
   server: {
     allowedHosts: true,
@@ -77,8 +77,9 @@ export default defineConfig({
         drop_debugger: true, // debugger 제거
       },
       mangle: {
-        keep_classnames: false, // 클래스명 압축
-        keep_fnames: false, // 함수명 압축
+        keep_classnames: true, // 클래스명 유지 (Redux 호환성)
+        keep_fnames: false, // 함수명 유지 비활성화 (__name 충돌 방지)
+        reserved: ['useSyncExternalStoreWithSelector', 'useSyncExternalStore'], // Redux 핵심 함수명 보호
       },
     },
     sourcemap: false,
@@ -89,20 +90,20 @@ export default defineConfig({
         manualChunks: (id) => {
           // Node modules 세분화
           if (id.includes('node_modules')) {
-            // React 코어
-            if (id.includes('react') && !id.includes('react-router') && !id.includes('react-redux')) {
+            // Redux 생태계 (먼저 체크하여 React와 함께 유지)
+            if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || 
+                id.includes('redux') || id.includes('immer') || id.includes('reselect')) {
+              return 'redux-vendor';
+            }
+            
+            // React 코어 (react-redux 제외하지 않음)
+            if (id.includes('react') && !id.includes('react-router')) {
               return 'react-core';
             }
             
             // React 라우터
             if (id.includes('react-router')) {
               return 'react-router';
-            }
-            
-            // Redux 생태계
-            if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || 
-                id.includes('redux') || id.includes('immer') || id.includes('reselect')) {
-              return 'redux-vendor';
             }
             
             // UI 컴포넌트
@@ -185,6 +186,7 @@ export default defineConfig({
     ],
     esbuildOptions: {
       target: 'es2015',
+      keepNames: false, // __name 함수 충돌 방지
     },
   },
   define: {
