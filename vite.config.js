@@ -88,85 +88,20 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Node modules 세분화
           if (id.includes('node_modules')) {
-            // Redux 생태계 (먼저 체크하여 React와 함께 유지)
-            if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || 
-                id.includes('redux') || id.includes('immer') || id.includes('reselect')) {
-              return 'redux-vendor';
-            }
-            
-            // React 코어 (react-redux 제외하지 않음)
-            if (id.includes('react') && !id.includes('react-router')) {
-              return 'react-core';
-            }
-            
-            // React 라우터
-            if (id.includes('react-router')) {
-              return 'react-router';
-            }
-            
-            // UI 컴포넌트
+            // UI 라이브러리들만 분리
             if (id.includes('@radix-ui')) {
-              return 'radix-ui';
+              return 'ui-lib';
             }
             
-            // 아이콘
-            if (id.includes('lucide-react')) {
-              return 'icons';
+            // 차트 라이브러리들만 분리
+            if (id.includes('recharts') || id.includes('d3')) {
+              return 'charts';
             }
             
-            // 차트 라이브러리 (세분화)
-            if (id.includes('recharts')) {
-              return 'recharts-vendor';
-            }
-            
-            if (id.includes('d3')) {
-              return 'd3-vendor';
-            }
-            
-            // 폼 관련
-            if (id.includes('react-hook-form') || id.includes('zod')) {
-              return 'forms';
-            }
-            
-            // 유틸리티
-            if (id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance-authority')) {
-              return 'utils';
-            }
-            
-            // 기타 vendor
+            // React와 Redux 관련 모든 라이브러리를 vendor에 통합
+            // 분리하지 않고 모두 함께 번들링하여 Children 오류 방지
             return 'vendor';
-          }
-
-          // 페이지별 청크 분리 (더 세분화)
-          if (id.includes('src/pages/')) {
-            if (id.includes('main')) return 'main-page';
-            if (id.includes('users')) return 'users-page';
-            if (id.includes('admins')) return 'admins-page';
-            if (id.includes('weather')) return 'weather-page';
-            if (id.includes('system')) return 'system-page';
-            if (id.includes('content')) return 'content-page';
-            if (id.includes('batch')) return 'batch-page';
-            return 'pages';
-          }
-
-          // 컴포넌트별 분리
-          if (id.includes('src/components/')) {
-            if (id.includes('ui/')) return 'ui-components';
-            if (id.includes('layout/')) return 'layout-components';
-            if (id.includes('charts/') || id.includes('dashboard/')) return 'chart-components';
-            return 'components';
-          }
-
-          // 인증 관련
-          if (id.includes('contexts/AuthContext') || id.includes('auth/')) {
-            return 'auth';
-          }
-
-          // Store/API 관련
-          if (id.includes('store/') || id.includes('api/')) {
-            return 'store-api';
           }
         },
       },
