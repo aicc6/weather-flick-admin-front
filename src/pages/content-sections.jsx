@@ -452,7 +452,7 @@ export function TouristAttractionsSection() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {REGION_MAP[attraction.region_code] || attraction.region_code}
+                          {attraction.region_name || REGION_MAP[attraction.region_code] || attraction.region_code}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -1041,7 +1041,7 @@ export function AccommodationsSection() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {REGION_MAP[accommodation.region_code] || accommodation.region_code}
+                          {accommodation.region_name || REGION_MAP[accommodation.region_code] || accommodation.region_code}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
@@ -1648,7 +1648,7 @@ export function RestaurantsSection() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {REGION_MAP[restaurant.region_code] || restaurant.region_code}
+                          {restaurant.region_name || REGION_MAP[restaurant.region_code] || restaurant.region_code}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
