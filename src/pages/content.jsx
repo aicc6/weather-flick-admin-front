@@ -1565,6 +1565,7 @@ function LeisureSportsSection() {
   const [form, setForm] = useState({
     facility_name: '',
     region_code: '',
+    category_code: '',
     sports_type: '',
     admission_fee: '',
     parking_info: '',
@@ -1591,6 +1592,7 @@ function LeisureSportsSection() {
     setForm({
       facility_name: '',
       region_code: '',
+      category_code: '',
       sports_type: '',
       admission_fee: '',
       parking_info: '',
