@@ -197,6 +197,10 @@ export function TouristAttractionsSection() {
         ...form,
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
+        // region_code가 한 자리 숫자인 경우 앞에 0을 붙여서 전송
+        region_code: form.region_code && form.region_code.length === 1 
+          ? form.region_code.padStart(2, '0') 
+          : form.region_code,
       }
       
       if (editData) {
@@ -1396,7 +1400,15 @@ export function RestaurantsSection() {
         ...form,
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
+        // region_code가 한 자리 숫자인 경우 앞에 0을 붙여서 전송
+        region_code: form.region_code && form.region_code.length === 1 
+          ? form.region_code.padStart(2, '0') 
+          : form.region_code,
+        // category_name을 cuisine_type으로 매핑
+        cuisine_type: form.category_name,
       }
+      // category_name은 백엔드에서 사용하지 않으므로 제거
+      delete formData.category_name;
       
       if (editData) {
         await updateRestaurant({ 
@@ -1717,7 +1729,7 @@ export function RestaurantsSection() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label htmlFor="restaurant_name" className="text-sm font-medium">
-                  음식점명
+                  음식점명 <span className="text-red-500">*</span>
                 </label>
                 <Input
                   id="restaurant_name"
@@ -1730,13 +1742,14 @@ export function RestaurantsSection() {
               </div>
               <div className="space-y-2">
                 <label htmlFor="region_code" className="text-sm font-medium">
-                  지역
+                  지역 <span className="text-red-500">*</span>
                 </label>
                 <Select
                   value={form.region_code}
                   onValueChange={(value) =>
                     setForm((f) => ({ ...f, region_code: value }))
                   }
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="지역 선택" />
@@ -1829,7 +1842,7 @@ export function RestaurantsSection() {
             </div>
             <div className="space-y-2">
               <label htmlFor="address" className="text-sm font-medium">
-                주소
+                주소 <span className="text-red-500">*</span>
               </label>
               <Input
                 id="address"
@@ -1837,6 +1850,7 @@ export function RestaurantsSection() {
                 value={form.address}
                 onChange={handleChange}
                 placeholder="전체 주소"
+                required
               />
             </div>
             <div className="space-y-2">

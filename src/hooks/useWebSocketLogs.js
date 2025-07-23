@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-const WEBSOCKET_URL = 'ws://localhost:9090/api/ws';
+const WEBSOCKET_URL = 'ws://localhost:9000/api/ws';
 
 export const useWebSocketLogs = (jobId, apiKey = 'batch-api-secret-key') => {
   const [logs, setLogs] = useState([]);
@@ -11,6 +11,8 @@ export const useWebSocketLogs = (jobId, apiKey = 'batch-api-secret-key') => {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const reconnectAttemptsRef = useRef(0);
+  const maxReconnectAttempts = 10;
+  const maxReconnectDelay = 30000; // 30초
 
   const connect = useCallback(() => {
     if (!jobId) return;
@@ -24,6 +26,9 @@ export const useWebSocketLogs = (jobId, apiKey = 'batch-api-secret-key') => {
         setIsConnected(true);
         setError(null);
         reconnectAttemptsRef.current = 0;
+        
+        // 연결 성공 메시지
+        console.log('배치 작업 로그 스트리밍 연결 성공');
       };
 
       ws.onmessage = (event) => {
@@ -57,7 +62,13 @@ export const useWebSocketLogs = (jobId, apiKey = 'batch-api-secret-key') => {
 
       ws.onerror = (event) => {
         console.error('WebSocket 오류:', event);
-        setError('WebSocket 연결 오류가 발생했습니다.');
+        
+        // 더 자세한 에러 메시지
+        if (!isConnected) {
+          setError('배치 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+        } else {
+          setError('WebSocket 연결 중 오류가 발생했습니다.');
+        }
       };
 
       ws.onclose = (event) => {
@@ -65,22 +76,30 @@ export const useWebSocketLogs = (jobId, apiKey = 'batch-api-secret-key') => {
         setIsConnected(false);
         wsRef.current = null;
 
-        // 재연결 시도
-        if (reconnectAttemptsRef.current < 5) {
-          const timeout = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-          console.log(`${timeout}ms 후 재연결 시도...`);
+        // 정상적인 종료가 아닌 경우에만 재연결 시도
+        if (event.code !== 1000 && reconnectAttemptsRef.current < maxReconnectAttempts) {
+          const timeout = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), maxReconnectDelay);
+          const attemptNumber = reconnectAttemptsRef.current + 1;
+          console.log(`재연결 시도 ${attemptNumber}/${maxReconnectAttempts} - ${timeout}ms 후...`);
+          
+          setError(`연결이 끊어졌습니다. 재연결 시도 중... (${attemptNumber}/${maxReconnectAttempts})`);
           
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectAttemptsRef.current++;
             connect();
           }, timeout);
+        } else if (event.code === 1000) {
+          // 정상 종료
+          setError(null);
+          console.log('WebSocket 연결이 정상적으로 종료되었습니다.');
         } else {
-          setError('서버와의 연결이 끊어졌습니다. 페이지를 새로고침해주세요.');
+          // 최대 재시도 횟수 초과
+          setError('서버와의 연결을 복구할 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의해주세요.');
         }
       };
     } catch (err) {
       console.error('WebSocket 연결 실패:', err);
-      setError('WebSocket 연결에 실패했습니다.');
+      setError(`배치 서버 연결 실패: ${err.message || 'Unknown error'}`);
     }
   }, [jobId, apiKey]);
 

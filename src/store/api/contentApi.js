@@ -365,7 +365,7 @@ export const restaurantsApi = createApi({
     }),
     createRestaurant: builder.mutation({
       query: (data) => ({
-        url: '/api/restaurants',
+        url: '/api/restaurants/',
         method: 'POST',
         body: data,
       }),
@@ -428,7 +428,7 @@ export const touristAttractionsApi = createApi({
     }),
     createTouristAttraction: builder.mutation({
       query: (data) => ({
-        url: '/api/tourist-attractions',
+        url: '/api/tourist-attractions/',
         method: 'POST',
         body: data,
       }),

@@ -1554,7 +1554,7 @@ function LeisureSportsSection() {
     skip: offset,
     limit,
     facility_name: searchName,
-    region_code: searchRegion,
+    region_code: searchRegion === 'all' ? '' : searchRegion,
   })
 
   const [createLeisureSport] = useCreateLeisureSportMutation()
@@ -1570,6 +1570,10 @@ function LeisureSportsSection() {
     parking_info: '',
     tel: '',
     first_image: '',
+    address: '',
+    operating_hours: '',
+    latitude: '',
+    longitude: '',
   })
   const [errorMsg, setErrorMsg] = useState(null)
 
@@ -1592,6 +1596,10 @@ function LeisureSportsSection() {
       parking_info: '',
       tel: '',
       first_image: '',
+      address: '',
+      operating_hours: '',
+      latitude: '',
+      longitude: '',
     })
     setModalOpen(true)
   }
@@ -1616,13 +1624,19 @@ function LeisureSportsSection() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      const formData = {
+        ...form,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+      }
+      
       if (editData) {
         await updateLeisureSport({
           content_id: editData.content_id,
-          data: form,
-        })
+          data: formData,
+        }).unwrap()
       } else {
-        await createLeisureSport(form)
+        await createLeisureSport(formData).unwrap()
       }
       setModalOpen(false)
       refetch()

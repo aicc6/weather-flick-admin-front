@@ -112,9 +112,17 @@ export const AdminsPage = () => {
 
   const handleUpdateAdmin = async () => {
     try {
+      // 비밀번호가 비어있으면 제외
+      const updateData = { ...formData }
+      if (!updateData.password) {
+        delete updateData.password
+      }
+      
+      console.log('관리자 업데이트 시도:', selectedAdmin.admin_id, updateData)
+      
       await updateAdminMutation({
-        adminId: selectedAdmin.admin_id,
-        data: formData,
+        id: selectedAdmin.admin_id,  // adminId가 아닌 id로 변경
+        data: updateData,
       }).unwrap()
       setIsEditDialogOpen(false)
       setSelectedAdmin(null)
@@ -127,6 +135,7 @@ export const AdminsPage = () => {
       })
     } catch (error) {
       console.error('관리자 수정에 실패했습니다:', error)
+      alert(error.data?.detail || '관리자 수정에 실패했습니다.')
     }
   }
 
@@ -310,6 +319,7 @@ export const AdminsPage = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => {
+                          console.log('관리자 수정 버튼 클릭:', admin)
                           setSelectedAdmin(admin)
                           setFormData({
                             email: admin.email,

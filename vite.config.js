@@ -41,12 +41,12 @@ export default defineConfig({
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' http://localhost:9000 ws://localhost:9090", // 관리자 백엔드 및 배치 WebSocket 허용
+              "connect-src 'self' http://localhost:9000 ws://localhost:9000", // 관리자 백엔드 및 WebSocket 허용
               "frame-src 'none'", // 관리자에서는 프레임 완전 차단
               "object-src 'none'",
               "base-uri 'self'",
-              "form-action 'self'",
-              "upgrade-insecure-requests"
+              "form-action 'self'"
+              // "upgrade-insecure-requests" 제거 - 개발 환경에서 HTTP 요청 허용
             ].join('; ')
           );
           next();

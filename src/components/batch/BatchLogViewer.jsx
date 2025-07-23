@@ -146,7 +146,12 @@ function BatchLogViewer({ jobId, jobType, onClose }) {
           </div>
         </div>
         {error && (
-          <div className="mt-2 text-sm text-red-600">{error}</div>
+          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-800 flex items-center gap-2">
+              <WifiOff className="h-4 w-4" />
+              {error}
+            </p>
+          </div>
         )}
         {currentStep && (
           <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">

@@ -38,7 +38,7 @@ export const adminsApi = createApi({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Admin', id }],
+      invalidatesTags: ['Admin'],
     }),
 
     deleteAdmin: builder.mutation({
@@ -96,7 +96,7 @@ export const adminsApi = createApi({
     }),
 
     getRoles: builder.query({
-      query: () => '/api/rbac/roles',
+      query: () => '/api/admins/roles',
       providesTags: ['Role'],
     }),
 

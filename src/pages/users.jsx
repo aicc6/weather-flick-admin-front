@@ -269,6 +269,7 @@ export const UsersPage = () => {
 
   const handleHardDeleteItem = async () => {
     if (!actionUser) return
+    console.log('영구 삭제 시도:', actionUser)
     try {
       await hardDeleteUser(actionUser.user_id).unwrap()
       setIsHardDeleteDialogOpen(false)
@@ -496,8 +497,9 @@ export const UsersPage = () => {
                           className="ml-2 text-white"
                           onClick={(e) => {
                             e.stopPropagation()
+                            console.log('영구 삭제 버튼 클릭:', item)
                             setActionUser(item)
-                            setTimeout(() => setIsHardDeleteDialogOpen(true), 0)
+                            setIsHardDeleteDialogOpen(true)
                           }}
                         >
                           영구 삭제
@@ -754,7 +756,10 @@ export const UsersPage = () => {
       {/* 영구 삭제 확인 다이얼로그 */}
       <AlertDialog
         open={isHardDeleteDialogOpen}
-        onOpenChange={setIsHardDeleteDialogOpen}
+        onOpenChange={(open) => {
+          setIsHardDeleteDialogOpen(open)
+          if (!open) setActionUser(null)
+        }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
